@@ -3,7 +3,7 @@ import Sidebar from '../../Sales/Sidebar'
 import { homeSideBarData } from '../../../utils/data'
 import VoucherRegister from '../common/VoucherRegister'
 import BottomNavbar from '../../Sales/BottomNavbar'
-import RegistePageHeader from '../common/RegistePageHeader'
+import RegistePageHeader from '../../common/PageHeader'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/root-reducer'
 

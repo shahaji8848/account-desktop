@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const RegistePageHeader = ({ ragisterName, company }: any) => {
+const PageHeader = ({ ragisterName, company }: any) => {
     const navigate = useNavigate();
     return (
         <div
@@ -26,4 +26,4 @@ const RegistePageHeader = ({ ragisterName, company }: any) => {
     )
 }
 
-export default RegistePageHeader
+export default PageHeader

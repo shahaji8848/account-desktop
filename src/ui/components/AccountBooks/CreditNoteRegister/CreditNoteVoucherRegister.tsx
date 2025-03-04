@@ -3,7 +3,7 @@ import Sidebar from '../../Sales/Sidebar'
 import { homeSideBarData } from '../../../utils/data'
 import VoucherRegister from '../common/VoucherRegister'
 import BottomNavbar from '../../Sales/BottomNavbar'
-import RegistePageHeader from '../common/RegistePageHeader'
+import PageHeader from '../../common/PageHeader'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/root-reducer'
 
@@ -31,14 +31,13 @@ const CreditNoteVoucherRegister = ({ homeHookData, globalData }: any) => {
         fetchVoucherList();
     }, []);
 
-    console.log("VoucherRegisterList", VoucherRegisterList)
     return (
         <div
             className="w-100 d-flex align-items-stretch justify-content-between"
             style={{ overflow: 'hidden' }}
         >
             <div className="main-body" style={{ width: "86%" }}>
-                <RegistePageHeader ragisterName='Voucher Register' company={companyName} />
+                <PageHeader ragisterName='Voucher Register' company={companyName} />
                 <VoucherRegister
                     homeHookData={homeHookData}
                     globalData={globalData}
