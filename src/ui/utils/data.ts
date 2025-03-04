@@ -169,7 +169,7 @@ export const salesDefaultdata = {
   additional_discount_account: '',
   is_cash_or_non_trade_discount: false,
   currency: 'INR',
-  conversion_rate: '1',
+  conversion_rate: '',
 };
 
 export const dataRef = {

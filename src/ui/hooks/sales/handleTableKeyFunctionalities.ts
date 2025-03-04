@@ -93,9 +93,7 @@ export function handleTableKeyFunctionalities(
           [name]: value,
         });
     } else if (name === 'margin_type') {
-      fieldName === name && showFilter
-        ? focusNextField(tablePopupRef.current.margin_rate_or_amount)
-        : focusNextField(tablePopupRef.current.discount_percentage);
+      focusNextField(tablePopupRef.current.margin_rate_or_amount);
       // handleShowFilter('margin_rate_or_amount');
       setFieldName('margin_rate_or_amount');
       fieldName === name &&
@@ -328,7 +326,7 @@ export function handleTableKeyFunctionalities(
       case 'rate': {
         const data = { ...itemsData };
         data[name] = value;
-        if (data['qty'] !== '') {
+        if (data['qty'] !== '' && data['rate_with_margin'] === '') {
           data['amt'] = Number(value) * Number(data['qty']);
         }
         setFieldName('margin_type');
@@ -360,8 +358,7 @@ export function handleTableKeyFunctionalities(
       case 'discount_percentage': {
         let data = { ...itemsData };
         data[name] = value;
-        // console.log(value, 'value')
-        if (data['qty'] !== '' && value !== '' && value !== '0') {
+        if (data['qty'] !== '') {
           data = calculateDiscountAmt(data, value);
         }
         if (value === '0') {

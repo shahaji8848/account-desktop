@@ -1,4 +1,15 @@
-function ShowFilter({ filteredItems, selectedIndex, fieldname, handleClick, handleItemFocus, handleItemPerClick, type = '', filterListName = 'Items' }: any) {
+function ShowFilter({
+  filteredItems,
+  selectedIndex,
+  fieldname,
+  handleClick,
+  handleItemFocus,
+  handleItemPerClick,
+  type = '',
+  top,
+  right,
+  filterListName = 'Items',
+}: any) {
   // console.log(filterListName);
   return (
     <div
@@ -6,8 +17,8 @@ function ShowFilter({ filteredItems, selectedIndex, fieldname, handleClick, hand
       style={{
         background: '#e1f0fa',
         width: '20%',
-        right: '14%',
-        top: '75px',
+        right: right || '14%',
+        top: top || '75px',
         border: '1px solid #a4b0ad',
         zIndex: '99',
         overflowY: 'scroll',
