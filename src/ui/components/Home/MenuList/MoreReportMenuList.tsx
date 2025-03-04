@@ -2,7 +2,7 @@ import React from "react";
 import { highlightLetter } from "../../../utils/highlightLetter";
 import { DisplayMoreReportAccounts, DisplayMoreReportInventory, DisplayMoreReportStatutory, DisplayMoreReportException } from "../../../utils/menu_list";
 
-const MoreReportMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown, handleClick }: any) => {
+const MoreReportMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown }: any) => {
   return (
     <div className="col-md-5 right-section d-flex flex-column">
       <h6 className="fst-italic text-secondary">Gateway of Tally</h6>
@@ -19,7 +19,7 @@ const MoreReportMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown, handle
               className={`menu-item ${index === 4 ? 'mt-3' : ''} ${index === selectedIndex ? "active" : ""}`}
               tabIndex={0}
               onKeyDown={(e) => handleKeyDown(e, index)}
-              onClick={() => handleClick(index)}
+              onClick={() => console.log(item)}
             >
               {highlightLetter(item.name, item.letter)}
             </li>
@@ -35,7 +35,7 @@ const MoreReportMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown, handle
               className={`menu-item ${index + 6 === selectedIndex ? "active" : ""}`}
               tabIndex={0}
               onKeyDown={(e) => handleKeyDown(e, index + 6)}
-              onClick={() => handleClick(index + 6)}
+              onClick={() => console.log(item)}
             >
               {highlightLetter(item.name, item.letter)}
             </li>
@@ -51,7 +51,7 @@ const MoreReportMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown, handle
               className={`menu-item ${index + 8 === selectedIndex ? "active" : ""}`}
               tabIndex={0}
               onKeyDown={(e) => handleKeyDown(e, index + 8)}
-              onClick={() => handleClick(index + 8)}
+              onClick={() => console.log(item)}
             >
               {highlightLetter(item.name, item.letter)}
             </li>
@@ -67,7 +67,7 @@ const MoreReportMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown, handle
               className={`menu-item ${index + 9 === selectedIndex ? "active" : ""}`}
               tabIndex={0}
               onKeyDown={(e) => handleKeyDown(e, index + 9)}
-              onClick={() => handleClick(index + 9)}
+              onClick={() => console.log(item)}
             >
               {highlightLetter(item.name, item.letter)}
             </li>
@@ -78,7 +78,6 @@ const MoreReportMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown, handle
             ref={(el) => (menuItemsRef.current[11] = el)}
             tabIndex={0}
             onKeyDown={(e) => handleKeyDown(e, 11)}
-            onClick={() => handleClick(11)}
           >
             <span className="letter_style">Q</span>uit
           </li>

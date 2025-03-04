@@ -12,14 +12,14 @@ function SalesMainPage({salesHookData, globalData}:any) {
       >
         <p style={{ width: "30%" }}>Accounting Voucher Creation</p>
         <p style={{ width: "25%" }} className="text-center">
-          Company Name: {globalData.companyData.company_name || ""}
+          Company Name: {salesHookData.companyData.company_name || ""}
         </p>
         <p style={{ width: "15%" }} className="text-center">
           Address:{" "}
-          {`${globalData.companyData.company_address.slice(0, 10)}...` || ""}
+          {`${salesHookData.companyData.company_address.slice(0, 10)}...` || ""}
         </p>
         <p style={{ width: "25%" }} className="text-center">
-          GSTIN No.: {globalData.companyData.company_gstin || ""}
+          GSTIN No.: {salesHookData.companyData.company_gstin || ""}
         </p>
         <p
           onClick={salesHookData.handleFilterClose}

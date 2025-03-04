@@ -18,6 +18,21 @@ function PartyNamePopup({ partyNamePopup, salesData, handleValueChange, handleVa
             style={{ outline: 'none', width: '63%' }}
             onFocus={handleFocus}
           />
+        </div><div className="d-flex align-items-center w-100 pt-1">
+          <div className="salesNo d-flex align-items-center justify-content-between" style={{ width: '33%' }}>
+            <label className="ps-1 pe-3"><b>Receivable Account</b></label>
+            <p>: </p>
+          </div>
+          <input
+            name="receivable_account"
+            value={salesData.party_details['receivable_account']}
+            onChange={(e: any) => handleValueChange(e)}
+            ref={(el) => (salesDataRef.current.receivable_account = el)}
+            onKeyDown={handleValueKeyDown}
+            className="ms-2"
+            style={{ outline: 'none', width: '63%' }}
+            onFocus={handleFocus}
+          />
         </div>
         <div className="d-flex align-items-center w-100 pt-1">
           <div className="salesNo d-flex align-items-center justify-content-between" style={{ width: '33%' }}>

@@ -53,6 +53,8 @@ export default function useHandleKeyFunctionalities({
   serialNoData,
   productData,
   setProductData,
+  showFilter,
+  setFilterListName,
 }: any) {
   const getAddressFilter = (type: any, name: any) => ({
     type: 'Address',
@@ -61,48 +63,57 @@ export default function useHandleKeyFunctionalities({
 
   useEffect(() => {
     if (fieldName === 'charge_type') {
+      setFilterListName('Charge Types');
       setFilterData({ ...filterData, charge_type: chargeTypeData });
     } else if (fieldName === 'naming_series') {
+      setFilterListName('Naming Series');
       setFilterData({ ...filterData, naming_series: salesNoData });
     } else if (fieldName === 'margin_type') {
+      setFilterListName('Margin Types');
       setFilterData({ ...filterData, [fieldName]: marginTypeData });
     } else if (fieldName === 'apply_discount_on') {
+      setFilterListName('Apply Discount On');
       setFilterData({ ...filterData, [fieldName]: additionalDiscountOnData });
-    } else if (fieldName === 'naming_series') {
-      setFilterData({ ...filterData, naming_series: salesNoData });
     } else if (fieldName === 'company_address') {
+      setFilterListName('Company Address');
       getFilterData(getAddressFilter('Company', companyData.company_name), 'company_address');
     } else if (fieldName === 'billing_address') {
-      getFilterData(
-        { type: 'Address', filter: { type: 'Customer', name: salesData.party_details.party_name, address_type: 'Billing' } },
-        'billing_address'
-      );
+      setFilterListName('Customer Billing Address');
+      getFilterData({ type: 'Address', filter: { type: 'Customer', name: salesData.party_details.party_name } }, 'billing_address');
     } else if (fieldName === 'shipping_address') {
-      getFilterData(
-        { type: 'Address', filter: { type: 'Customer', name: salesData.party_details.party_name, address_type: 'Shipping' } },
-        'shipping_address'
-      );
+      setFilterListName('Customer Shipping Address');
+      getFilterData({ type: 'Address', filter: { type: 'Customer', name: salesData.party_details.party_name } }, 'shipping_address');
     } else if (
       fieldName === 'income_account' ||
       fieldName === 'expense_account' ||
       fieldName === 'account_head' ||
       fieldName === 'additional_discount_account'
     ) {
+      setFilterListName(filterTypes[fieldName].type);
+      getFilterData(filterTypes[fieldName], 'account_data');
+    } else if (fieldName === 'receivable_account') {
+      setFilterListName(filterTypes[fieldName].type);
       getFilterData(filterTypes[fieldName], 'account_data');
     } else if (fieldName === 'uom') {
+      setFilterListName(filterTypes[fieldName].type);
       filterData.uom?.length <= 0 && getFilterData(filterTypes[fieldName], fieldName);
     } else if (fieldName === 'hsn') {
+      setFilterListName(filterTypes[fieldName].type);
       filterData.hsn?.length <= 0 && getFilterData(filterTypes[fieldName], fieldName);
     } else if (fieldName === 'source_warehouse') {
+      setFilterListName('Source Warehouse');
       // console.log(filterTypes[fieldName], fieldName);
       getFilterData(filterTypes['warehouse'], 'warehouse');
     } else if (fieldName === 'warehouse') {
+      setFilterListName(filterTypes[fieldName].type);
       // console.log(filterTypes[fieldName], fieldName);
       getFilterData({ type: filterTypes['warehouse'].type, filter: { input: salesData.source_warehouse || '' } }, 'warehouse');
     } else if (fieldName === 'batch_no') {
+      setFilterListName(filterTypes[fieldName].type);
       // console.log(filterTypes[fieldName], fieldName);
       getFilterData({ type: filterTypes['batch_no'].type, filter: { item_name: itemsData.item_name || '' } }, 'batch_no');
     } else if (filterTypes[fieldName]) {
+      setFilterListName(filterTypes[fieldName].type);
       // console.log(filterTypes[fieldName], fieldName);
       getFilterData(filterTypes[fieldName], fieldName);
     }
@@ -116,7 +127,7 @@ export default function useHandleKeyFunctionalities({
       salesDataRef.current?.cost_center?.focus();
     }
     setIsSelecting(false);
-    setShowFilter(true);
+    // setShowFilter(true);
   };
 
   const handleTaxTemplateKeyPress = (name: string, value: any) => {
@@ -148,8 +159,7 @@ export default function useHandleKeyFunctionalities({
     setActiveIndex(0);
     setTimeout(() => {
       tableBodyRef.current[0].childNodes[0].childNodes[0]?.focus();
-
-      handleShowFilter('table');
+      setType('dropdown');
     }, 0);
   };
 
@@ -160,7 +170,7 @@ export default function useHandleKeyFunctionalities({
       }
     }, 0);
     setIsSelecting(false);
-    setShowFilter(true);
+    // setShowFilter(true);
   };
 
   const getCurrencyData = async () => {
@@ -175,79 +185,113 @@ export default function useHandleKeyFunctionalities({
     return response;
   };
 
-  const handlePartyNameAndCostCenter = (name: string) => {
+  const handlePartyNameAndCostCenter = (name: string, value: any) => {
     // updateSalesData({ [name]: filteredItems[selectedIndex] });
+    // console.log(fieldName, name, 'filter info');
     if (name === 'party_name') {
+      focusNextField(salesDataRef.current.receivable_account);
+      // handleShowFilter('billing_address');
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          party_details: {
+            ...salesData.party_details,
+            [name]: value,
+          },
+        });
+      setTimeout(() => {
+        setShowFilter(false);
+        // setType('dropdown')
+      }, 0);
+    } else if (name === 'receivable_account') {
       focusNextField(salesDataRef.current.billing_address);
-      handleShowFilter('billing_address');
-      setSalesData({
-        ...salesData,
-        party_details: {
-          ...salesData.party_details,
-          [name]: filteredItems[selectedIndex],
-        },
-      });
+      // handleShowFilter('billing_address');
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          party_details: {
+            ...salesData.party_details,
+            [name]: value,
+          },
+        });
+      setTimeout(() => {
+        setShowFilter(false);
+        // setType('dropdown')
+      }, 0);
     } else if (name === 'billing_address') {
       focusNextField(salesDataRef.current.billing_gstin);
-      setShowFilter(false);
-      setSalesData({
-        ...salesData,
-        party_details: {
-          ...salesData.party_details,
-          [name]: filterData[name][selectedIndex].name,
-          billing_gstin: filterData[name][selectedIndex].gstin,
-          billing_address_line1: filterData[name][selectedIndex].address_line1,
-          billing_address_line2: filterData[name][selectedIndex].address_line2,
-          billing_city: filterData[name][selectedIndex].city,
-          billing_state: filterData[name][selectedIndex].state,
-          billing_country: filterData[name][selectedIndex].country,
-          billing_pincode: filterData[name][selectedIndex].pincode,
-          billing_gst_category: filterData[name][selectedIndex].gst_category,
-        },
-      });
-      setType('');
+      setTimeout(() => {
+        setShowFilter(false);
+        setType('');
+      }, 0);
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          party_details: {
+            ...salesData.party_details,
+            [name]: filterData[name][selectedIndex].name,
+            billing_gstin: filterData[name][selectedIndex].gstin,
+            billing_address_line1: filterData[name][selectedIndex].address_line1,
+            billing_address_line2: filterData[name][selectedIndex].address_line2,
+            billing_city: filterData[name][selectedIndex].city,
+            billing_state: filterData[name][selectedIndex].state,
+            billing_country: filterData[name][selectedIndex].country,
+            billing_pincode: filterData[name][selectedIndex].pincode,
+            billing_gst_category: filterData[name][selectedIndex].gst_category,
+          },
+        });
     } else if (name === 'shipping_address') {
       focusNextField(salesDataRef.current.shipping_gstin);
-      setShowFilter(false);
-      setSalesData({
-        ...salesData,
-        party_details: {
-          ...salesData.party_details,
-          [name]: filterData[name][selectedIndex].name,
-          shipping_gstin: filterData[name][selectedIndex].gstin,
-          shipping_address_line1: filterData[name][selectedIndex].address_line1,
-          shipping_address_line2: filterData[name][selectedIndex].address_line2,
-          shipping_city: filterData[name][selectedIndex].city,
-          shipping_state: filterData[name][selectedIndex].state,
-          shipping_country: filterData[name][selectedIndex].country,
-          shipping_pincode: filterData[name][selectedIndex].pincode,
-          shipping_gst_category: filterData[name][selectedIndex].gst_category,
-        },
-      });
-      setType('');
+      setTimeout(() => {
+        setShowFilter(false);
+        setType('');
+      }, 0);
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          party_details: {
+            ...salesData.party_details,
+            [name]: filterData[name][selectedIndex].name,
+            shipping_gstin: filterData[name][selectedIndex].gstin,
+            shipping_address_line1: filterData[name][selectedIndex].address_line1,
+            shipping_address_line2: filterData[name][selectedIndex].address_line2,
+            shipping_city: filterData[name][selectedIndex].city,
+            shipping_state: filterData[name][selectedIndex].state,
+            shipping_country: filterData[name][selectedIndex].country,
+            shipping_pincode: filterData[name][selectedIndex].pincode,
+            shipping_gst_category: filterData[name][selectedIndex].gst_category,
+          },
+        });
     } else if (name === 'cost_center') {
-      setSalesData({
-        ...salesData,
-        [name]: filteredItems[selectedIndex],
-      });
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          [name]: value,
+        });
       setTimeout(() => {
         salesDataRef.current?.shipping_detail?.focus();
+        setShowFilter(false);
+        setType('dropdown');
       }, 0);
       setIsSelecting(false);
     } else if (name === 'source_warehouse') {
-      setSalesData({
-        ...salesData,
-        [name]: filteredItems[selectedIndex],
-      });
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          [name]: value,
+        });
       setTimeout(() => {
         salesDataRef.current?.currency?.focus();
+        setShowFilter(false);
+        // setType('dropdown')
       }, 0);
       setIsSelecting(false);
     } else if (name === 'additional_discount_account') {
-      setSalesData({
-        ...salesData,
-        [name]: filteredItems[selectedIndex],
-      });
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          [name]: value,
+        });
       setTimeout(() => {
         textAreaRef.current?.focus();
         setShowFilter(false);
@@ -255,20 +299,21 @@ export default function useHandleKeyFunctionalities({
       }, 0);
       setIsSelecting(false);
     } else if (name === 'currency') {
-      getCurrencyData()
-        .then((resp: any) => {
-          setSalesData({
-            ...salesData,
-            [name]: filteredItems[selectedIndex],
-            conversion_rate: resp.message || 1,
+      fieldName === name &&
+        getCurrencyData()
+          .then((resp: any) => {
+            setSalesData({
+              ...salesData,
+              [name]: value,
+              conversion_rate: Number(resp.message).toFixed(2) || 1,
+            });
+          })
+          .catch((err: any) => {
+            setSalesData({
+              ...salesData,
+              [name]: value,
+            });
           });
-        })
-        .catch((err: any) => {
-          setSalesData({
-            ...salesData,
-            [name]: filteredItems[selectedIndex],
-          });
-        });
 
       setTimeout(() => {
         salesDataRef.current?.conversion_rate?.focus();
@@ -282,21 +327,23 @@ export default function useHandleKeyFunctionalities({
         setShowFilter(false);
         setType('');
       }, 0);
-      // console.log(filteredItems[selectedIndex].name);
-      getData('Terms and Conditions', { name: filteredItems[selectedIndex].name }).then((response: any) => {
-        // console.log(response, 'terms');
-        setSalesData({
-          ...salesData,
-          [name]: filteredItems[selectedIndex].name,
-          terms_description: response.terms || '',
+      // console.log(value.name);
+      fieldName === name &&
+        getData('Terms and Conditions', { name: value.name }).then((response: any) => {
+          // console.log(response, 'terms');
+          setSalesData({
+            ...salesData,
+            [name]: value.name,
+            terms_description: response.terms || '',
+          });
         });
-      });
       setIsSelecting(false);
     } else if (name === 'payment_terms') {
-      setSalesData({
-        ...salesData,
-        [name]: filteredItems[selectedIndex].name,
-      });
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          [name]: value.name,
+        });
       setTimeout(() => {
         salesDataRef.current?.update_stock?.focus();
         setShowFilter(false);
@@ -304,22 +351,27 @@ export default function useHandleKeyFunctionalities({
       }, 0);
       setIsSelecting(false);
     } else if (name === 'shipping_detail') {
-      setSalesData({
-        ...salesData,
-        [name]: filteredItems[selectedIndex],
-      });
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          [name]: value,
+        });
       // setTimeout(() => {
       //   salesData.update_stock ? salesDataRef.current?.source_warehouse?.focus() : salesDataRef.current?.payment_terms?.focus();
       // }, 0);
+      setIsSelecting(false);
       setTimeout(() => {
         salesDataRef.current?.payment_terms?.focus();
+        setShowFilter(false);
+        // setType('dropdown')
       }, 0);
-      setIsSelecting(false);
     } else if (name === 'naming_series') {
-      setSalesData({
-        ...salesData,
-        [name]: filteredItems[selectedIndex],
-      });
+      console.log(value);
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          [name]: value,
+        });
       setShowFilter(false);
       setIsSelecting(false);
       setTimeout(() => {
@@ -327,10 +379,11 @@ export default function useHandleKeyFunctionalities({
       }, 0);
       setType('');
     } else if (name === 'apply_discount_on') {
-      setSalesData({
-        ...salesData,
-        [name]: filteredItems[selectedIndex],
-      });
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          [name]: filteredItems[selectedIndex],
+        });
       if (filteredItems[selectedIndex] === '') {
         setTimeout(() => {
           setShowFilter(false);
@@ -345,6 +398,32 @@ export default function useHandleKeyFunctionalities({
         }, 0);
         setType('');
       }
+    } else if (name === 'item_name') {
+      if (!showFilter) {
+        let data = [...salesData.table];
+        data = data.filter((_, i) => activeIndex !== i);
+        setSalesData({ ...salesData, table: data });
+
+        setTaxInfo([...taxInfo, { ...taxDefaultInfo }]);
+        setTaxIndex(0);
+
+        handleTaxData(salesData.table);
+
+        setTimeout(() => {
+          if (taxInfoRef.current) {
+            taxInfoRef.current[0].childNodes[0].childNodes[0]?.focus();
+          }
+        }, 2);
+      } else {
+        (tableBodyRef.current[activeIndex].childNodes[1].childNodes[0] as HTMLElement).focus();
+        setTimeout(() => {
+          setShowFilter(false);
+          setType('');
+        }, 0);
+        // handleShowFilter('hsn');
+        fieldName === name && getItemsData(filteredItems[selectedIndex]);
+        setFieldName('qty');
+      }
     } else {
       setShowFilter(false);
     }
@@ -357,7 +436,7 @@ export default function useHandleKeyFunctionalities({
     //   itemData['amt'] = Number(itemData['rate_with_margin']) * Number(itemData['qty']);
     // }
 
-    if (itemsData.item_name !== '' && data[activeIndex] !== itemData) {
+    if (itemsData.item_name !== '' && itemData.qty !== '' && data[activeIndex] !== itemData) {
       data[activeIndex] = itemData;
     } else {
       data[activeIndex]['rate'] = value;
@@ -366,6 +445,11 @@ export default function useHandleKeyFunctionalities({
         data[activeIndex]['amt'] = Number(value) * Number(data[activeIndex]['qty']);
       }
     }
+
+    // console.log({
+    //   ...salesData,
+    //   table: [...data, { ...defaultTableData, warehouse: salesData.source_warehouse || '' }],
+    // });
 
     if (!data[activeIndex + 1]) {
       setSalesData({
@@ -382,8 +466,13 @@ export default function useHandleKeyFunctionalities({
     setTimeout(() => {
       tableBodyRef.current[activeIndex + 1].childNodes[0].childNodes[0]?.focus();
     }, 0);
+
+    setTimeout(() => {
+      setShowFilter(false);
+      setType('dropdown');
+    }, 0);
     // setType("dropdown");
-    handleShowFilter('table');
+    // handleShowFilter('table');
   };
 
   const handleTaxData = (tableData: any) => {
@@ -472,7 +561,7 @@ export default function useHandleKeyFunctionalities({
           if (taxInfoRef.current) {
             taxInfoRef.current[0].childNodes[0].childNodes[0]?.focus();
 
-            handleShowFilter('charge_type');
+            // handleShowFilter('charge_type');
           }
         }, 2);
       } else {
@@ -537,9 +626,11 @@ export default function useHandleKeyFunctionalities({
         name === 'source_warehouse' ||
         name === 'apply_discount_on' ||
         name === 'additional_discount_account' ||
-        name === 'currency'
+        name === 'currency' ||
+        name === 'item_name' ||
+        name === 'receivable_account'
       ) {
-        handlePartyNameAndCostCenter(name);
+        handlePartyNameAndCostCenter(name, filteredItems[selectedIndex]);
       } else if (name === 'rate') {
         handleRate(data, value);
       } else {
@@ -548,7 +639,7 @@ export default function useHandleKeyFunctionalities({
     }
   };
 
-  const { handleTableIfNotDropdown, handleTableKeyEnter } = handleTableKeyFunctionalities(
+  const { handleTableIfNotDropdown, handleTableKeyEnter, handleDropdown } = handleTableKeyFunctionalities(
     itemsData,
     setIsSelecting,
     handleTaxDefault,
@@ -563,7 +654,7 @@ export default function useHandleKeyFunctionalities({
     setItemsData,
     filterData,
     filteredItems,
-    handleShowFilter,
+    // handleShowFilter,
     setFieldName,
     tablePopupRef,
     focusNextField,
@@ -572,7 +663,9 @@ export default function useHandleKeyFunctionalities({
     serialNoData,
     productData,
     setProductData,
-    companyData
+    companyData,
+    fieldName,
+    showFilter
   );
 
   const handleIfNotDropdown = (name: string, value: string) => {
@@ -588,7 +681,7 @@ export default function useHandleKeyFunctionalities({
         break;
       }
       case 'due_date': {
-        handleShowFilter('party_name');
+        // handleShowFilter('party_name');
         setPartyNamePopup(true);
         setTimeout(() => {
           salesDataRef.current.party_name?.focus();
@@ -702,28 +795,36 @@ export default function useHandleKeyFunctionalities({
       }
       case 'billing_gstin': {
         focusNextField(salesDataRef.current.shipping_address);
+        setTimeout(() => {
+          setShowFilter(false);
+          // setType('dropdown')
+        }, 0);
         break;
       }
       case 'shipping_gstin': {
         focusNextField(salesDataRef.current.cost_center);
         setPartyNamePopup(false);
-        handleShowFilter('cost_center');
+        // handleShowFilter('cost_center');
+        setTimeout(() => {
+          setShowFilter(false);
+          // setType('dropdown')
+        }, 0);
         break;
       }
       case 'update_stock': {
         setTimeout(() => {
           salesData.update_stock ? salesDataRef.current?.source_warehouse?.focus() : salesDataRef.current?.currency?.focus();
         }, 0);
-        handleShowFilter(salesData.update_stock ? 'source_warehouse' : 'currency');
+        // handleShowFilter(salesData.update_stock ? 'source_warehouse' : 'currency');
         // focusNextField(salesDataRef.current.cost_center);
         // handleShowFilter('cost_center');
         break;
       }
       case 'is_cash_or_non_trade_discount': {
-        console.log(salesData.is_cash_or_non_trade_discount, 'is cash');
+        // console.log(salesData.is_cash_or_non_trade_discount, 'is cash');
         if (salesData.is_cash_or_non_trade_discount) {
           focusNextField(salesDataRef.current.additional_discount_account);
-          handleShowFilter('additional_discount_account');
+          // handleShowFilter('additional_discount_account');
         } else {
           setTimeout(() => {
             textAreaRef.current?.focus();
@@ -779,5 +880,7 @@ export default function useHandleKeyFunctionalities({
     handleRate,
     handleTableKeyEnter,
     handleTableIfNotDropdown,
+    handlePartyNameAndCostCenter,
+    handleDropdown
   };
 }
