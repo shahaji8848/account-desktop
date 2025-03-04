@@ -30,7 +30,7 @@ h2 {
 }
 
 .light_bg {
-  background-color: #D4EBF8;
+  background-color: #d4ebf8;
 }
 
 .menu p,
@@ -62,7 +62,7 @@ h2 {
   font-weight: bold;
 }
 
-.menu-items p>span {
+.menu-items p > span {
   font-weight: bold;
   border-bottom: 1px solid white;
 }
@@ -199,7 +199,7 @@ input[type='date']:not(:focus):not([value='']) {
 }
 
 @media (max-width: 578px) {
-  .Toastify__toast-body>div:last-child {
+  .Toastify__toast-body > div:last-child {
     font-size: 10px;
   }
 
@@ -255,11 +255,11 @@ input[type='date']:not(:focus):not([value='']) {
   margin-left: -16%;
 }
 
-input[type="checkbox"]:focus {
+input[type='checkbox']:focus {
   outline: 3px auto #ccc !important;
 }
 
-.input-group>.form-control:focus {
+.input-group > .form-control:focus {
   box-shadow: none !important;
   outline: none !important;
   border: none !important;
@@ -269,4 +269,10 @@ input[type="checkbox"]:focus {
 
 .register_table tr {
   border: 1px solid lightgray !important;
+}
+
+/* toastify notification */
+
+.custom-toast {
+  top: 40px !important;
 }

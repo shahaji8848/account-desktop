@@ -110,7 +110,7 @@ function App() {
               <Route path="/receipt-voucher-register" element={<ReceiptVoucherRegister homeHookData={homeHookData} globalData={globalData} />} />
               <Route path="/contra-register" element={<ContraRegister homeHookData={homeHookData} globalData={globalData} />} />
               <Route path="/contra-voucher-register" element={<ContraVoucherRegister homeHookData={homeHookData} globalData={globalData} />} />
-              <Route path="/payment-reconciliation" element={<PaymentReconciliationMaster />} />
+              <Route path="/payment-reconciliation" element={<PaymentReconciliationMaster homeHookData={homeHookData} globalData={globalData} />} />
 
               <Route path="*" element={<div>Page Not Found</div>} />
             </Routes>

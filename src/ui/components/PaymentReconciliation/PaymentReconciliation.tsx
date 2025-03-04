@@ -9,6 +9,7 @@ import usePartyData from '../../hooks/payment_reconciliation/usePartyData';
 import usePartyTypeData from '../../hooks/payment_reconciliation/usePartyTypeData';
 import useUnreconcileEntriesData from '../../hooks/payment_reconciliation/useUnreconcileEntriesData';
 import PaymentReconcileSection from './PaymentReconcileSection';
+import QuitConfirmationModal from '../Home/QuitConfirmationModal';
 
 interface Company {
   id: number;
@@ -35,10 +36,11 @@ interface ReconciledEntry {
   differenceAmount: number;
 }
 
-export default function PaymentReconciliation() {
+export default function PaymentReconciliation({ homeHookData, globalData }: any) {
   const { companyData } = useCompanyData('Company');
   const { partyTypeData } = usePartyTypeData('Payment Reconciliation Party');
   const { partyData } = usePartyData('Customer');
+  const { isQuitModalOpen, setIsQuitModalOpen } = globalData;
 
   console.log('filter data', companyData, partyData, partyTypeData);
 
@@ -219,6 +221,7 @@ export default function PaymentReconciliation() {
         if (type === 'company') setShowCompanyFilter(false);
         if (type === 'partyType') setShowPartyTypeFilter(false);
         if (type === 'party') setShowPartyFilter(false);
+        setIsQuitModalOpen(true);
       }
     }
   };
@@ -253,6 +256,29 @@ export default function PaymentReconciliation() {
 
   //
 
+  useEffect(() => {
+    const handleEscapePress = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsQuitModalOpen(true);
+      }
+    };
+
+    // Attach the event listener when the component mounts
+    document.addEventListener('keydown', handleEscapePress);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      document.removeEventListener('keydown', handleEscapePress);
+    };
+  }, [setIsQuitModalOpen]);
+
+  useEffect(() => {
+    if (!isQuitModalOpen) {
+      setTimeout(() => {
+        companyInputRef.current?.focus();
+      }, 100);
+    }
+  }, [isQuitModalOpen]);
   console.log('selected@', selectedCompany, selectedParty, selectedPartyType);
   console.log('selected@ in reconcile section', selectedCompany?.name, selectedParty?.name, selectedPartyType?.name);
 
@@ -378,7 +404,17 @@ export default function PaymentReconciliation() {
         refreshData={refreshData}
         setInvoiceFilter={setInvoiceFilter}
         setPaymentFilter={setPaymentFilter}
+        setIsQuitModalOpen
       />
+
+      {isQuitModalOpen && (
+        <QuitConfirmationModal
+          type="payment_reconciliation"
+          isOpen={isQuitModalOpen}
+          setIsQuitModalOpen={setIsQuitModalOpen}
+          homeHookData={homeHookData}
+        />
+      )}
     </div>
   );
 }
