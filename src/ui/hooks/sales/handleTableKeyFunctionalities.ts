@@ -15,7 +15,7 @@ export function handleTableKeyFunctionalities(
   setItemsData: any,
   filterData: any,
   filteredItems: any,
-  // handleShowFilter: any,
+  handleShowFilter: any,
   setFieldName: any,
   tablePopupRef: any,
   focusNextField: any,
@@ -24,141 +24,102 @@ export function handleTableKeyFunctionalities(
   serialNoData: any,
   productData: any,
   setProductData: any,
-  companyData: any,
-  fieldName: any,
-  showFilter: any
+  companyData: any
 ) {
-  const handleDropdown = (name: string, value: string) => {
+  const handleDropdown = (name: string) => {
     // console.log(filterData, filteredItems);
     if (name === 'item_name') {
       focusNextField(tablePopupRef.current.hsn);
-      setTimeout(() => {
-        setShowFilter(false);
-        setType('dropdown');
-      }, 0);
-      // handleShowFilter('hsn');
-      fieldName === name && showFilter && getItemsData(value);
+      handleShowFilter('hsn');
+      getItemsData(filteredItems[selectedIndex]);
       setFieldName('hsn');
     } else if (name === 'hsn') {
       focusNextField(tablePopupRef.current.uom);
-      // handleShowFilter('uom');
-      setTimeout(() => {
-        setShowFilter(false);
-        setType('dropdown');
-      }, 0);
+      handleShowFilter('uom');
       setFieldName('uom');
-      fieldName === name &&
-        showFilter &&
-        setItemsData({
-          ...itemsData,
-          [name]: value,
-        });
+      setItemsData({
+        ...itemsData,
+        [name]: filteredItems[selectedIndex],
+      });
     } else if (name === 'uom') {
       focusNextField(tablePopupRef.current.description);
       // handleShowFilter('income_account');
       setFieldName('description');
-      fieldName === name &&
-        showFilter &&
-        setItemsData({
-          ...itemsData,
-          [name]: value,
-        });
+      setItemsData({
+        ...itemsData,
+        [name]: filteredItems[selectedIndex],
+      });
       setType('');
       setShowFilter(false);
     } else if (name === 'income_account') {
       focusNextField(tablePopupRef.current.expense_account);
-      // handleShowFilter('expense_account');
+      handleShowFilter('expense_account');
       setFieldName('expense_account');
-      fieldName === name &&
-        showFilter &&
-        setItemsData({
-          ...itemsData,
-          [name]: value,
-        });
-      setTimeout(() => {
-        setShowFilter(false);
-        setType('dropdown');
-      }, 0);
+      setItemsData({
+        ...itemsData,
+        [name]: filteredItems[selectedIndex],
+      });
     } else if (name === 'warehouse') {
       setTimeout(() => {
         setShowFilter(false);
-        setType('');
       }, 0);
+      setType('');
       (tablePopupRef.current['qty'] as HTMLElement).focus();
       setFieldName('qty');
-      fieldName === name &&
-        showFilter &&
-        setItemsData({
-          ...itemsData,
-          [name]: value,
-        });
+      setItemsData({
+        ...itemsData,
+        [name]: filteredItems[selectedIndex],
+      });
     } else if (name === 'margin_type') {
-      fieldName === name && showFilter
-        ? focusNextField(tablePopupRef.current.margin_rate_or_amount)
-        : focusNextField(tablePopupRef.current.discount_percentage);
-      // handleShowFilter('margin_rate_or_amount');
+      focusNextField(tablePopupRef.current.margin_rate_or_amount);
+      handleShowFilter('margin_rate_or_amount');
       setFieldName('margin_rate_or_amount');
-      fieldName === name &&
-        showFilter &&
-        setItemsData({
-          ...itemsData,
-          [name]: value,
-        });
+      setItemsData({
+        ...itemsData,
+        [name]: filteredItems[selectedIndex],
+      });
       setTimeout(() => {
         setShowFilter(false);
-        setType('');
       }, 0);
+      setType('');
     } else if (name === 'item_tax_template') {
       focusNextField(tablePopupRef.current.income_account);
-      // handleShowFilter('income_account');
+      handleShowFilter('income_account');
       setFieldName('income_account');
 
-      const data = filterData[name]?.filter((item: any) => value === item.name);
-      fieldName === name &&
-        showFilter &&
-        setItemsData({
-          ...itemsData,
-          [name]: value,
-          gst_rate: data[0].gst_rate || 0,
-        });
-      setTimeout(() => {
-        setShowFilter(false);
-        setType('dropdown');
-      }, 0);
+      const data = filterData[name]?.filter((item: any) => filteredItems[selectedIndex] === item.name);
+      setItemsData({
+        ...itemsData,
+        [name]: filteredItems[selectedIndex],
+        gst_rate: data[0].gst_rate || 0,
+      });
     } else if (name === 'expense_account') {
       focusNextField(tablePopupRef.current.cost_center);
-      // handleShowFilter('cost_center');
+      handleShowFilter('cost_center');
       setFieldName('cost_center');
-      fieldName === name &&
-        showFilter &&
-        setItemsData({
-          ...itemsData,
-          [name]: value,
-        });
-      setTimeout(() => {
-        setShowFilter(false);
-        setType('dropdown');
-      }, 0);
+      setItemsData({
+        ...itemsData,
+        [name]: filteredItems[selectedIndex],
+      });
     } else if (name === 'cost_center') {
       // focusNextField(tableBodyRef.current.rate);
+
       setFieldName('serial_no');
-      fieldName === name &&
-        showFilter &&
-        setItemsData({
-          ...itemsData,
-          [name]: value,
-        });
+      setItemsData({
+        ...itemsData,
+        [name]: filteredItems[selectedIndex],
+      });
       // setTableItemsPopup(false);
       setTimeout(() => {
         setShowFilter(false);
-        setType('dropdown');
+        setType('');
       }, 0);
       focusNextField(tablePopupRef.current.serial_no);
 
       // setFieldName('rate');
       // setItemsData({
       //   ...itemsData,
-      //   [name]: value,
+      //   [name]: filteredItems[selectedIndex],
       // });
       // setTableItemsPopup(false);
 
@@ -172,18 +133,16 @@ export function handleTableKeyFunctionalities(
       // let data = [...salesData.table];
       // data[activeIndex] = {
       //   ...itemsData,
-      //   [name]: value,
+      //   [name]: filteredItems[selectedIndex],
       // };
 
       // setSalesData({ ...salesData, table: data });
     } else if (name === 'batch_no') {
       setFieldName('rate');
-      fieldName === name &&
-        showFilter &&
-        setItemsData({
-          ...itemsData,
-          [name]: value,
-        });
+      setItemsData({
+        ...itemsData,
+        [name]: filteredItems[selectedIndex],
+      });
       setTableItemsPopup(false);
 
       setTimeout(() => {
@@ -196,7 +155,7 @@ export function handleTableKeyFunctionalities(
       let data = [...salesData.table];
       data[activeIndex] = {
         ...itemsData,
-        [name]: value,
+        [name]: filteredItems[selectedIndex],
       };
 
       setSalesData({ ...salesData, table: data });
@@ -226,7 +185,7 @@ export function handleTableKeyFunctionalities(
         name === 'margin_type' ||
         name === 'batch_no'
       ) {
-        handleDropdown(name, filteredItems[selectedIndex]);
+        handleDropdown(name);
       } else {
         handleTaxDefault(data, name);
       }
@@ -293,12 +252,12 @@ export function handleTableKeyFunctionalities(
     let amount = 0;
     if (data['rate_with_margin'] !== '') {
       amount = Number(data['original_rate']) + Number(data['rate_with_margin']);
-      data['rate'] = Number(amount - (amount * Number(value)) / 100).toFixed(2);
+      data['rate'] = amount - (amount * Number(value)) / 100;
       data['amt'] = Number(data['qty']) * Number(data['rate']);
       data['discount_amount'] = (amount * Number(value)) / 100;
     } else {
       amount = Number(data['original_rate']);
-      data['rate'] = Number(amount - (amount * Number(value)) / 100).toFixed(2);
+      data['rate'] = amount - (amount * Number(value)) / 100;
       data['amt'] = Number(data['qty']) * Number(data['rate']);
       data['discount_amount'] = (amount * Number(value)) / 100;
     }
@@ -328,13 +287,13 @@ export function handleTableKeyFunctionalities(
       case 'rate': {
         const data = { ...itemsData };
         data[name] = value;
-        if (data['qty'] !== '') {
+        if (data['qty'] !== '' && data['rate_with_margin'] === '') {
           data['amt'] = Number(value) * Number(data['qty']);
         }
         setFieldName('margin_type');
         setItemsData({ ...data });
         (tablePopupRef.current['margin_type'] as HTMLElement).focus();
-        // handleShowFilter('margin_type');
+        handleShowFilter('margin_type');
         break;
       }
       case 'margin_rate_or_amount': {
@@ -342,11 +301,11 @@ export function handleTableKeyFunctionalities(
         data[name] = value;
         if (data['qty'] !== '') {
           if (data['margin_type'] === 'Percentage') {
-            data['rate'] = Number(Number(data['original_rate']) + (Number(data['original_rate']) * Number(value)) / 100).toFixed(2);
+            data['rate'] = Number(data['original_rate']) + (Number(data['original_rate']) * Number(value)) / 100;
             data['rate_with_margin'] = (Number(data['original_rate']) * Number(value)) / 100;
             data['amt'] = Number(data['rate']) * Number(data['qty']);
           } else {
-            data['rate'] = Number(Number(data['original_rate']) + Number(value)).toFixed(2);
+            data['rate'] = Number(data['original_rate']) + Number(value);
             data['rate_with_margin'] = Number(value);
             data['amt'] = Number(data['rate']) * Number(data['qty']);
           }
@@ -360,18 +319,13 @@ export function handleTableKeyFunctionalities(
       case 'discount_percentage': {
         let data = { ...itemsData };
         data[name] = value;
-        // console.log(value, 'value')
-        if (data['qty'] !== '' && value !== '' && value !== '0') {
+        if (data['qty'] !== '') {
           data = calculateDiscountAmt(data, value);
         }
         setFieldName('item_tax_template');
         setItemsData({ ...data });
         (tablePopupRef.current['item_tax_template'] as HTMLElement).focus();
-        setTimeout(() => {
-          setShowFilter(false);
-          setType('dropdown');
-        }, 0);
-        // handleShowFilter('item_tax_template');
+        handleShowFilter('item_tax_template');
         // handleShowFilter('margin_type');
         break;
       }
@@ -401,7 +355,7 @@ export function handleTableKeyFunctionalities(
         data[name] = value;
         setItemsData({ ...data });
         (tablePopupRef.current['warehouse'] as HTMLElement).focus();
-        // handleShowFilter('warehouse');
+        handleShowFilter('warehouse');
         setFieldName('warehouse');
         break;
       }
@@ -454,5 +408,5 @@ export function handleTableKeyFunctionalities(
       }
     }
   };
-  return { handleTableKeyEnter, handleTableIfNotDropdown, handleDropdown };
+  return { handleTableKeyEnter, handleTableIfNotDropdown };
 }

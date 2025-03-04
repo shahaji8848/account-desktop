@@ -27,7 +27,7 @@ function TableItemsPopup({
         <div className="d-flex align-items-start flex-column w-50 gap-1">
           <div className="d-flex align-items-center w-100">
             <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
-              <label className="ps-1 pe-3">Item Name *</label>
+              <label className="ps-1 pe-3">Item Name</label>
               <p>: </p>
             </div>
             <input
@@ -59,7 +59,7 @@ function TableItemsPopup({
           </div>
           <div className="d-flex align-items-center w-100">
             <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
-              <label className="ps-1 pe-3">UOM *</label>
+              <label className="ps-1 pe-3">UOM</label>
               <p>: </p>
             </div>
             <input
@@ -123,7 +123,7 @@ function TableItemsPopup({
           </div>
           <div className="d-flex align-items-center w-100">
             <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
-              <label className="ps-1 pe-3">Rate *</label>
+              <label className="ps-1 pe-3">Rate</label>
               <p>: </p>
             </div>
             <input
@@ -223,7 +223,7 @@ function TableItemsPopup({
           </div>
           <div className="d-flex align-items-center w-100">
             <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
-              <label className="ps-1 pe-3">Amount *</label>
+              <label className="ps-1 pe-3">Amount</label>
               <p>: </p>
             </div>
             <input
@@ -256,7 +256,7 @@ function TableItemsPopup({
           </div>
           <div className="d-flex align-items-center w-100">
             <div className="salesNo d-flex align-items-center justify-content-between" style={{ width: '35%' }}>
-              <label className="ps-1 pe-3">Income Account *</label>
+              <label className="ps-1 pe-3">Income Account</label>
               <p>: </p>
             </div>
             <input
@@ -288,7 +288,7 @@ function TableItemsPopup({
           </div>
           <div className="d-flex align-items-center w-100">
             <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
-              <label className="ps-1 pe-3">Cost Center *</label>
+              <label className="ps-1 pe-3">Cost Center</label>
               <p>: </p>
             </div>
             <input

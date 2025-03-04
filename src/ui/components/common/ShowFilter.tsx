@@ -1,23 +1,32 @@
-function ShowFilter({ filteredItems, selectedIndex, fieldname, handleClick, handleItemFocus, handleItemPerClick, type = '', filterListName = 'Items' }: any) {
-  // console.log(filterListName);
+function ShowFilter({
+  filteredItems,
+  selectedIndex,
+  handleClick,
+  handleItemFocus,
+  handleItemPerClick,
+  type = "",
+}: any) {
   return (
     <div
       className="filter-section position-fixed h-100"
       style={{
-        background: '#e1f0fa',
-        width: '20%',
-        right: '14%',
-        top: '75px',
-        border: '1px solid #a4b0ad',
-        zIndex: '99',
-        overflowY: 'scroll',
+        background: "#e1f0fa",
+        width: "20%",
+        right: "14%",
+        top: "75px",
+        border: "1px solid #a4b0ad",
+        zIndex: "99",
+        overflowY: "scroll",
       }}
     >
-      <div className="title px-2" style={{ background: '#2a66b0', color: 'white' }}>
-        List of {filterListName}
+      <div
+        className="title px-2"
+        style={{ background: "#2a66b0", color: "white" }}
+      >
+        List of Items
       </div>
       <div className="filter-list px-2 pt-2">
-        <p className="text-end" style={{ borderBottom: '1px solid #222' }}>
+        <p className="text-end" style={{ borderBottom: "1px solid #222" }}>
           Create
         </p>
         <div className="list-items">
@@ -25,8 +34,12 @@ function ShowFilter({ filteredItems, selectedIndex, fieldname, handleClick, hand
           {filteredItems?.map((item: any, index: number) => (
             <p
               key={index}
-              className={`filtered-item ${selectedIndex === index ? 'selected' : ''}`}
-              onClick={() => handleClick(item)}
+              className={`filtered-item ${
+                selectedIndex === index ? "selected" : ""
+              }`}
+              onClick={() =>
+                type === "per" ? handleItemPerClick(item) : handleClick(item)
+              }
               onFocus={() => handleItemFocus(index)}
               tabIndex={0}
             >
