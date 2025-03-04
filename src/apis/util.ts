@@ -1,7 +1,7 @@
-import { JSDOM } from 'jsdom';
+// import { JSDOM } from 'jsdom';
 
 export function isDev(): boolean {
-  return process.env.NODE_ENV === 'development';
+  return true;
 }
 
 const baseUrl = 'https://yatish-testing-v15.frappe.cloud/api/resource';
@@ -138,7 +138,7 @@ async function getItemData(doctype: string, filters: any) {
   itemdata['item_name'] = responseItemData?.item_name || null;
   itemdata['name'] = responseItemData?.name || null;
   itemdata['item_group'] = responseItemData?.item_group || null;
-  let description = new JSDOM(responseItemData?.description) || null;
+  let description = responseItemData?.description || null;
   itemdata['description'] = description.window.document.body.textContent;
   if (responseItemData?.item_defaults) {
     for (let row of responseItemData.item_defaults) {
@@ -363,7 +363,7 @@ export async function getTermsCondtions(doctype: any, filters: any) {
 
   // Extract text content using jsdom
   if (data && data.terms) {
-    const dom = new JSDOM(data.terms);
+    const dom = data.terms;
     data.terms = dom.window.document.body.textContent;
   }
 
@@ -569,4 +569,9 @@ export async function getGstinInfo(kwargs: any) {
   } else {
     return { error: 'Invalid Request. Pls Enter GSTIN' };
   }
+}
+
+console.log('UTIL FILE LOADED');
+export function getInfoData() {
+  return 'get info data';
 }

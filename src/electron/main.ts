@@ -9,7 +9,7 @@ import {
   getGstinInfo,
   getCurrencyData,
   login
-} from "./util.js";
+} from "../apis/util.js";
 import { getPreloadPath, getUIPath } from "./pathResolver.js";
 import { ipcMain } from "electron";
 import { salesRegisterMonthWiseSales,salesBreakupReport } from "./reports/sales_register.js";

@@ -1,4 +1,4 @@
-function PaymentDataTablePopup({ paymentTermsOpen, paymentData, tableData, getTotal, salesData, dueDate }: any) {
+function PaymentDataTablePopup({ paymentTermsOpen, paymentData, tableData, getTotal, salesData, dueDate, setDate }: any) {
   function calculateNewDueDate(dueDate: string, creditDays: number): string {
     const date = new Date(dueDate);
     const tomorrow = new Date(date);
@@ -14,6 +14,8 @@ function PaymentDataTablePopup({ paymentTermsOpen, paymentData, tableData, getTo
     // console.log(day, month, year, date, new Date(year, month - 1, day))
     return tomorrow.toISOString().split('T')[0] || '25-2-2025';
   }
+
+  
   return (
     <div
       className="popup table-popup"

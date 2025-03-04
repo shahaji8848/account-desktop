@@ -61,6 +61,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
     handleTermsPopup,
     handlePartyNamePopup,
     handleGstPopup,
+    setDate
   } = salesHookData;
 
   const handleFocus = (e: any) => {
@@ -405,6 +406,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         salesData={salesData}
         tableData={salesData.table}
         paymentTermsOpen={paymentTermsOpen}
+        setDate={setDate}
       />
       <GstDataTablePopup gstTableOpen={gstTableOpen} salesData={salesData} gstData={gstData} />
       <PartyNamePopup
