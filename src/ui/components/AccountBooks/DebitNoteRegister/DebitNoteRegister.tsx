@@ -3,7 +3,7 @@ import Register from '../common/Register'
 import { homeSideBarData } from '../../../utils/data'
 import Sidebar from '../../Sales/Sidebar'
 import BottomNavbar from '../../Sales/BottomNavbar'
-import RegistePageHeader from '../common/RegistePageHeader'
+import PageHeader from '../../common/PageHeader'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/root-reducer'
 
@@ -34,7 +34,7 @@ const DebitNoteRegister = ({ homeHookData, globalData }: any) => {
             style={{ overflow: 'hidden' }}
         >
             <div className="main-body" style={{ width: "86%" }}>
-                <RegistePageHeader ragisterName='Debit Note Register' company={companyName} />
+                <PageHeader ragisterName='Debit Note Register' company={companyName} />
                 <Register
                     homeHookData={homeHookData}
                     globalData={globalData}

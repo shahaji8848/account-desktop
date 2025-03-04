@@ -71,6 +71,66 @@ const QuitConfirmationModal = ({ type, isOpen, setIsQuitModalOpen, onConfirm, ho
     }
   };
 
+  const handleClick = (btn_type: any) => {
+    if (btn_type === 'yes') {
+      if (type === 'customer_form') {
+        navigate(-1)
+      } else if (type === 'create_list_modal') {
+        homeHookData?.setIsModalOpen(false)
+      } else if (type === 'supplier_form') {
+        navigate(-1)
+      } else if (type === 'sales_register') {
+        navigate(-1)
+      } else if (type === 'sales_voucher_register') {
+        navigate(-1)
+      } else if (type === 'credit_note_register') {
+        navigate(-1)
+      } else if (type === 'credit_note_voucher_register') {
+        navigate(-1)
+      } else if (type === 'purchase_register') {
+        navigate(-1)
+      } else if (type === 'purchase_voucher_register') {
+        navigate(-1)
+      } else if (type === 'debit_note_register') {
+        navigate(-1)
+      } else if (type === 'debit_note_voucher_register') {
+        navigate(-1)
+      } else if (type === 'journal_register') {
+        navigate(-1)
+      } else if (type === 'journal_voucher_register') {
+        navigate(-1)
+      } else if (type === 'payment_register') {
+        navigate(-1)
+      } else if (type === 'payment_voucher_register') {
+        navigate(-1)
+      } else if (type === 'receipt_register') {
+        navigate(-1)
+      } else if (type === 'receipt_voucher_register') {
+        navigate(-1)
+      } else if (type === 'contra_register') {
+        navigate(-1)
+      } else if (type === 'contra_voucher_register') {
+        navigate(-1)
+      }
+      // for closing the different menu list 
+      else if (homeHookData?.accountBooksList) {
+        homeHookData?.setAccountBooksList(false)
+        homeHookData?.setMoreReportList(true)
+      } else if (homeHookData?.moreReportList) {
+        homeHookData?.setMoreReportList(false)
+      } else if (!homeHookData?.accountBooksList && !homeHookData?.moreReportList) {
+        onConfirm();
+      }
+      setIsQuitModalOpen(false)
+      homeHookData?.setSelectedIndex(0) //for renedering menu list of Home page
+    } else if (btn_type === "no") {
+      setTimeout(() => {
+        setIsQuitModalOpen(false)
+      }, 0)
+
+    }
+  }
+
   if (!isOpen) return null;
 
   return (
@@ -81,7 +141,21 @@ const QuitConfirmationModal = ({ type, isOpen, setIsQuitModalOpen, onConfirm, ho
     >
       <div className="modal-content">
         <h3>Quit?</h3>
-        <p style={{ paddingTop: '25px' }}> <span className="me-2" style={{ color: '#589dcc' }}>Yes</span> or <span className='ms-2 me-2' style={{ color: '#589dcc' }}>No</span></p>
+        <p style={{ paddingTop: '25px' }}>
+          <span
+            className="me-2"
+            style={{ color: '#589dcc', cursor: 'pointer' }}
+            onClick={() => handleClick('yes')}>
+            Yes
+          </span>
+          <span>or</span>
+          <span
+            className='ms-2 me-2'
+            style={{ color: '#589dcc', cursor: 'pointer' }}
+            onClick={() => handleClick('no')}>
+            No
+          </span>
+        </p>
       </div>
     </div>
   );

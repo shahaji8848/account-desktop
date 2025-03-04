@@ -49,10 +49,21 @@ function MainBody({ isModalOpen, setShowCustomerForm, setShowSupplierForm }: any
       focusableElements[prevIndex]?.focus();
     } else if (e.key === "Enter") {
       const item = (e.currentTarget as HTMLElement).textContent;
-      if (item === "Customer") navigate('/customer-form');
-      if (item === "Supplier") navigate('/supplier-form');;
+      if (item === "Customer") {
+        navigate('/customer-form')
+      } else if (item === "Supplier") {
+        navigate('/supplier-form')
+      }
     }
   };
+
+  const handleClick = (item: any) => {
+    if (item === "Customer") {
+      navigate('/customer-form')
+    } else if (item === "Supplier") {
+      navigate('/supplier-form')
+    }
+  }
 
   return (
     <>
@@ -87,6 +98,7 @@ function MainBody({ isModalOpen, setShowCustomerForm, setShowSupplierForm }: any
                   className={`modal-menu-item ${selectedIndex === index + 1 ? "highlight" : ""}`}
                   tabIndex={0}
                   onKeyDown={handleKeyDown}
+                  onClick={() => handleClick(item)}
                 >
                   {item}
                 </li>
