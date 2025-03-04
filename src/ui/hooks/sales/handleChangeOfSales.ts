@@ -130,6 +130,15 @@ export function handleChangeOfSales(
           ...salesData,
           party_details: { ...salesData.party_details, [name]: value },
         });
+        if (name === 'receivable_account') {
+          getFilterData(
+            {
+              type: 'Account',
+              filter: { input: value },
+            },
+            'account_data'
+          );
+        }
       } else if (name.includes('date')) {
         setDate({ ...date, [name]: value });
       } else if (name === 'update_stock') {

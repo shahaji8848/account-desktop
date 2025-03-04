@@ -93,9 +93,6 @@ export function handleTableKeyFunctionalities(
           [name]: value,
         });
     } else if (name === 'margin_type') {
-      focusNextField(tablePopupRef.current.margin_rate_or_amount);
-      // handleShowFilter('margin_rate_or_amount');
-      setFieldName('margin_rate_or_amount');
       fieldName === name &&
         showFilter &&
         setItemsData({
@@ -106,6 +103,15 @@ export function handleTableKeyFunctionalities(
         setShowFilter(false);
         setType('');
       }, 0);
+      if (fieldName !== name && !showFilter) {
+        focusNextField(tablePopupRef.current.discount_percentage);
+        // handleShowFilter('discount_percentage');
+        setFieldName('discount_percentage');
+      } else {
+        focusNextField(tablePopupRef.current.margin_rate_or_amount);
+        // handleShowFilter('margin_rate_or_amount');
+        setFieldName('margin_rate_or_amount');
+      }
     } else if (name === 'item_tax_template') {
       focusNextField(tablePopupRef.current.income_account);
       // handleShowFilter('income_account');
@@ -326,7 +332,7 @@ export function handleTableKeyFunctionalities(
       case 'rate': {
         const data = { ...itemsData };
         data[name] = value;
-        if (data['qty'] !== '' && data['rate_with_margin'] === '') {
+        if (data['qty'] !== '' && value !== '' && value !== '0') {
           data['amt'] = Number(value) * Number(data['qty']);
         }
         setFieldName('margin_type');
@@ -358,7 +364,7 @@ export function handleTableKeyFunctionalities(
       case 'discount_percentage': {
         let data = { ...itemsData };
         data[name] = value;
-        if (data['qty'] !== '') {
+        if (data['qty'] !== '' && value !== '0') {
           data = calculateDiscountAmt(data, value);
         }
         if (value === '0') {
