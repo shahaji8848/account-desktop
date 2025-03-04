@@ -9,7 +9,6 @@ import QuitConfirmationModal from '../../Home/QuitConfirmationModal';
 const VoucherRegister = ({ homeHookData, globalData, VoucherRegisterList, type }: any) => {
     const { voucherRegisterMonthDate } = homeHookData
     const { isQuitModalOpen, setIsQuitModalOpen } = globalData;
-    // const [VoucherRegisterList, setVoucherRegisterList] = useState<any>([]);
     const menuItemsRef = useRef<any>([]);
     const tableRef = useRef<any>(null);
     const [selectedIndex, setSelectedIndex] = useState(0);
