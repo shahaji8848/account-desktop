@@ -230,7 +230,8 @@ export function handleAllSalesFunctions(
       if (salesData.table.length > 0) {
         // console.log(salesData, taxInfo, companyData);
         const hasEmptyRow = salesData.table.some((row: any) => Object.values(row).every((value) => value === ''));
-        const taxHasEmptyRow = taxInfo.some((row: any) => Object.values(row).every((value) => value === ''));
+        // const taxHasEmptyRow = taxInfo.some((row: any) => Object.values(row).every((value) => value === ''));
+        const filteredTaxInfo = taxInfo.filter((row: any) => row.charge_type.trim() !== '');
         if (hasEmptyRow) {
           toast.error('Items Table has an empty row please add data or remove it!', {
             autoClose: 2000,
@@ -239,11 +240,6 @@ export function handleAllSalesFunctions(
           setTimeout(() => {
             tableBodyRef.current[0].childNodes[0].childNodes[0]?.focus();
           }, 0);
-        } else if (taxHasEmptyRow) {
-          toast.error('Tax Table has an empty row please add data or remove it!', {
-            autoClose: 2000,
-            className: 'custom-toast',
-          });
         } else if (checkEmptyFields(salesData.table)) {
           toast.error('Items Table has empty important fields!', {
             autoClose: 2000,
@@ -260,9 +256,10 @@ export function handleAllSalesFunctions(
           // productData.map((item: any) => {
           //   data = [...data, { ...item, gst_hsn_code: item.hsn }];
           // });
+          setTaxInfo(filteredTaxInfo);
           let newTaxData: any = [];
-          taxInfo.length > 0 &&
-            taxInfo.map((item: any, index: number) => {
+          filteredTaxInfo.length > 0 &&
+            filteredTaxInfo.map((item: any, index: number) => {
               if (item.charge_type?.includes('Previous')) {
                 const totalTaxes = salesData.tax_template === 'Output GST In-state - 8DL' ? 2 : 1;
                 newTaxData = [...newTaxData, { ...item, row_id: index + totalTaxes }];
@@ -337,6 +334,45 @@ export function handleAllSalesFunctions(
     }
   };
 
+  const handlePartyNamePopup = () => {
+    if (paymentData?.terms?.length > 0) {
+      setPaymentTermsOpen(!paymentTermsOpen);
+      setGstTableOpen(false);
+      setTimeout(() => {
+        // Prevent the default "Select All" behavior
+        dateRef.current?.posting_date?.focus();
+      }, 0);
+    } else {
+      toast.warning('No Payment Terms Found!', {
+        autoClose: 2000,
+        className: 'custom-toast',
+      });
+    }
+  };
+
+  const handleGstPopup = () => {
+    if (gstData?.length > 0) {
+      setPaymentTermsOpen(false);
+      setGstTableOpen(!gstTableOpen);
+      setTimeout(() => {
+        // Prevent the default "Select All" behavior
+        dateRef.current?.posting_date?.focus();
+      }, 0);
+    } else {
+      toast.warning('Please fill in the items to get GST Breakup!', {
+        autoClose: 2000,
+        className: 'custom-toast',
+      });
+    }
+  };
+
+  const handleTermsPopup = () => {
+    setTermsPopup(true);
+    setTimeout(() => {
+      (salesDataRef.current.terms_and_conditions as HTMLElement).focus();
+    }, 0);
+  };
+
   const handleAllKeyFunctions = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.ctrlKey && event.key === 'a') {
       event.preventDefault(); // Prevent the default "Select All" behavior
@@ -362,44 +398,17 @@ export function handleAllSalesFunctions(
     }
     if (event.ctrlKey && event.key === 't') {
       event.preventDefault(); // Prevent the default "Select All" behavior
-      setTermsPopup(true);
-      setTimeout(() => {
-        (salesDataRef.current.terms_and_conditions as HTMLElement).focus();
-      }, 0);
+      handleTermsPopup();
     }
     if (event.ctrlKey && event.key === 'p') {
       event.preventDefault(); // Prevent the default "Select All" behavior
       // setTermsPopup(true);
-      if (paymentData?.terms?.length > 0) {
-        setPaymentTermsOpen(!paymentTermsOpen);
-        setGstTableOpen(false);
-        setTimeout(() => {
-          // Prevent the default "Select All" behavior
-          dateRef.current?.posting_date?.focus();
-        }, 0);
-      } else {
-        toast.warning('No Payment Terms Found!', {
-          autoClose: 2000,
-          className: 'custom-toast',
-        });
-      }
+      handlePartyNamePopup();
     }
     if (event.ctrlKey && event.key === 'g') {
       event.preventDefault(); // Prevent the default "Select All" behavior
       // setTermsPopup(true);
-      if (gstData?.length > 0) {
-        setPaymentTermsOpen(false);
-        setGstTableOpen(!gstTableOpen);
-        setTimeout(() => {
-          // Prevent the default "Select All" behavior
-          dateRef.current?.posting_date?.focus();
-        }, 0);
-      } else {
-        toast.warning('Please fill in the items to get GST Breakup!', {
-          autoClose: 2000,
-          className: 'custom-toast',
-        });
-      }
+      handleGstPopup();
     }
     if (paymentTermsOpen && event.key === 'Escape') {
       setPaymentTermsOpen(false);
@@ -462,5 +471,8 @@ export function handleAllSalesFunctions(
     handleItemFocus,
     handleFilterClose,
     checkHandleSubmit,
+    handleTermsPopup,
+    handlePartyNamePopup,
+    handleGstPopup,
   };
 }

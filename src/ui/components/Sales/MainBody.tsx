@@ -58,6 +58,9 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
     setFieldName,
     setType,
     filterListName,
+    handleTermsPopup,
+    handlePartyNamePopup,
+    handleGstPopup,
   } = salesHookData;
 
   const handleFocus = (e: any) => {
@@ -439,7 +442,12 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         handleFocus={handleFocus}
         salesDataRef={salesDataRef}
       />
-      <BottomNavbar handleSubmit={checkHandleSubmit} />
+      <BottomNavbar
+        handleSubmit={checkHandleSubmit}
+        handleTermsPopup={handleTermsPopup}
+        handlePartyNamePopup={handlePartyNamePopup}
+        handleGstPopup={handleGstPopup}
+      />
     </div>
   );
 }

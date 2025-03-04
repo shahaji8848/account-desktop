@@ -364,6 +364,9 @@ export function handleTableKeyFunctionalities(
         if (data['qty'] !== '' && value !== '' && value !== '0') {
           data = calculateDiscountAmt(data, value);
         }
+        if (value === '0') {
+          data['discount_amount'] = 0;
+        }
         setFieldName('item_tax_template');
         setItemsData({ ...data });
         (tablePopupRef.current['item_tax_template'] as HTMLElement).focus();
