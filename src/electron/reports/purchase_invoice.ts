@@ -80,7 +80,7 @@ export async function PurchaseInvoiceBreakupReport(kwargs: any) {
       ["posting_date", "<=", kwargs.filters.to_date],
       ["company", "=", kwargs.filters.company],
     ],
-    fields: ["name", "supplier as particulars", "base_grand_total", "posting_date"],
+    fields: ["name", "supplier", "base_grand_total", "posting_date"],
     limit_page_length: "None",
   };
 

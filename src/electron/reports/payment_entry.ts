@@ -110,7 +110,7 @@ export async function PaymentEntryDetailBreakup(kwargs: any) {
       .map((invoice: any) => ({
         ...invoice,
         status: invoice.docstatus == 2 ? "Cancelled" : "Submitted",
-        vch_type: invoice.payment_type === "Internal Transfer" ? "Contra" : invoice.payment_type,
+        vch_type: "Payment Entry",
       }));
 
     return formattedData;

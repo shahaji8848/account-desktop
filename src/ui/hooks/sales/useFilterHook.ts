@@ -77,13 +77,6 @@ const useFilterHook = ({
         );
       }
       
-      if (fieldName === 'receivable_account') {
-        // console.log(filterData, tableItemsPopup ? itemsData[fieldName] : taxInfo[taxIndex][fieldName], "trial")
-        filtered = filterData['account_data']?.filter((item: any) =>
-          item?.toLowerCase().includes((salesData.party_details[fieldName] as string)?.toLowerCase() || '')
-        );
-      }
-      
       if (fieldName === 'currency') {
         // console.log(filterData, tableItemsPopup ? itemsData[fieldName] : taxInfo[taxIndex][fieldName], "trial")
         filtered = filterData[fieldName]?.filter((item: any) =>
@@ -184,24 +177,12 @@ const useFilterHook = ({
           filtered = [...filtered, item.name];
         });
       }
-      if (fieldName === 'item_name' && tableItemsPopup) {
+      if (fieldName === 'item_name') {
         const itemsForFirstTable = activeIndex === 0 ? filterData[fieldName] : [{ name: '' }, ...filterData[fieldName]];
 
         // console.log(fieldName, filterData[fieldName]);
         const data = itemsData?.item_name
           ? itemsForFirstTable.filter((item: any) => item.name?.toLowerCase().includes((itemsData.item_name as string)?.toLowerCase()))
-          : itemsForFirstTable;
-
-        data?.map((item: any) => {
-          filtered = [...filtered, item.name];
-        });
-      }
-      if (fieldName === 'item_name' && !tableItemsPopup) {
-        const itemsForFirstTable = activeIndex === 0 ? filterData[fieldName] : [{ name: '' }, ...filterData[fieldName]];
-
-        // console.log(fieldName, filterData[fieldName]);
-        const data = salesData.table[activeIndex]?.item_name
-          ? itemsForFirstTable.filter((item: any) => item.name?.toLowerCase().includes((salesData.table[activeIndex].item_name as string)?.toLowerCase()))
           : itemsForFirstTable;
 
         data?.map((item: any) => {

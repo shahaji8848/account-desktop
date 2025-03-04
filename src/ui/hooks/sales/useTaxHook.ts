@@ -12,7 +12,7 @@ const handleTaxFunctionalities = (
   setSelectedIndex: any,
   setIsSelecting: any,
   showFilter: any,
-  // handleShowFilter: any,
+  handleShowFilter: any,
   salesData: any,
   type: any,
   selectedIndex: any,
@@ -30,11 +30,10 @@ const handleTaxFunctionalities = (
   setPaymentData: any,
   setTermsData: any,
   getData: any,
-  salesDataRef: any,
-  fieldName: any
+  salesDataRef: any
 ) => {
   const dispatch = useDispatch();
-
+  
   /**
    * Handles tax value changes for input fields.
    * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event.
@@ -108,7 +107,7 @@ const handleTaxFunctionalities = (
    * @param {React.KeyboardEvent<HTMLInputElement>} e - The keydown event.
    */
   const handleTaxKeyDown = (e: any) => {
-    const { name } = e.target;
+    const { name, value } = e.target;
 
     setFieldName(name);
 
@@ -122,7 +121,7 @@ const handleTaxFunctionalities = (
     }
 
     if (type !== 'dropdown') {
-      if (e.key === 'Enter') {
+      if (e.key === 'Enter' && value !== '') {
         if (!taxInfoPopup) {
           setTaxIndex(taxIndex + 1);
           setTaxInfo([...taxInfo, { ...taxDefaultInfo }]);
@@ -130,8 +129,7 @@ const handleTaxFunctionalities = (
           if (['rate', 'amt'].includes(name)) {
             handleCalculation();
             setTimeout(() => taxInfoRef.current[taxIndex + 1]?.childNodes[0].childNodes[0]?.focus(), 0);
-            setType('dropdown');
-            // handleShowFilter('charge_type');
+            handleShowFilter('charge_type');
           }
         } else {
           if (name === 'description') {
@@ -165,10 +163,10 @@ const handleTaxFunctionalities = (
       setTimeout(() => {
         taxInfoPopupRef.current?.charge_type?.focus();
       }, 0);
-      return;
+      return handleShowFilter('charge_type');
     }
 
-    // if (!showFilter) return;
+    if (!showFilter) return;
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -176,16 +174,16 @@ const handleTaxFunctionalities = (
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setSelectedIndex((prev: any) => Math.max(prev - 1, 0));
-    } else if (e.key === 'Enter' && !e.ctrlKey) {
+    } else if (e.key === 'Enter') {
       e.preventDefault();
-      handleDropdownSelection(name, filteredItems[selectedIndex]);
+      handleDropdownSelection(name);
     }
   };
 
-  const handleDropdownSelection = (name: any, value:any) => {
+  const handleDropdownSelection = (name: any) => {
     const data = [...taxInfo];
 
-    if ((name === 'charge_type' && !taxInfoPopup && !showFilter) || filteredItems[selectedIndex] === '') {
+    if (filteredItems[selectedIndex] === '') {
       const newData = taxInfo.filter((_: any, i: any) => taxIndex !== i);
       setTaxInfo(newData);
 
@@ -199,45 +197,40 @@ const handleTaxFunctionalities = (
       salesDataRef.current?.apply_discount_on?.focus();
       setTaxIndex(taxIndex ?? 0);
     } else {
+      data[taxIndex][name] = filteredItems[selectedIndex];
+
+      setTaxInfo(data);
+
       if (name === 'charge_type') {
-        // handleShowFilter('account_head');
+        handleShowFilter('account_head');
         if (taxInfoPopup) {
           setTimeout(() => {
             taxInfoPopupRef.current.account_head.focus();
-            setShowFilter(false);
           }, 0);
         } else {
           setTimeout(() => {
             taxInfoRef.current[taxIndex]?.childNodes[0].childNodes[1].focus();
-            setShowFilter(false);
           }, 0);
         }
       } else if (name === 'account_head') {
         if (taxInfoPopup) {
-          // handleShowFilter('cost_center');
+          handleShowFilter('cost_center');
           setTimeout(() => {
             taxInfoPopupRef.current.cost_center.focus();
-            setShowFilter(false);
             // taxInfoRef.current[taxIndex]?.childNodes[1].childNodes[1].focus();
           }, 0);
         } else {
-          data[taxIndex]['description'] = value;
-          data[taxIndex]['cost_center'] = salesData.cost_center || '';
           setTimeout(() => {
             taxInfoRef.current[taxIndex]?.childNodes[1].childNodes[taxInfo[taxIndex]['charge_type'] === 'Actual' ? 3 : 1].focus();
-            setShowFilter(false);
-            setType('');
           }, 0);
+          setShowFilter(false);
+          setType('');
         }
       } else if (name === 'cost_center') {
         setShowFilter(false);
         setType('');
         setTimeout(() => taxInfoPopupRef.current.description.focus(), 0);
       }
-
-      data[taxIndex][name] = (fieldName === name && value) || '';
-
-      fieldName === name && setTaxInfo(data);
     }
   };
 
@@ -253,7 +246,6 @@ const handleTaxFunctionalities = (
     taxInfoRef,
     taxInfoPopupRef,
     taxInfoPopup,
-    handleDropdownSelection
   };
 };
 

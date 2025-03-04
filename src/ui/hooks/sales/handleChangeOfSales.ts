@@ -12,22 +12,28 @@ export function handleChangeOfSales(
   setActiveIndex: any,
   getFilterData: any,
   setIsSelecting: any,
-  setShowFilter: any,
-  handleShowFilter: any
+  setShowFilter: any
 ) {
   const handleInputChange = (value: string, name: string, item_index: number) => {
     const data = [...salesData.table];
 
-    // console.log(name, value, 'table info');
-
-    if ((name === 'qty' || name === 'rate') && (value === '' || /^-?\d+\.?\d*$/.test(value))) {
-      data[activeIndex][name] = value;
+    if (activeIndex !== item_index) {
+      if ((name === 'qty' || name === 'rate') && (value === '' || /^-?\d+\.?\d*$/.test(value))) {
+        data[item_index][name] = value;
+      }
+      if (name !== 'qty' && name !== 'rate') {
+        data[item_index][name] = value;
+      }
+    } else {
+      if ((name === 'qty' || name === 'rate') && (value === '' || /^-?\d+\.?\d*$/.test(value))) {
+        data[activeIndex][name] = value;
+      }
+      if (name !== 'qty' && name !== 'rate') {
+        data[activeIndex][name] = value;
+      }
     }
-    if (name !== 'qty' && name !== 'rate') {
-      data[activeIndex][name] = value;
-    }
 
-    // setFieldName('item_name');
+    setFieldName('table');
 
     setSalesData({ ...salesData, table: data });
   };
@@ -54,26 +60,22 @@ export function handleChangeOfSales(
       'shipping_detail',
       'payment_terms',
       'terms_and_conditions',
-      'shipping_address',
-      'billing_address',
-      'source_warehouse',
-      'additional_discount_account',
-      'currency',
+      "shipping_address",
+      "billing_address",
+      "source_warehouse",
+      "additional_discount_account",
+      "currency",
       'apply_discount_on',
       'margin_type',
-      'batch_no',
-      'item_tax_template',
-      'receivable_account'
+      'batch_no'
     ];
 
     if (dropdown_names.includes(name)) {
       setType('dropdown');
       type = 'dropdown';
     } else {
-      setTimeout(() => {
-        setType('');
-        type = '';
-      }, 0);
+      setType('');
+      type = '';
     }
 
     if (type !== 'dropdown') {
@@ -99,13 +101,11 @@ export function handleChangeOfSales(
           setSalesData({ ...salesData, [name]: value });
         }
       } else {
-        // handleShowFilter('table');
         // Assuming value is a JSON string that needs to be parsed
         handleInputChange(value, name, item_index);
         setActiveIndex(item_index);
       }
     } else {
-      handleShowFilter(name);
       if (
         typeLabel !== 'table' &&
         !name.includes('company') &&
@@ -114,32 +114,18 @@ export function handleChangeOfSales(
         !tableItemsPopup &&
         !name.includes('party') &&
         !name.includes('billing') &&
-        !name.includes('shipping_address') &&
-        !name.includes('shipping_gstin') &&
-        name !== 'is_cash_or_non_trade_discount'&&
-        !name.includes('receivable')
+        !name.includes('shipping') &&
+        name !== 'is_cash_or_non_trade_discount'
       ) {
         setSalesData({ ...salesData, [name]: value });
         setFieldName(name);
       } else if (name === 'naming_series') {
         setSalesData({ ...salesData, [name]: value });
-      } else if (name.includes('party') || name.includes('billing') || name.includes('shipping') || name === 'receivable_account') {
-        // console.log('value', value, name)
-        setFieldName(name);
+      } else if (name.includes('party') || name.includes('billing') || name.includes('shipping')) {
         setSalesData({
           ...salesData,
           party_details: { ...salesData.party_details, [name]: value },
         });
-        
-        if (name === 'receivable_account') {
-          getFilterData(
-            {
-              type: 'Account',
-              filter: { input: value },
-            },
-            'account_data'
-          );
-        }
       } else if (name.includes('date')) {
         setDate({ ...date, [name]: value });
       } else if (name === 'update_stock') {
@@ -207,13 +193,10 @@ export function handleChangeOfSales(
             'uom'
           );
         }
-        if (name === 'item_tax_template') {
-          setType('dropdown');
-        }
       } else {
         // Assuming value is a JSON string that needs to be parsed
         handleInputChange(value, name, item_index);
-        setFieldName(name);
+        setFieldName('table');
         setActiveIndex(item_index);
       }
 

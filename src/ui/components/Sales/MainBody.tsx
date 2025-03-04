@@ -26,7 +26,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
     textAreaRef,
     activeIndex,
     submitted,
-    // handleShowFilter,
+    handleShowFilter,
     setSalesData,
     handleRate,
     partyNamePopup,
@@ -56,8 +56,8 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
     gstTableOpen,
     productData,
     setFieldName,
+    setShowFilter,
     setType,
-    filterListName,
   } = salesHookData;
 
   const handleFocus = (e: any) => {
@@ -70,8 +70,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         }
       }, 0);
     }
-    setType('dropdown');
-    // handleShowFilter(e.target.name);
+    handleShowFilter(e.target.name);
   };
 
   return (
@@ -93,7 +92,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
             <div className="salesNo d-flex align-items-center" style={{ width: '33%' }}>
               <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
                 <label style={{ background: '#2a66b0', color: 'white' }} className="px-5">
-                  Series *
+                  Series
                 </label>
                 <p>: </p>
               </div>
@@ -134,7 +133,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
             )}
             <div className="salesNo d-flex align-items-center" style={{ width: '33%' }}>
               <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
-                <label className="ps-1 pe-3">Posting Date *</label>
+                <label className="ps-1 pe-3">Posting Date</label>
                 <p>: </p>
               </div>
               <input
@@ -152,7 +151,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
           <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between">
             <div className="d-flex align-items-center" style={{ width: '42%' }}>
               <div className="d-flex align-items-center justify-content-between" style={{ width: '35.9%' }}>
-                <label className="ps-1 pe-3">Party A/C Name *</label>
+                <label className="ps-1 pe-3">Party A/C Name</label>
                 <p>: </p>
               </div>
               <input
@@ -164,12 +163,12 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
                 className="ms-2"
                 style={{ outline: 'none', width: '50%' }}
                 onFocus={handleFocus}
-                // readOnly
+                readOnly
               />
             </div>
             <div className="salesNo d-flex align-items-center" style={{ width: '33%' }}>
               <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
-                <label className="ps-1 pe-3">Due Date *</label>
+                <label className="ps-1 pe-3">Due Date</label>
                 <p>: </p>
               </div>
               <input
@@ -184,7 +183,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
               />
             </div>
           </div>
-          <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between" style={{ minHeight: '21.6px' }}>
+          <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between" style={{minHeight:'21.6px'}}>
             <div className="d-flex align-items-center" style={{ width: '43.8%' }}>
               <div className="d-flex align-items-center justify-content-between" style={{ width: '34.5%' }}>
                 <label className="ps-1 pe-3">Billing Address</label>
@@ -205,7 +204,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
             </div>
           </div>
           {/* <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between"></div> */}
-          <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between" style={{ minHeight: '21.6px' }}>
+          <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between" style={{minHeight:'21.6px'}}>
             <div className="d-flex align-items-center" style={{ width: '43.8%' }}>
               <div className="d-flex align-items-center justify-content-between" style={{ width: '34.5%' }}>
                 <label className="ps-1 pe-3">Billing GSTIN No.</label>
@@ -322,7 +321,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
           <div className="d-flex w-100 pt-0 pb-1 align-items-center justify-content-between">
             <div className="d-flex align-items-center" style={{ width: '35.4%' }}>
               <div className="d-flex align-items-center justify-content-between" style={{ width: '42.5%' }}>
-                <label className="ps-1 pe-3">Currency *</label>
+                <label className="ps-1 pe-3">Currency</label>
                 <p>: </p>
               </div>
               <input
@@ -383,7 +382,6 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
           handleFocus={handleFocus}
           salesDataRef={salesDataRef}
           productData={productData}
-          setType={setType}
         />
       </div>
       {showFilter && (
@@ -392,7 +390,6 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
           selectedIndex={selectedIndex}
           handleClick={handleItemClick}
           handleItemFocus={handleItemFocus}
-          filterListName={filterListName}
         />
       )}
       <PaymentDataTablePopup
@@ -421,6 +418,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         handleFocus={handleFocus}
         salesData={salesData}
         setFieldName={setFieldName}
+        setShowFilter={setShowFilter}
         setType={setType}
       />
       <TaxInfoPopup

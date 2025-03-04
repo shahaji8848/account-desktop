@@ -77,7 +77,7 @@ export async function salesBreakupReport(kwargs: any) {
       ["status", "!=", "Return"],
       
     ]),
-    fields: JSON.stringify(["name", "customer as particulars", "base_grand_total", "posting_date"]),
+    fields: JSON.stringify(["name", "customer", "base_grand_total", "posting_date"]),
     limit_page_length: "None", 
   });
 

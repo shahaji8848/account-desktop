@@ -126,7 +126,6 @@ export const homeSideBarData = [
 export const salesDefaultdata = {
   party_details: {
     party_name: '',
-    receivable_account: '',
     billing_address: '',
     billing_gstin: '',
     billing_address_line1: '',
@@ -169,7 +168,7 @@ export const salesDefaultdata = {
   additional_discount_account: '',
   is_cash_or_non_trade_discount: false,
   currency: 'INR',
-  conversion_rate: '1',
+  conversion_rate: '',
 };
 
 export const dataRef = {
@@ -178,7 +177,6 @@ export const dataRef = {
   shipping_address: null,
   billing_gstin: null,
   shipping_gstin: null,
-  receivable_account: null,
   cost_center: null,
   sales_no: null,
   naming_series: null,
@@ -359,8 +357,6 @@ export const filterTypes: any = {
   income_account: { type: 'Account' },
   expense_account: { type: 'Account' },
   account_head: { type: 'Account' },
-  receivable_account: { type: 'Account' },
-  additional_discount_account: { type: 'Account' },
   warehouse: { type: 'Warehouse' },
   item_tax_template: { type: 'Item Tax Template' },
   shipping_detail: { type: 'Shipping Rule' },
