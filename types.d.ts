@@ -18,5 +18,9 @@ interface Window {
     getPaymentReconciliationEntries:any;
     getAllocationList:any;
     ReconcileAmount:any;
+    PaymentEntryBreakupReport:any;
+    PaymentEntryDetailBreakup:any;
+    JournalEntryBreakupReport:any;
+    JournalEntryDetailBreakup:any;
   };
 }
