@@ -7,30 +7,17 @@ const useUnreconcileEntriesData = (company?: string, party_type?: string, party?
   const [invoiceData, setInvoiceData] = useState<any>([]);
   const [paymnentData, setPaymentData] = useState<any>([]);
   const [shouldRefetch, setShouldRefetch] = useState(false);
-  const [invoiceFilter, setInvoiceFilter] = useState<any>('');
-  const [paymentFilter, setPaymentFilter] = useState<any>('');
 
   const fetchData = useCallback(async () => {
     if (!company || !party_type || !party) return; // Ensure all fields are selected
     try {
-      if (filters) {
-        const result = await window.electron.getPaymentReconciliationEntries({
-          company: company,
-          party_type: party_type,
-          party: party,
-          filters: { invoice_name: invoiceFilter, payment_name: paymentFilter },
-        });
-        console.log('Fetched reconciliation data :', result);
-        setData(result);
-      } else {
-        const result = await window.electron.getPaymentReconciliationEntries({
-          company: company,
-          party_type: party_type,
-          party: party,
-        });
-        console.log('Fetched reconciliation data :', result);
-        setData(result);
-      }
+      const result = await window.electron.getPaymentReconciliationEntries({
+        company: company,
+        party_type: party_type,
+        party: party,
+      });
+      console.log('Fetched reconciliation data :', result);
+      setData(result);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -65,8 +52,6 @@ const useUnreconcileEntriesData = (company?: string, party_type?: string, party?
     setInvoiceData,
     setPaymentData,
     refreshData,
-    setInvoiceFilter,
-    setPaymentFilter,
   };
 };
 
