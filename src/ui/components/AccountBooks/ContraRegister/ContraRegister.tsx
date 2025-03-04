@@ -4,25 +4,32 @@ import { homeSideBarData } from '../../../utils/data'
 import Sidebar from '../../Sales/Sidebar'
 import BottomNavbar from '../../Sales/BottomNavbar'
 
-const DebitNoteRegister = ({ homeHookData, globalData }: any) => {
-    const [debitNoteRegisterList, setDebitNoteRegisterList] = useState([]);
+const ContraRegister = ({ homeHookData, globalData }: any) => {
+    const [contraRegisterList, setContraRegisterList] = useState([]);
 
-    const fetchDebitNoteRegisterList = async () => {
+    const fetchContraRegisterList = async () => {
         try {
             const from_date = "2024-04-01";
             const to_date = "2025-03-31";
 
-            let x = await window.electron.PurchaseInvoiceMonthWiseBreakup({
-                filters: { from_date, to_date, company: "8848 Digital LLP", isReturn: 1 }
+            let x = await window.electron.PaymentEntryBreakupReport({
+                filters: {
+                    from_date,
+                    to_date,
+                    company: "8848 Digital LLP",
+                    payment_type: 'Internal Transfer'
+                }
             });
-            setDebitNoteRegisterList(x);
+
+            setContraRegisterList(x);
         } catch (error) {
-            console.error("Error fetching sales register list:", error);
+            console.error("Error fetching contra register list:", error);
         }
     };
 
+
     useEffect(() => {
-        fetchDebitNoteRegisterList()
+        fetchContraRegisterList()
     }, []);
 
     return (
@@ -39,7 +46,7 @@ const DebitNoteRegister = ({ homeHookData, globalData }: any) => {
 
                     }}
                 >
-                    <p className='text-center'>Debit Note Register</p>
+                    <p className='text-center'>Contra Register</p>
                     <p className='text-center'>8848 digital</p>
 
                     <p
@@ -52,8 +59,8 @@ const DebitNoteRegister = ({ homeHookData, globalData }: any) => {
                 <Register
                     homeHookData={homeHookData}
                     globalData={globalData}
-                    registerList={debitNoteRegisterList}
-                    type='debit_note_register'
+                    registerList={contraRegisterList}
+                    type='contra_register'
                 />
                 <BottomNavbar />
             </div>
@@ -64,4 +71,4 @@ const DebitNoteRegister = ({ homeHookData, globalData }: any) => {
     )
 }
 
-export default DebitNoteRegister
+export default ContraRegister

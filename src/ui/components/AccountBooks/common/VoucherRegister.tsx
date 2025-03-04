@@ -88,6 +88,11 @@ const VoucherRegister = ({ homeHookData, globalData, VoucherRegisterList, type }
                 {type === 'credit_note_voucher_register' && <p className='fw-bold'>List of All Credit Note Vouchers</p>}
                 {type === 'purchase_voucher_register' && <p className='fw-bold'>List of All Purchase Invoice Vouchers</p>}
                 {type === 'debit_note_voucher_register' && <p className='fw-bold'>List of All Debit Note Vouchers</p>}
+                {type === 'journal_voucher_register' && <p className='fw-bold'>List of All Journal Vouchers</p>}
+                {type === 'payment_voucher_register' && <p className='fw-bold'>List of All Payment Vouchers</p>}
+                {type === 'receipt_voucher_register' && <p className='fw-bold'>List of All Receipt Vouchers</p>}
+                {type === 'contra_voucher_register' && <p className='fw-bold'>List of All Contra Vouchers</p>}
+
                 <p className='fw-bold'>{monthDate?.start_date} to {monthDate?.end_date}</p>
             </div>
 
@@ -100,6 +105,7 @@ const VoucherRegister = ({ homeHookData, globalData, VoucherRegisterList, type }
                     <tr>
                         <th className={styles.noBorderSides}>Date</th>
                         <th className={styles.noBorderSides}>Particulars</th>
+                        {(type === 'journal_voucher_register' || type === 'payment_voucher_register' || type === 'receipt_voucher_register' || type === 'contra_voucher_register') && <th className={styles.noBorderSides}>Status</th>}
                         <th className={styles.noBorderSides}>Vch Type</th>
                         <th className={styles.noBorderSides}>Vch No.</th>
                         <th className={styles.noBorderSides}>Debit Amount</th>
@@ -108,7 +114,7 @@ const VoucherRegister = ({ homeHookData, globalData, VoucherRegisterList, type }
                 </thead>
                 <tbody>
                     {VoucherRegisterList?.length > 0 && VoucherRegisterList.map((data: any, index: any) => {
-                        totalAmount += Math.abs(data?.base_grand_total)
+                        totalAmount += Math.abs(data?.base_grand_total || data?.paid_amount)
                         return (
                             <tr
                                 key={index}
@@ -122,8 +128,12 @@ const VoucherRegister = ({ homeHookData, globalData, VoucherRegisterList, type }
                                     {data?.posting_date}
                                 </td>
                                 <td className={`${styles.noBordeAll} ${index === selectedIndex ? styles.voucherRowActive : ""}`}>
-                                    <strong>{data?.customer}</strong>
+                                    <strong>{data?.particulars}</strong>
                                 </td>
+                                {(type === 'journal_voucher_register' || type === 'payment_voucher_register' || type === 'receipt_voucher_register' || type === 'contra_voucher_register') &&
+                                    <td className={`${styles.noBordeAll} ${index === selectedIndex ? styles.voucherRowActive : ""}`}>
+                                        <strong>{data?.status}</strong>
+                                    </td>}
                                 <td className={`${styles.noBordeAll} ${index === selectedIndex ? styles.voucherRowActive : ""}`}>
                                     <strong>{data?.vch_type}</strong>
                                 </td>
@@ -131,10 +141,10 @@ const VoucherRegister = ({ homeHookData, globalData, VoucherRegisterList, type }
                                     {data?.name}
                                 </td>
                                 <td className={`${styles.noBordeAll} ${index === selectedIndex ? styles.voucherRowActive : ""}`}>
-                                    <strong>{(type === 'sales_voucher_register' || type === 'debit_note_voucher_register') && Math.abs(data?.base_grand_total)}</strong>
+                                    <strong>{(type === 'sales_voucher_register' || type === 'debit_note_voucher_register' || type === 'journal_voucher_register' || type === 'payment_voucher_register' || type === 'receipt_voucher_register' || type === 'contra_voucher_register') && Math.abs(data?.base_grand_total || data?.paid_amount)?.toFixed(2)}</strong>
                                 </td>
                                 <td className={`${styles.noBordeAll} ${index === selectedIndex ? styles.voucherRowActive : ""}`}>
-                                    <strong>{(type === 'credit_note_voucher_register' || type === 'purchase_voucher_register') && Math.abs(data?.base_grand_total)}</strong>
+                                    <strong>{(type === 'credit_note_voucher_register' || type === 'purchase_voucher_register') && Math.abs(data?.base_grand_total?.toFixed(2))}</strong>
                                 </td>
                             </tr>
                         )
@@ -144,9 +154,9 @@ const VoucherRegister = ({ homeHookData, globalData, VoucherRegisterList, type }
                         <td colSpan={4} className={`${styles.noBordeAll}`} style={{ flexBasis: '55%' }}></td>
                         <td colSpan={4} className={`fw-bold ${styles.noBordeAll}`} style={{ flexBasis: '15%' }}>Total:</td>
                         {/* debit field  */}
-                        <td className={`fw-bold ${styles.noBordeAll}`} style={{ flexBasis: '15%' }}>{(type === 'sales_voucher_register' || type === 'debit_note_voucher_register') && totalAmount}</td>
+                        <td className={`fw-bold ${styles.noBordeAll}`} style={{ flexBasis: '15%' }}>{(type === 'sales_voucher_register' || type === 'debit_note_voucher_register' || type === 'journal_voucher_register' || type === 'payment_voucher_register' || type === 'receipt_voucher_register' || type === 'contra_voucher_register') && totalAmount?.toFixed(2)}</td>
                         {/* credit field  */}
-                        <td className={`fw-bold ${styles.noBordeAll}`} style={{ flexBasis: '15%' }}>{(type === 'credit_note_voucher_register' || type === 'purchase_voucher_register') && totalAmount}</td>
+                        <td className={`fw-bold ${styles.noBordeAll}`} style={{ flexBasis: '15%' }}>{(type === 'credit_note_voucher_register' || type === 'purchase_voucher_register') && totalAmount?.toFixed(2)}</td>
                     </tr>
                 </tbody>
             </Table>

@@ -9,3 +9,7 @@
 .login_form .password_btn:hover {
     background-color: #D4EBF8 !important;
 }
+
+.login_form .input-group .form-control {
+    border: none !important;
+}

@@ -21,12 +21,20 @@ import PurchaseRegister from './components/AccountBooks/PurchaseRegister/Purchas
 import PurchaseVoucherRegister from './components/AccountBooks/PurchaseRegister/PurchaseVoucherRegister';
 import DebitNoteRegister from './components/AccountBooks/DebitNoteRegister/DebitNoteRegister';
 import DebitNoteVoucherRegister from './components/AccountBooks/DebitNoteRegister/DebitNoteVoucherRegister';
+import JournalRegister from './components/AccountBooks/JournalRegister/JournalRegister';
+import JournalVoucherRegister from './components/AccountBooks/JournalRegister/JournalVoucherRegister';
+import PaymentRegister from './components/AccountBooks/PaymentRegister/PaymentRegister';
+import PaymentVoucherRegister from './components/AccountBooks/PaymentRegister/PaymentVoucherRegister';
+import ReceiptRegister from './components/AccountBooks/ReceiptRegister/ReceiptRegister';
+import ReceiptVoucherRegister from './components/AccountBooks/ReceiptRegister/ReceiptVoucherRegister';
+import ContraRegister from './components/AccountBooks/ContraRegister/ContraRegister';
+import ContraVoucherRegister from './components/AccountBooks/ContraRegister/ContraVoucherRegister';
 
 function App() {
   const { handleGlobalKeyFunctions, companyPopup, ...globalData } = useGlobalKeyFunctionalities();
   const { handleAllKeyFunctions, ...salesHookData } = useSalesHook(globalData);
   const { handlekeyfunctions, ...homeHookData } = useHomePageHooks();
-  
+
   const location = useLocation();
 
   const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
@@ -102,7 +110,7 @@ function App() {
                   globalData={globalData}
                 />
               } />
-               <Route path="/purchase-register" element={
+              <Route path="/purchase-register" element={
                 <PurchaseRegister
                   homeHookData={homeHookData}
                   globalData={globalData}
@@ -122,6 +130,54 @@ function App() {
               } />
               <Route path="/debit-note-voucher-register" element={
                 <DebitNoteVoucherRegister
+                  homeHookData={homeHookData}
+                  globalData={globalData}
+                />
+              } />
+              <Route path="/journal-register" element={
+                <JournalRegister
+                  homeHookData={homeHookData}
+                  globalData={globalData}
+                />
+              } />
+              <Route path="/journal-voucher-register" element={
+                <JournalVoucherRegister
+                  homeHookData={homeHookData}
+                  globalData={globalData}
+                />
+              } />
+              <Route path="/payment-register" element={
+                <PaymentRegister
+                  homeHookData={homeHookData}
+                  globalData={globalData}
+                />
+              } />
+              <Route path="/payment-voucher-register" element={
+                <PaymentVoucherRegister
+                  homeHookData={homeHookData}
+                  globalData={globalData}
+                />
+              } />
+              <Route path="/receipt-register" element={
+                <ReceiptRegister
+                  homeHookData={homeHookData}
+                  globalData={globalData}
+                />
+              } />
+              <Route path="/receipt-voucher-register" element={
+                <ReceiptVoucherRegister
+                  homeHookData={homeHookData}
+                  globalData={globalData}
+                />
+              } />
+              <Route path="/contra-register" element={
+                <ContraRegister
+                  homeHookData={homeHookData}
+                  globalData={globalData}
+                />
+              } />
+              <Route path="/contra-voucher-register" element={
+                <ContraVoucherRegister
                   homeHookData={homeHookData}
                   globalData={globalData}
                 />

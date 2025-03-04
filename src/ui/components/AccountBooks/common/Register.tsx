@@ -10,10 +10,12 @@ import { registerLabel } from '../../../utils/RegisterData';
 import { useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store/root-reducer';
+import RegisterTableHead from './RegisterTableHead';
+import RegisterTableHeadCancelledList from './RegisterTableHeadCancelledList';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const Register = ({ homeHookData, globalData, SalesRegisterList, type }: any) => {
+const Register = ({ homeHookData, globalData, registerList, type }: any) => {
     const menuItemsRef = useRef<any>([]);
     const tableRef = useRef<any>(null);
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -22,8 +24,10 @@ const Register = ({ homeHookData, globalData, SalesRegisterList, type }: any) =>
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '';
     let closingBalance = 0;
     let totalClosingBalance = 0;
+    let totalVoucher = 0;
+    let totalCancelled = 0;
 
-    const chartData = SalesRegisterList?.map((data: any) => {
+    const chartData = registerList?.map((data: any) => {
         if (type === "sales_register" || type === 'debit_note_register') return Math.abs(data?.credit) || 0;
         if (type === "credit_note_register" || type === 'purchase_register') return Math.abs(data?.debit) || 0;
         return 0;
@@ -41,14 +45,14 @@ const Register = ({ homeHookData, globalData, SalesRegisterList, type }: any) =>
             element.style.boxShadow = "none";
         }
         // Focus the total row if no data
-        if (SalesRegisterList?.length === 0 && tableRef.current) {
+        if (registerList?.length === 0 && tableRef.current) {
             const element = tableRef.current
             element.focus();
             // Remove focus styles dynamically
             element.style.outline = "none";
             element.style.boxShadow = "none";
         }
-    }, [selectedIndex, SalesRegisterList, isQuitModalOpen]);
+    }, [selectedIndex, registerList, isQuitModalOpen]);
 
     const handleKeyDown = (e: React.KeyboardEvent, index?: number, month?: any) => {
         const menuItems = menuItemsRef.current.filter((item: any) => item !== null); // Filter out null values
@@ -74,10 +78,19 @@ const Register = ({ homeHookData, globalData, SalesRegisterList, type }: any) =>
                 navigate("/purchase-voucher-register")
             } else if (type === "debit_note_register") {
                 navigate("/debit-note-voucher-register")
+            } else if (type === "journal_register") {
+                navigate("/journal-voucher-register")
+            } else if (type === "payment_register") {
+                navigate("/payment-voucher-register")
+            } else if (type === "receipt_register") {
+                navigate("/receipt-voucher-register")
+            } else if (type === "contra_register") {
+                navigate("/contra-voucher-register")
             }
             const year = new Date().getFullYear();
             // function to get start date and end date of month
-            const { start_date, end_date } = getFinancialMonthDates(month, year)
+            const month_name = month.split(" ")[0];
+            const { start_date, end_date } = getFinancialMonthDates(month_name, year)
             homeHookData?.setVoucherRegisterMonthDate({
                 start_date,
                 end_date
@@ -104,38 +117,22 @@ const Register = ({ homeHookData, globalData, SalesRegisterList, type }: any) =>
             <Table bordered className="text-center">
                 {/* Table Header */}
                 <thead className='register_table'>
-                    <tr>
-                        <th className='text-start align-middle' style={{ width: "80%" }} rowSpan={3}>Particulars</th>
-                        <th colSpan={3} className="transactionsHeader">
-                            <div className="text-center">
-                                <span className="text-secondary font-italic">{registerLabel[type]}</span>
-                                <br />
-                                <span>{companyName}</span>
-                                <br />
-                                <span className="text-secondary">For 1-Apr-24</span>
-                            </div>
-                        </th>
-                    </tr>
-
-                    <tr>
-                        <th colSpan={2}>Transactions</th>
-                        <th rowSpan={2}>Closing Balance</th>
-                    </tr>
-
-                    <tr>
-                        <th className='text-start' style={{ width: '10%' }}>Debit</th>
-                        <th className='text-start' style={{ width: '10%' }}>Credit</th>
-                    </tr>
+                    {(type === 'sales_register' || type === 'credit_note_register' || type === 'purchase_register' || type === 'debit_note_register') && <RegisterTableHead companyName={companyName} registerLabel={registerLabel[type]} />}
+                    {(type === 'journal_register' || type === 'payment_register' || type === 'receipt_register' || type === 'contra_register') && <RegisterTableHeadCancelledList companyName={companyName} registerLabel={registerLabel[type]} />
+                    }
                 </thead>
 
                 {/* Table Body */}
                 <tbody>
-                    {SalesRegisterList?.length > 0 && SalesRegisterList.map((data: any, index: number) => {
+                    {registerList?.length > 0 && registerList.map((data: any, index: number) => {
                         // Calculate closing balance (current credit + previous closing balance)
                         if (type === 'sales_register' || type === 'debit_note_register') {
                             closingBalance += Math.abs(data?.credit);
                         } else if (type === 'credit_note_register' || type === 'purchase_register') {
                             closingBalance += Math.abs(data?.debit);
+                        } else if (type === 'journal_register' || type === 'payment_register' || type === 'receipt_register' || type === 'contra_register') {
+                            totalVoucher += data?.total_entries;
+                            totalCancelled += data?.cancelled;
                         }
                         totalClosingBalance += closingBalance; // Add current closing balance to total
 
@@ -163,7 +160,18 @@ const Register = ({ homeHookData, globalData, SalesRegisterList, type }: any) =>
                                         <td className={`${styles.noBordeAll} ${index === selectedIndex ? styles.voucherRowActive : ""}`}></td>
                                     </>
                                 )}
-                                <td className={`${styles.noBordeAll} ${index === selectedIndex ? styles.voucherRowActive : ""}`}>{closingBalance === 0 ? "" : closingBalance?.toFixed(2)}</td>
+
+                                {(type === 'journal_register' || type === 'payment_register' || type === 'receipt_register' || type === 'contra_register') && (
+                                    <>
+                                        <td className={`${styles.noBordeAll} ${index === selectedIndex ? styles.voucherRowActive : ""}`}></td>
+
+                                        <td className={`text-start ${styles.noBordeAll} ${index === selectedIndex ? styles.voucherRowActive : ""}`}>{data?.total_entries}</td>
+                                        <td className={`${styles.noBordeAll} ${index === selectedIndex ? styles.voucherRowActive : ""}`}>({data?.cancelled})</td>
+                                    </>
+                                )}
+                                {/* closing balance of row  */}
+                                {(type === 'sales_register' || type === 'debit_note_register' || type === 'credit_note_register' || type === 'purchase_register') &&
+                                    <td className={`${styles.noBordeAll} ${index === selectedIndex ? styles.voucherRowActive : ""}`}>{closingBalance === 0 ? "" : closingBalance?.toFixed(2)}</td>}
                             </tr>
                         );
                     })}
@@ -196,7 +204,16 @@ const Register = ({ homeHookData, globalData, SalesRegisterList, type }: any) =>
                             </>
                         )}
 
-                        <td className={`${styles.noBordeAll}`}>{totalClosingBalance?.toFixed(2)}</td>
+                        {(type === 'journal_register' || type === 'payment_register' || type === 'receipt_register' || type === 'contra_register') && (
+                            <>
+                                <td className={`${styles.noBordeAll}`}></td>
+                                <td className={`text-start ${styles.noBordeAll}`}>{totalVoucher}</td>
+                                <td className={`${styles.noBordeAll}`}>({totalCancelled})</td>
+                            </>
+                        )}
+
+                        {(type === 'sales_register' || type === 'debit_note_register' || type === 'credit_note_register' || type === 'purchase_register') &&
+                            <td className={`${styles.noBordeAll}`}>{totalClosingBalance?.toFixed(2)}</td>}
                     </tr>
                 </tbody>
             </Table>
@@ -204,7 +221,7 @@ const Register = ({ homeHookData, globalData, SalesRegisterList, type }: any) =>
             <div className="mt-4" style={{ height: '200px' }}>
                 <Bar
                     data={{
-                        labels: SalesRegisterList?.map((data: any) => data?.month) || [],
+                        labels: registerList?.map((data: any) => data?.month) || [],
                         datasets: [
                             {
                                 label: registerLabel[type] || "Unknown",

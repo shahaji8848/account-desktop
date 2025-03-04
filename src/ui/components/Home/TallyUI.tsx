@@ -2,8 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import "./TallyUI.css";
 import TallyModal from "./TallyModal";
 import QuitConfirmationModal from "./QuitConfirmationModal";
-
 import { useNavigate } from "react-router-dom";
+import HomeMenuList from "./MenuList/HomeMenuList";
+import MoreReportMenuList from "./MenuList/MoreReportMenuList";
+import AccountBooksMenuList from "./MenuList/AccountBooksMenuList";
 
 const TallyUI = ({ isModalOpen, setIsModalOpen, setIsSales, setShowCustomerForm, setShowSupplierForm, handlekeyfunctions, setSelectedIndex, selectedIndex, globalData, homeHookData }: any) => {
   const navigate = useNavigate();
@@ -57,11 +59,19 @@ const TallyUI = ({ isModalOpen, setIsModalOpen, setIsSales, setShowCustomerForm,
         navigate('/purchase-register')
       } else if (selectedText === 'Debit Note Register') {
         navigate('/debit-note-register')
+      } else if (selectedText === 'Journal Register') {
+        navigate('/journal-register')
+      } else if (selectedText === 'PaYment Register') {
+        navigate('/payment-register')
+      } else if (selectedText === 'Receipt Register') {
+        navigate('/receipt-register')
+      } else if (selectedText === 'ConTra Register') {
+        navigate('/contra-register')
       }
-    } else if (e.key === "d" && accountBooksList && !moreReportList) {
+    } else if (e.key === "d" && accountBooksList && !moreReportList) { //menu list button click functionality
       navigate('/debit-note-register')
     }
-    else if (e.key === "d") { //menu list button click functionality
+    else if (e.key === "d") {
       setMoreReportList(true);
       setSelectedIndex(0);
     } else if (e.key === "a" && moreReportList) {
@@ -74,7 +84,16 @@ const TallyUI = ({ isModalOpen, setIsModalOpen, setIsSales, setShowCustomerForm,
       navigate('/credit-note-register')
     } else if (e.key === "p" && accountBooksList) {
       navigate('/purchase-register')
-    } else if (e.key === "Escape") {
+    } else if (e.key === "j" && accountBooksList) {
+      navigate('/journal-register')
+    } else if (e.key === "y" && accountBooksList) {
+      navigate('/payment-register')
+    } else if (e.key === "r" && accountBooksList) {
+      navigate('/receipt-register')
+    } else if (e.key === "t" && accountBooksList) {
+      navigate('/contra-register')
+    }
+    else if (e.key === "Escape" || e.key === "q") {
       setIsQuitModalOpen(true);
     }
   };
@@ -84,249 +103,8 @@ const TallyUI = ({ isModalOpen, setIsModalOpen, setIsSales, setShowCustomerForm,
     setIsQuitModalOpen(false)
   };
 
-
-
-  // kdjlkj
-  const HomeMenuList = (
-    <div className="col-md-5 right-section">
-      <div className="menu-box">
-        <div className="menu-header text-center">Gateway of Tally</div>
-        <ul className="list-unstyled text-center mt-5">
-          <li className="menu-category" style={{ color: "#87bde6" }}>
-            MASTERS
-          </li>
-          {["Create", "Alter", "Chart of Accounts"].map((item, index) => (
-            <li
-              key={index}
-              ref={(el) => (menuItemsRef.current[index] = el)}
-              className={`menu-item ${index === selectedIndex ? "active" : ""}`}
-              tabIndex={0}
-              onKeyDown={(e) => handleKeyDown(e, index)}
-              onClick={() => console.log(item)}
-            >
-              {item}
-            </li>
-          ))}
-
-          <li className="menu-category mt-3" style={{ color: "#87bde6" }}>
-            TRANSACTIONS
-          </li>
-          {["Vouchers", "Day Book"].map((item, index) => (
-            <li
-              key={index + 3}
-              ref={(el) => (menuItemsRef.current[index + 3] = el)}
-              className={`menu-item ${index + 3 === selectedIndex ? "active" : ""}`}
-              tabIndex={0}
-              onKeyDown={(e) => handleKeyDown(e, index + 3)}
-              onClick={() => console.log(item)}
-            >
-              {item}
-            </li>
-          ))}
-
-          <li className="menu-category mt-3" style={{ color: "#87bde6" }}>
-            UTILITIES
-          </li>
-          {["Banking"].map((item, index) => (
-            <li
-              key={index + 5}
-              ref={(el) => (menuItemsRef.current[index + 5] = el)}
-              className={`menu-item ${index + 5 === selectedIndex ? "active" : ""}`}
-              tabIndex={0}
-              onKeyDown={(e) => handleKeyDown(e, index + 5)}
-              onClick={() => console.log(item)}
-            >
-              {item}
-            </li>
-          ))}
-
-          <li className="menu-category mt-3" style={{ color: "#87bde6" }}>
-            REPORTS
-          </li>
-          {[
-            "Balance Sheet",
-            "Profit & Loss A/c",
-            "Stock Summary",
-            "Ratio Analysis",
-            "Display More Reports",
-            "Dashboard",
-          ].map((item, index) => (
-            <li
-              key={index + 6}
-              ref={(el) => (menuItemsRef.current[index + 6] = el)}
-              className={`menu-item ${index + 6 === selectedIndex ? "active" : ""}`}
-              tabIndex={0}
-              onKeyDown={(e) => handleKeyDown(e, index + 6)}
-              onClick={() => console.log(item)}
-            >
-              {item}
-            </li>
-          ))}
-
-          <li
-            className={`menu-item mt-3 text-danger ${12 === selectedIndex ? "active" : ""}`}
-            ref={(el) => (menuItemsRef.current[12] = el)}
-            tabIndex={0}
-            onKeyDown={(e) => handleKeyDown(e, 12)}
-          >
-            Quit
-          </li>
-        </ul>
-      </div>
-    </div>
-  );
-  // lkdl 
-
-  // more Report 
-
-  const MoreReportList = (
-    <div className="col-md-5 right-section">
-      <div className="menu-box">
-        <div className="menu-header text-center">Display More Reports</div>
-        <ul className="list-unstyled text-center mt-5">
-          <li className="menu-category" style={{ color: "#87bde6" }}>
-            ACCOUNTING
-          </li>
-          {["Trial Balance", "Day Book", "Cash Flow", "Funds Flow", "Account Books", "Statements of Accounts"].map((item, index) => (
-            <li
-              key={index}
-              ref={(el) => (menuItemsRef.current[index] = el)}
-              className={`menu-item ${index === selectedIndex ? "active" : ""}`}
-              tabIndex={0}
-              onKeyDown={(e) => handleKeyDown(e, index)}
-              onClick={() => console.log(item)}
-            >
-              {item}
-            </li>
-          ))}
-
-          <li className="menu-category mt-3" style={{ color: "#87bde6" }}>
-            INVENTORY
-          </li>
-          {["Inventory Books", "Statements of Inventory"].map((item, index) => (
-            <li
-              key={index + 3}
-              ref={(el) => (menuItemsRef.current[index + 6] = el)}
-              className={`menu-item ${index + 6 === selectedIndex ? "active" : ""}`}
-              tabIndex={0}
-              onKeyDown={(e) => handleKeyDown(e, index + 6)}
-              onClick={() => console.log(item)}
-            >
-              {item}
-            </li>
-          ))}
-
-          <li className="menu-category mt-3" style={{ color: "#87bde6" }}>
-            STATUTORY
-          </li>
-          {["Statutory Reports"].map((item, index) => (
-            <li
-              key={index + 5}
-              ref={(el) => (menuItemsRef.current[index + 8] = el)}
-              className={`menu-item ${index + 8 === selectedIndex ? "active" : ""}`}
-              tabIndex={0}
-              onKeyDown={(e) => handleKeyDown(e, index + 8)}
-              onClick={() => console.log(item)}
-            >
-              {item}
-            </li>
-          ))}
-
-          <li className="menu-category mt-3" style={{ color: "#87bde6" }}>
-            EXCEPTION
-          </li>
-          {[
-            "Exception Reports", "Analysis & Verification"
-          ].map((item, index) => (
-            <li
-              key={index + 9}
-              ref={(el) => (menuItemsRef.current[index + 9] = el)}
-              className={`menu-item ${index + 9 === selectedIndex ? "active" : ""}`}
-              tabIndex={0}
-              onKeyDown={(e) => handleKeyDown(e, index + 9)}
-              onClick={() => console.log(item)}
-            >
-              {item}
-            </li>
-          ))}
-
-          <li
-            className={`menu-item mt-3 text-danger ${11 === selectedIndex ? "active" : ""}`}
-            ref={(el) => (menuItemsRef.current[11] = el)}
-            tabIndex={0}
-            onKeyDown={(e) => handleKeyDown(e, 11)}
-          >
-            Quit
-          </li>
-        </ul>
-      </div>
-    </div>
-  );
-
-  // more Report end
-
-  // Account books
-  const AccountBooksList = (
-    <div className="col-md-5 right-section">
-      <div className="menu-box">
-        <div className="menu-header text-center">Account Books</div>
-        <ul className="list-unstyled text-center mt-5">
-          <li className="menu-category" style={{ color: "#87bde6" }}>
-            SUMMARY
-          </li>
-          {["Cash/Bank Book(s)", "Ledger", "Group Summary", "Group Vouchers"].map((item, index) => (
-            <li
-              key={index}
-              ref={(el) => (menuItemsRef.current[index] = el)}
-              className={`menu-item ${index === selectedIndex ? "active" : ""}`}
-              tabIndex={0}
-              onKeyDown={(e) => handleKeyDown(e, index)}
-              onClick={() => console.log(item)}
-            >
-              {item}
-            </li>
-          ))}
-
-          <li className="menu-category mt-3" style={{ color: "#87bde6" }}>
-            REGISTERS
-          </li>
-          {[
-            "ConTra Register",
-            "PaYment Register",
-            "Receipt Register",
-            "Sales Register",
-            "Purchase Register",
-            "Journal Register",
-            "Debit Note Register",
-            "CrEdit Note Register",
-            "VoUcher Clarification"
-          ].map((item, index) => (
-            <li
-              key={index + 3}
-              ref={(el) => (menuItemsRef.current[index + 4] = el)}
-              className={`menu-item ${index + 4 === selectedIndex ? "active" : ""}`}
-              tabIndex={0}
-              onKeyDown={(e) => handleKeyDown(e, index + 4)}
-              onClick={() => console.log(item)}
-            >
-              {item}
-            </li>
-          ))}
-
-          <li
-            className={`menu-item mt-3 text-danger ${13 === selectedIndex ? "active" : ""}`}
-            ref={(el) => (menuItemsRef.current[13] = el)}
-            tabIndex={0}
-            onKeyDown={(e) => handleKeyDown(e, 13)}
-          >
-            Quit
-          </li>
-        </ul>
-      </div>
-    </div>
-  );
   return (
-    <div className="container-fluid" style={{ height: "100%" }} onKeyDown={handlekeyfunctions}>
+    <div className="container-fluid home_page" style={{ height: "100%" }} onKeyDown={handlekeyfunctions}>
       <div className="row" style={{ height: "100%" }}>
         {/* Left Section */}
         <div className="col-md-7 left-section">
@@ -358,9 +136,10 @@ const TallyUI = ({ isModalOpen, setIsModalOpen, setIsSales, setShowCustomerForm,
         </div>
 
         {/* Right Section */}
-        {(!moreReportList && !accountBooksList) && HomeMenuList}
-        {(moreReportList && !accountBooksList) && MoreReportList}
-        {(accountBooksList && !moreReportList) && AccountBooksList}
+        {(!moreReportList && !accountBooksList) && <HomeMenuList menuItemsRef={menuItemsRef} selectedIndex={selectedIndex} handleKeyDown={handleKeyDown} />}
+        {(moreReportList && !accountBooksList) && <MoreReportMenuList menuItemsRef={menuItemsRef} selectedIndex={selectedIndex} handleKeyDown={handleKeyDown} />}
+        {(accountBooksList && !moreReportList) && <AccountBooksMenuList menuItemsRef={menuItemsRef} selectedIndex={selectedIndex} handleKeyDown={handleKeyDown} />}
+
       </div>
       {/* pop up */}
       {isModalOpen && (

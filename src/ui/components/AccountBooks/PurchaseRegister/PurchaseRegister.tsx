@@ -5,9 +5,9 @@ import Sidebar from '../../Sales/Sidebar'
 import BottomNavbar from '../../Sales/BottomNavbar'
 
 const PurchaseRegister = ({ homeHookData, globalData }: any) => {
-    const [SalesRegisterList, setSalesRegisterList] = useState([]);
+    const [purchaseRegisterList, setPurchaseRegisterList] = useState([]);
 
-    const fetchSalesRegisterList = async () => {
+    const fetchPurchaseRegisterList = async () => {
         try {
             const from_date = "2024-04-01";
             const to_date = "2025-03-31";
@@ -15,7 +15,7 @@ const PurchaseRegister = ({ homeHookData, globalData }: any) => {
             let x = await window.electron.PurchaseInvoiceMonthWiseBreakup({
                 filters: { from_date, to_date, company: "8848 Digital LLP", isReturn: 0 }
             });
-            setSalesRegisterList(x);
+            setPurchaseRegisterList(x);
         } catch (error) {
             console.error("Error fetching sales register list:", error);
         }
@@ -23,10 +23,10 @@ const PurchaseRegister = ({ homeHookData, globalData }: any) => {
 
 
     useEffect(() => {
-        fetchSalesRegisterList()
+        fetchPurchaseRegisterList()
     }, []);
 
-    console.log("SalesRegisterList", SalesRegisterList)
+
     return (
         <div
             className="w-100 d-flex align-items-stretch justify-content-between"
@@ -54,7 +54,7 @@ const PurchaseRegister = ({ homeHookData, globalData }: any) => {
                 <Register
                     homeHookData={homeHookData}
                     globalData={globalData}
-                    SalesRegisterList={SalesRegisterList}
+                    registerList={purchaseRegisterList}
                     type='purchase_register'
                 />
                 <BottomNavbar />

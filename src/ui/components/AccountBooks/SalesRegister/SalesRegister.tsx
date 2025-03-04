@@ -5,8 +5,7 @@ import Sidebar from '../../Sales/Sidebar'
 import BottomNavbar from '../../Sales/BottomNavbar'
 
 const SalesRegister = ({ homeHookData, globalData }: any) => {
-    const [SalesRegisterList, setSalesRegisterList] = useState([]);
-
+    const [salesRegisterList, setSalesRegisterList] = useState([]);
     const fetchSalesRegisterList = async () => {
         try {
             const from_date = "2024-04-01";
@@ -27,7 +26,6 @@ const SalesRegister = ({ homeHookData, globalData }: any) => {
         fetchSalesRegisterList()
     }, []);
 
-    console.log("SalesRegisterList", SalesRegisterList)
     return (
         <div
             className="w-100 d-flex align-items-stretch justify-content-between"
@@ -55,7 +53,7 @@ const SalesRegister = ({ homeHookData, globalData }: any) => {
                 <Register
                     homeHookData={homeHookData}
                     globalData={globalData}
-                    SalesRegisterList={SalesRegisterList}
+                    registerList={salesRegisterList}
                     type='sales_register'
                 />
                 <BottomNavbar />

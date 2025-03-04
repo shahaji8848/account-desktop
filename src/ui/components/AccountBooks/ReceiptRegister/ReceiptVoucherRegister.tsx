@@ -1,30 +1,34 @@
 import React, { useEffect, useState } from 'react'
-import Register from '../common/Register'
-import { homeSideBarData } from '../../../utils/data'
 import Sidebar from '../../Sales/Sidebar'
+import { homeSideBarData } from '../../../utils/data'
+import VoucherRegister from '../common/VoucherRegister'
 import BottomNavbar from '../../Sales/BottomNavbar'
 
-const DebitNoteRegister = ({ homeHookData, globalData }: any) => {
-    const [debitNoteRegisterList, setDebitNoteRegisterList] = useState([]);
+const ReceiptVoucherRegister = ({ homeHookData, globalData }: any) => {
+    const [VoucherRegisterList, setVoucherRegisterList] = useState<any>([]);
+    const { voucherRegisterMonthDate } = homeHookData
 
-    const fetchDebitNoteRegisterList = async () => {
+
+    const fetchVoucherList = async () => {
         try {
-            const from_date = "2024-04-01";
-            const to_date = "2025-03-31";
-
-            let x = await window.electron.PurchaseInvoiceMonthWiseBreakup({
-                filters: { from_date, to_date, company: "8848 Digital LLP", isReturn: 1 }
+            let x = await window.electron.PaymentEntryDetailBreakup({
+                filters: {
+                    from_date: voucherRegisterMonthDate?.start_date,
+                    to_date: voucherRegisterMonthDate?.end_date,
+                    company: "8848 Digital LLP",
+                    payment_type: 'Receive'
+                }
             });
-            setDebitNoteRegisterList(x);
+            setVoucherRegisterList(x);
         } catch (error) {
             console.error("Error fetching sales register list:", error);
         }
     };
 
     useEffect(() => {
-        fetchDebitNoteRegisterList()
+        fetchVoucherList();
     }, []);
-
+    console.log("VoucherRegisterList",VoucherRegisterList)
     return (
         <div
             className="w-100 d-flex align-items-stretch justify-content-between"
@@ -39,7 +43,7 @@ const DebitNoteRegister = ({ homeHookData, globalData }: any) => {
 
                     }}
                 >
-                    <p className='text-center'>Debit Note Register</p>
+                    <p className='text-center'>Voucher Register</p>
                     <p className='text-center'>8848 digital</p>
 
                     <p
@@ -49,11 +53,11 @@ const DebitNoteRegister = ({ homeHookData, globalData }: any) => {
                         X
                     </p>
                 </div>
-                <Register
+                <VoucherRegister
                     homeHookData={homeHookData}
                     globalData={globalData}
-                    registerList={debitNoteRegisterList}
-                    type='debit_note_register'
+                    VoucherRegisterList={VoucherRegisterList}
+                    type='receipt_voucher_register'
                 />
                 <BottomNavbar />
             </div>
@@ -64,4 +68,4 @@ const DebitNoteRegister = ({ homeHookData, globalData }: any) => {
     )
 }
 
-export default DebitNoteRegister
+export default ReceiptVoucherRegister

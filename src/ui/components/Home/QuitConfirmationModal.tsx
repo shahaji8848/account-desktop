@@ -35,6 +35,22 @@ const QuitConfirmationModal = ({ type, isOpen, setIsQuitModalOpen, onConfirm, ho
         navigate(-1)
       } else if (type === 'debit_note_voucher_register') {
         navigate(-1)
+      } else if (type === 'journal_register') {
+        navigate(-1)
+      } else if (type === 'journal_voucher_register') {
+        navigate(-1)
+      } else if (type === 'payment_register') {
+        navigate(-1)
+      } else if (type === 'payment_voucher_register') {
+        navigate(-1)
+      } else if (type === 'receipt_register') {
+        navigate(-1)
+      } else if (type === 'receipt_voucher_register') {
+        navigate(-1)
+      } else if (type === 'contra_register') {
+        navigate(-1)
+      } else if (type === 'contra_voucher_register') {
+        navigate(-1)
       }
       // for closing the different menu list 
       else if (homeHookData?.accountBooksList) {

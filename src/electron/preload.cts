@@ -41,6 +41,18 @@ electron.contextBridge.exposeInMainWorld('electron', {
   ReconcileAmount: (args:any) => {
     return ipcInvoke('ReconcileAmount', args);
   },
+  JournalEntryBreakupReport: (args:any) => {
+    return ipcInvoke('JournalEntryBreakupReport', args);
+  },
+  JournalEntryDetailBreakup: (args:any) => {
+    return ipcInvoke('JournalEntryDetailBreakup', args);
+  },
+  PaymentEntryBreakupReport: (args:any) => {
+    return ipcInvoke('PaymentEntryBreakupReport', args);
+  },
+  PaymentEntryDetailBreakup: (args:any) => {
+    return ipcInvoke('PaymentEntryDetailBreakup', args);
+  },
 } );
 
 function ipcInvoke<Key extends string>(

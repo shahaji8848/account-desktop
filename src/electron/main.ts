@@ -16,7 +16,9 @@ import { salesRegisterMonthWiseSales,salesBreakupReport } from "./reports/sales_
 import { creditNoteRegisterMonthWiseSales,creditNoteBreakupReport } from './reports/credit_note_register.js';
 import { PurchaseInvoiceMonthWiseBreakup , PurchaseInvoiceBreakupReport } from "./reports/purchase_invoice.js";
 import {getPaymentReconciliationEntries , getAllocationList,ReconcileAmount} from "./apis/payment_reconciliation.js";
-import { argv } from 'process';
+import {JournalEntryBreakupReport,JournalEntryDetailBreakup} from "./reports/journal_entry.js";
+import {PaymentEntryBreakupReport, PaymentEntryDetailBreakup} from "./reports/payment_entry.js";
+import { argv, connected } from 'process';
 
 app.on('ready', () => {
  
@@ -99,6 +101,19 @@ app.on('ready', () => {
   });
   ipcMain.handle("ReconcileAmount", async (_ ,kwargs: any) => {
     return await ReconcileAmount(kwargs);
+  });
+
+  ipcMain.handle("JournalEntryBreakupReport", async (_ ,kwargs: any) => {
+    return await JournalEntryBreakupReport(kwargs);
+  });
+  ipcMain.handle("JournalEntryDetailBreakup", async (_ ,kwargs: any) => {
+    return await JournalEntryDetailBreakup(kwargs);
+  });
+  ipcMain.handle("PaymentEntryBreakupReport", async (_ ,kwargs: any) => {
+    return await PaymentEntryBreakupReport(kwargs);
+  });
+  ipcMain.handle("PaymentEntryDetailBreakup", async (_ ,kwargs: any) => {
+    return await PaymentEntryDetailBreakup(kwargs);
   });
   
 

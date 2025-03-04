@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import ERPImage from '../../../assets/images/erpnext-logo.svg'
-import { FaRegEnvelope, FaLock } from "react-icons/fa";
+import ERPImage from '../../../assets/images/8848_Logo.svg'
+import { FaEnvelope, FaLock } from "react-icons/fa";
 import './Login.css'
 import { toast } from "react-toastify";
 
@@ -57,12 +57,12 @@ const Login = ({ onLoginSuccess }: any) => {
                         <img
                             src={ERPImage}
                             alt='erp_next_image'
-                            style={{ height: '50px', width: '50px' }}
+                            style={{ height: '40px', width: '100px' }}
                         />
                     </div>
-                    <h5 className="mb-4" style={{fontWeight:'600'}}>Login to ADA</h5>
+                    <h5 className="mb-4" style={{ fontWeight: '600' }}>Login to ADA</h5>
                     <div className="mb-3 input-group">
-                        <span className="input-group-text border-0 light_bg"><FaRegEnvelope /></span>
+                        <span className="input-group-text border-0 light_bg"><FaEnvelope /></span>
                         <input
                             type="email"
                             name="email"

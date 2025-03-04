@@ -259,10 +259,6 @@ input[type="checkbox"]:focus {
   outline: 3px auto #ccc !important;
 }
 
-.input-group>.form-control {
-  border: none !important;
-}
-
 .input-group>.form-control:focus {
   box-shadow: none !important;
   outline: none !important;
