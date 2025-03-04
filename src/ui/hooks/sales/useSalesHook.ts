@@ -45,6 +45,7 @@ function useSalesHook(globalData: any) {
   const [fieldName, setFieldName] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [salesInvoiceName, setSalesInvoiceName] = useState('');
+  const [filterListName, setFilterListName] = useState('');
   const [previousSalesData, setPreviousSalesData] = useState({});
   const [taxIndex, setTaxIndex] = useState(-1);
 
@@ -171,6 +172,7 @@ function useSalesHook(globalData: any) {
 
   const location = useLocation();
   useEffect(() => {
+    // console.log(location.pathname, companyData, 'company ');
     if (location.pathname === '/sales' && companyData.company_name === '') {
       openCompanyDropdown();
     } else {
@@ -214,10 +216,18 @@ function useSalesHook(globalData: any) {
         filters: { item_name: value },
       });
 
+      let gstRate = await window.electron.getData({
+        doctype: 'Item Tax Template',
+        filters: { company: companyData.company_name || '' },
+      });
+
       if (serialData?.length > 0) {
         setSerialNoData(serialData);
       }
-      // console.log(response, rate, promotionalDiscount, serialData, batchNoData, 'response and rate');
+
+      let finalGstRate = gstRate?.filter((item: any) => item.name === response?.taxes[0]?.item_tax_template);
+
+      // console.log(response, rate, gstRate, serialData, batchNoData, 'response and rate');
       setItemsData({
         ...itemsData,
         item_name: value,
@@ -233,12 +243,40 @@ function useSalesHook(globalData: any) {
         item_tax_template: response?.taxes[0]?.item_tax_template || '',
         expense_account: response?.item_defaults[0]?.expense_account || '',
         cost_center: response?.item_defaults[0]?.buying_cost_center || '',
-        gst_rate: '',
+        gst_rate: finalGstRate?.length > 0 ? finalGstRate[0].gst_rate : '',
         original_rate: rate[0]?.price_list_rate || salesData.table[activeIndex]?.rate || '',
         use_serial_batch_fields: serialData?.length > 0,
         // serial_no: `${(serialData?.length > 0 && serialData[0]?.name) || ''}`,
         batch_no: (batchNoData?.length > 0 && batchNoData[0]?.name) || '',
       });
+
+      let tableData = [...salesData.table];
+
+      tableData[activeIndex] = {
+        ...itemsData,
+        item_name: value,
+        item_code: value,
+        hsn: response?.gst_hsn_code || '0101',
+        uom: response?.stock_uom || response.uoms[0]?.name || 'Nos',
+        description: response.description || '',
+        rate: rate[0]?.price_list_rate || salesData.table[activeIndex]?.rate || '',
+        qty: '',
+        amt: '',
+        income_account: response?.item_defaults[0]?.income_account || '',
+        warehouse: salesData?.source_warehouse ? salesData.source_warehouse : response?.item_defaults[0]?.expense_account || '',
+        item_tax_template: response?.taxes[0]?.item_tax_template || '',
+        expense_account: response?.item_defaults[0]?.expense_account || '',
+        cost_center: response?.item_defaults[0]?.buying_cost_center || '',
+        gst_rate: finalGstRate?.length > 0 ? finalGstRate[0].gst_rate : '',
+        original_rate: rate[0]?.price_list_rate || salesData.table[activeIndex]?.rate || '',
+        use_serial_batch_fields: serialData?.length > 0,
+        // serial_no: `${(serialData?.length > 0 && serialData[0]?.name) || ''}`,
+        batch_no: (batchNoData?.length > 0 && batchNoData[0]?.name) || '',
+      };
+
+      setSalesData({ ...salesData, table: tableData });
+
+      // console.log({ ...salesData, table: tableData }, 'sales data')
     }
 
     getFilterData(
@@ -272,7 +310,7 @@ function useSalesHook(globalData: any) {
     return totalAmount.toFixed(2);
   };
 
-  const { handleTaxValueChange, handleTaxKeyDown } = handleTaxFunctionalities(
+  const { handleTaxValueChange, handleTaxKeyDown, handleDropdownSelection } = handleTaxFunctionalities(
     setShowFilter,
     setType,
     setFieldName,
@@ -282,7 +320,7 @@ function useSalesHook(globalData: any) {
     setSelectedIndex,
     setIsSelecting,
     showFilter,
-    handleShowFilter,
+    // handleShowFilter,
     salesData,
     type,
     selectedIndex,
@@ -300,7 +338,8 @@ function useSalesHook(globalData: any) {
     setPaymentData,
     setTermsData,
     getData,
-    salesDataRef
+    salesDataRef,
+    fieldName
   );
 
   const {
@@ -310,6 +349,8 @@ function useSalesHook(globalData: any) {
     handleSubmitFindDifferences,
     handleTableKeyEnter,
     handleTableIfNotDropdown,
+    handlePartyNameAndCostCenter,
+    handleDropdown,
   } = useHandleKeyFunctionalities({
     salesData,
     salesDataRef,
@@ -367,6 +408,7 @@ function useSalesHook(globalData: any) {
     productData,
     setProductData,
     getData,
+    setFilterListName,
   });
 
   const { handleFilter } = useFilterHook({
@@ -459,7 +501,11 @@ function useSalesHook(globalData: any) {
       gstTableOpen,
       setGstTableOpen,
       gstData,
-      productData
+      productData,
+      handlePartyNameAndCostCenter,
+      fieldName,
+      handleDropdown,
+      handleDropdownSelection
     );
 
   return {
@@ -526,6 +572,7 @@ function useSalesHook(globalData: any) {
     setFieldName,
     setShowFilter,
     setType,
+    filterListName,
   };
 }
 

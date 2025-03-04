@@ -62,7 +62,11 @@ export function handleAllSalesFunctions(
   gstTableOpen: any,
   setGstTableOpen: any,
   gstData: any,
-  productData: any
+  productData: any,
+  handlePartyNameAndCostCenter: any,
+  fieldName: any,
+  handleDropdown: any,
+  handleDropdownSelection: any
 ) {
   const navigate = useNavigate();
   const handleSubmitData = async (salesInvoiceData: any, method: string = 'POST') => {
@@ -128,32 +132,19 @@ export function handleAllSalesFunctions(
     setActiveIndex,
     getFilterData,
     setIsSelecting,
-    setShowFilter
+    setShowFilter,
+    handleShowFilter
   );
 
   const handleValueKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const { name, value } = e.target as HTMLInputElement;
 
+    // console.log(type)
+
     if (type !== 'dropdown') {
-      if (e.key === 'Enter' && value !== '' && name !== 'update_stock' && !tableItemsPopup) {
+      if (e.key === 'Enter' && name !== 'update_stock' && !tableItemsPopup) {
         handleIfNotDropdown(name, value);
       }
-      if (e.key === 'Enter' && name === 'update_stock' && !tableItemsPopup) {
-        handleIfNotDropdown(name, value);
-      }
-      if (e.key === 'Enter' && value !== '' && tableItemsPopup) {
-        handleTableIfNotDropdown(name, value);
-      }
-
-      if (name === 'qty' && e.shiftKey && e.key === 'Tab' && !tableItemsPopup) {
-        setTimeout(() => {
-          (tableBodyRef.current[activeIndex]?.childNodes[0].childNodes[0] as HTMLElement)?.focus();
-
-          handleShowFilter('table');
-        }, 0);
-      }
-    } else {
-      if (!showFilter) return;
 
       if (e.ctrlKey && name === 'item_name' && e.key === 'Enter' && !tableItemsPopup) {
         setTableItemsPopup(true);
@@ -164,7 +155,34 @@ export function handleAllSalesFunctions(
         setTimeout(() => {
           tablePopupRef.current.item_name?.focus();
         }, 0);
-        handleShowFilter('table');
+        // handleShowFilter('table');
+      }
+
+      if (e.key === 'Enter' && name === 'update_stock' && !tableItemsPopup) {
+        handleIfNotDropdown(name, value);
+      }
+      if (e.key === 'Enter' && tableItemsPopup) {
+        handleTableIfNotDropdown(name, value);
+      }
+
+      if (name === 'qty' && e.shiftKey && e.key === 'Tab' && !tableItemsPopup) {
+        setTimeout(() => {
+          (tableBodyRef.current[activeIndex]?.childNodes[0].childNodes[0] as HTMLElement)?.focus();
+
+          // handleShowFilter('table');
+        }, 0);
+      }
+    } else {
+      if (e.ctrlKey && name === 'item_name' && e.key === 'Enter' && !tableItemsPopup) {
+        setTableItemsPopup(true);
+        if (salesData.table.length > 0) {
+          setItemsData(salesData.table[activeIndex]);
+        }
+        // setItemsData
+        setTimeout(() => {
+          tablePopupRef.current.item_name?.focus();
+        }, 0);
+        // handleShowFilter('table');
       }
 
       if (e.key === 'ArrowDown') {
@@ -188,13 +206,18 @@ export function handleAllSalesFunctions(
       }
     }
   };
+  const checkEmptyFields = (data: any[]) => {
+    return data.some((item) => !item.uom || !item.rate || !item.amt || !item.item_name || !item.income_account || !item.cost_center);
+  };
 
   const checkHandleSubmit = () => {
     if (
       salesData.party_details.party_name === '' ||
-      salesData.tax_template === '' ||
       salesData.naming_series === '' ||
-      companyData.company_name === ''
+      companyData.company_name === '' ||
+      salesData.table.length === 0 ||
+      date.posting_date === '' ||
+      date.due_date === ''
     ) {
       toast.error('Please fill all the required fields!', {
         autoClose: 2000,
@@ -207,11 +230,28 @@ export function handleAllSalesFunctions(
       if (salesData.table.length > 0) {
         // console.log(salesData, taxInfo, companyData);
         const hasEmptyRow = salesData.table.some((row: any) => Object.values(row).every((value) => value === ''));
+        const taxHasEmptyRow = taxInfo.some((row: any) => Object.values(row).every((value) => value === ''));
         if (hasEmptyRow) {
-          toast.error('Table has an empty row please add data or press enter to remove it!', {
+          toast.error('Items Table has an empty row please add data or remove it!', {
             autoClose: 2000,
             className: 'custom-toast',
           });
+          setTimeout(() => {
+            tableBodyRef.current[0].childNodes[0].childNodes[0]?.focus();
+          }, 0);
+        } else if (taxHasEmptyRow) {
+          toast.error('Tax Table has an empty row please add data or remove it!', {
+            autoClose: 2000,
+            className: 'custom-toast',
+          });
+        } else if (checkEmptyFields(salesData.table)) {
+          toast.error('Items Table has empty important fields!', {
+            autoClose: 2000,
+            className: 'custom-toast',
+          });
+          setTimeout(() => {
+            tableBodyRef.current[0].childNodes[0].childNodes[0]?.focus();
+          }, 0);
         } else {
           let data: any = [];
           salesData.table.map((item: any) => {
@@ -252,14 +292,15 @@ export function handleAllSalesFunctions(
             currency: salesData.currency,
             conversion_rate: salesData.conversion_rate,
             terms_and_conditions: salesData.terms_and_conditions,
-            payment_terms: salesData.payment_terms,
-            source_warehouse: salesData.source_warehouse,
+            payment_terms_template: salesData.payment_terms,
+            set_warehouse: salesData.source_warehouse,
             terms_description: salesData.terms_description,
             apply_discount_on: salesData.apply_discount_on,
             additional_discount_percentage: Number(salesData.additional_discount_percentage) || 0,
             additional_discount_amount: Number(salesData.additional_discount_amount) || 0,
             additional_discount_account: salesData.additional_discount_account,
             is_cash_or_non_trade_discount: salesData.is_cash_or_non_trade_discount,
+            cost_center: salesData.cost_center || '',
           };
           if (Object.keys(previousSalesData).length > 0) {
             if (previousSalesData === salesData) {
@@ -301,8 +342,17 @@ export function handleAllSalesFunctions(
       event.preventDefault(); // Prevent the default "Select All" behavior
       checkHandleSubmit();
     }
-    if (event.key === 'Escape' && !tableItemsPopup && !taxInfoPopup && !globalData.companyPopup && !partyNamePopup && !termsPopup && !paymentTermsOpen && !gstTableOpen) {
-      navigate('/')
+    if (
+      event.key === 'Escape' &&
+      !tableItemsPopup &&
+      !taxInfoPopup &&
+      !globalData.companyPopup &&
+      !partyNamePopup &&
+      !termsPopup &&
+      !paymentTermsOpen &&
+      !gstTableOpen
+    ) {
+      navigate('/');
     }
     if (event.ctrlKey && event.key === 'x') {
       event.preventDefault(); // Prevent the default "Select All" behavior
@@ -323,7 +373,8 @@ export function handleAllSalesFunctions(
       if (paymentData?.terms?.length > 0) {
         setPaymentTermsOpen(!paymentTermsOpen);
         setGstTableOpen(false);
-        setTimeout(() => { // Prevent the default "Select All" behavior
+        setTimeout(() => {
+          // Prevent the default "Select All" behavior
           dateRef.current?.posting_date?.focus();
         }, 0);
       } else {
@@ -339,20 +390,21 @@ export function handleAllSalesFunctions(
       if (gstData?.length > 0) {
         setPaymentTermsOpen(false);
         setGstTableOpen(!gstTableOpen);
-        setTimeout(() => { // Prevent the default "Select All" behavior
+        setTimeout(() => {
+          // Prevent the default "Select All" behavior
           dateRef.current?.posting_date?.focus();
         }, 0);
       } else {
-        toast.warning('No Payment Terms Found!', {
+        toast.warning('Please fill in the items to get GST Breakup!', {
           autoClose: 2000,
           className: 'custom-toast',
         });
       }
     }
-    if(paymentTermsOpen && event.key === 'Escape'){
+    if (paymentTermsOpen && event.key === 'Escape') {
       setPaymentTermsOpen(false);
     }
-    if(gstTableOpen && event.key === 'Escape'){
+    if (gstTableOpen && event.key === 'Escape') {
       setGstTableOpen(false);
     }
     if (event.key === 'F2') {
@@ -379,32 +431,18 @@ export function handleAllSalesFunctions(
     }
   };
 
-  const handleItemClick = (item: string, name: string) => {
+  const handleItemClick = (item: string) => {
     setIsSelecting(true);
     setShowFilter(false);
-    if (name === 'tax_template') {
-      if (salesData.table.length > 0) {
-        setSalesData({
-          ...salesData,
-          table: [...salesData.table],
-        });
-      } else {
-        setSalesData({
-          ...salesData,
-          table: [{ ...defaultTableData, warehouse: salesData.source_warehouse || '' }],
-        });
-      }
-      fetchTaxes(item);
-      setActiveIndex(0);
-    } else if (name === 'item_name') {
-      const data = [...salesData.table];
-
-      data[activeIndex]['item_name'] = item;
-
-      setSalesData({ ...salesData, table: data });
-      (tableBodyRef.current[activeIndex]?.childNodes[1].childNodes[1] as HTMLElement).focus();
+    console.log(fieldName, item);
+    if (tableItemsPopup) {
+      handleDropdown(fieldName, item);
+    } else if (fieldName === 'charge_type' || fieldName === 'account_head') {
+      handleDropdownSelection(fieldName, item);
+    } else if (fieldName === 'cost_center' && taxInfoPopup) {
+      handleDropdownSelection(fieldName, item);
     } else {
-      setSalesData({ ...salesData, [name]: item });
+      handlePartyNameAndCostCenter(fieldName, item);
     }
   };
 

@@ -27,13 +27,14 @@ function Table({
   salesDataRef,
   handleFocus,
   productData,
+  setType,
 }: any) {
   return (
     <div className="my-table pb-1">
       <div className="table-head d-flex px-1 py-1 mb-2 align-items-center justify-content-between">
         <div className="table-left" style={{ width: '70%' }}>
           <p>
-            <b>Name of Item</b>
+            <b>Name of Item *</b>
           </p>
         </div>
         <div className="table-right justify-content-between d-flex align-items-center" style={{ width: '30%' }}>
@@ -41,11 +42,11 @@ function Table({
             <b>Quantity</b>
           </p>
           <p style={{ width: '25%', textAlign: 'end' }}>
-            <b>Rate</b>
+            <b>Rate *</b>
           </p>
           <p style={{ width: '25%', textAlign: 'center' }}>per</p>
           <p className="text-end" style={{ width: '30%' }}>
-            <b>Amount</b>
+            <b>Amount *</b>
           </p>
         </div>
       </div>
@@ -89,13 +90,17 @@ function Table({
                     setSalesData({ ...salesData, table: data });
                     (tableBodyRef.current[index].childNodes[1].childNodes[1] as HTMLElement).focus();
                   }}
-                  onFocus={() => setActiveIndex(index)}
+                  onFocus={() => {
+                    setActiveIndex(index);
+                    (tableBodyRef.current[index].childNodes[1].childNodes[0] as HTMLElement).focus();
+                    setType('');
+                  }}
                   // className="ms-2"
                   style={{ outline: 'none', width: '20%' }}
                 />
                 <input
                   name="rate"
-                  value={Number(item.rate).toFixed(2) || ''}
+                  value={item.rate || ''}
                   onChange={(e) => handleValueChange(e, 'table', index)}
                   onKeyDown={(e: any) => handleValueKeyDown(e, tableBodyRef)}
                   onFocus={() => setActiveIndex(index)}
@@ -142,76 +147,17 @@ function Table({
             <div
               className={`table-body px-1 my-1 d-flex align-items-center justify-content-between ${activeIndex === index ? 'active' : ''}`}
               key={index}
-              // ref={(el) => {
-              //   if (tableBodyRef.current) {
-              //     tableBodyRef.current[index] = el;
-              //   }
-              // }}
             >
               <div className="table-left" style={{ width: '70%' }}>
-                <input
-                  name="item_name"
-                  value={item.item_name}
-                  // onChange={(e) => handleValueChange(e, 'table', index)}
-                  // onKeyDown={(e: any) => handleValueKeyDown(e, tableBodyRef.current['per'])}
-                  // onFocus={() => setActiveIndex(index)}
-                  // className="ms-2"
-                  style={{ outline: 'none' }}
-                  disabled
-                />
+                <input name="item_name" value={item.item_name} style={{ outline: 'none' }} disabled />
               </div>
               <div className="table-right justify-content-between d-flex align-items-center" style={{ width: '30%' }}>
-                <input
-                  name="qty"
-                  // type="number"
-                  value={item.qty}
-                  // onChange={(e) => handleValueChange(e, 'table', index)}
-                  // onKeyDown={(e: any) => handleValueKeyDown(e, tableBodyRef)}
-                  // onFocus={() => setActiveIndex(index)}
-                  // className="ms-2"
-                  disabled
-                  style={{ outline: 'none', width: '20%' }}
-                />
-                <input
-                  name="rate"
-                  value={Number(item.rate).toFixed(2) || ''}
-                  // onChange={(e) => handleValueChange(e, 'table', index)}
-                  // onKeyDown={(e: any) => handleValueKeyDown(e, tableBodyRef)}
-                  // onFocus={() => setActiveIndex(index)}
-                  // className="ms-2"
-                  // onBlur={(e) => {
-                  //   if (e.target.value !== "") {
-                  //     let data = [...salesData.table];
-                  //     data[activeIndex]["amt"] =
-                  //       Number(data[activeIndex]["qty"] || 0) *
-                  //       Number(e.target.value);
-
-                  //     data[activeIndex]["per"] = "Nos";
-
-                  //     setSalesData({
-                  //       ...salesData,
-                  //       table: [...data],
-                  //     });
-                  //   }
-                  // }}
-                  disabled
-                  style={{ outline: 'none', width: '25%', textAlign: 'end' }}
-                />
-                <input
-                  name="per"
-                  value={item.uom}
-                  // onChange={(e) => handleValueChange(e, 'table', index)}
-                  // onKeyDown={(e: any) => handleValueKeyDown(e, tableBodyRef.current['per'])}
-                  // className="ms-2"
-                  style={{ outline: 'none', width: '25%', textAlign: 'center' }}
-                  disabled
-                />
+                <input name="qty" value={item.qty} disabled style={{ outline: 'none', width: '20%' }} />
+                <input name="rate" value={Number(item.rate).toFixed(2) || ''} disabled style={{ outline: 'none', width: '25%', textAlign: 'end' }} />
+                <input name="per" value={item.uom} style={{ outline: 'none', width: '25%', textAlign: 'center' }} disabled />
                 <input
                   name="amt"
                   value={`${salesData.currency} ${Number(item.amt).toFixed(2)}` || ''}
-                  // onChange={(e) => handleValueChange(e, 'table', index)}
-                  // onKeyDown={(e: any) => handleValueKeyDown(e, tableBodyRef.current['amt'])}
-                  // className="ms-2"
                   style={{ outline: 'none', width: '30%', textAlign: 'end' }}
                   disabled
                 />
@@ -340,7 +286,7 @@ function Table({
                 />
                 <input
                   name="amt"
-                  value={`${salesData.currency} ${Number(item.amt).toFixed(2)}` || ''}
+                  value={item.charge_type !== 'Actual' ? `${salesData.currency} ${Number(item.amt).toFixed(2)}` || '' : item.amt}
                   onChange={(e) => handleTaxValueChange(e, index)}
                   onKeyDown={(e: any) => handleTaxKeyDown(e)}
                   onFocus={() => setTaxIndex(index)}
