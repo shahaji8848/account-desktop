@@ -1,0 +1,83 @@
+/* form wrapper css for fadding effect */
+.form-wrapper {
+    position: relative;
+    /* Keeps the fading effect within this div */
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent background for the form-wrapper */
+    padding-bottom: 20px;
+    height: 97%;
+}
+
+.col-form-label {
+    font-weight: bold;
+}
+
+.form-control {
+  font-size: 12px !important;
+}
+
+
+
+.formContainer {
+    width: 77%;
+    border: 1px solid gray;
+    padding: 0;
+    background-color: white;
+    margin-left: 0;
+    height: 100% !important;
+}
+
+.full-width {
+    margin: 0;
+    width: 100%;
+    
+}
+
+.border-bottom {
+    border-bottom: 1px solid gray;
+}
+
+.border-left {
+    border-left: 1px solid gray;
+}
+
+.border-right {
+    border-right: 1px solid gray;
+}
+
+.padding-bottom {
+    padding-bottom: 150px;
+}
+
+.label-width {
+    flex-basis: 30%;
+}
+
+.label-indent {
+    flex-basis: 30%;
+}
+
+.input-width {
+    /* width: 50px; */
+    height: 20px;
+    flex-basis: 60%;
+}
+
+.section-title {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.no-margin {
+    margin: 0;
+}
+
+.colon-span {
+    width: 1px !important
+}
+
+/* .input-width:not(:focus):not([value=""]) {
+    border: 01px solid transparent !important;
+    font-weight: bold;
+    margin-left: 0.5rem;
+} */

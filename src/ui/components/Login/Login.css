@@ -1,0 +1,11 @@
+.gray_bg {
+    background-color: #f3f3f3 !important;
+}
+
+.login_form input:focus {
+    background-color: #D4EBF8 !important;
+}
+
+.login_form .password_btn:hover {
+    background-color: #D4EBF8 !important;
+}

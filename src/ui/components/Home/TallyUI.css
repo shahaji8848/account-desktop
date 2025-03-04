@@ -1,0 +1,64 @@
+/* .tally-ui {
+    background-color: #f8f9fa;
+    height: 100vh;
+    padding: 20px;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100%;
+  } */
+
+.left-section {
+  background-color: #ffffff;
+  padding: 20px 0;
+  border-right: 1px solid #ddd;
+}
+
+.right-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.menu-box {
+  width: 60%;
+  background-color: #e3f2fd;
+  border: 1px solid #007bff;
+}
+
+.menu-header {
+  background-color: #0d6efd;
+  color: white;
+  padding: 5px;
+  font-weight: bold;
+}
+
+.menu-category {
+  font-size: 14px;
+  font-weight: bold;
+  color: #6c757d;
+  padding: 8px 15px;
+  margin-top: 10px;
+}
+
+.menu-item {
+  /* padding: 8px 15px; */
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.menu-item.active {
+  background-color: #ffeb3b;
+}
+
+.menu-item:focus {
+  outline: none !important;
+
+}
+
+thead>tr {
+  border: 1px solid #87bde6;
+  border-top: 3px solid #87bde6 !important;
+  border-left: 0;
+  border-right: 0;
+}

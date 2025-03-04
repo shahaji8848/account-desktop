@@ -1,0 +1,276 @@
+body {
+  margin: 0;
+  padding: 0;
+  color: #222;
+  font-family: 'ubuntu', sans-serif;
+  font-size: 12px;
+}
+
+.header {
+  width: 100%;
+  /* width: calc(100% - 32px); */
+  background-color: #1f3333;
+}
+
+.left {
+  display: flex;
+  width: fit-content;
+  /* gap: 60px; */
+}
+
+p,
+h2 {
+  margin: 0;
+}
+
+h2 {
+  margin-top: 2px;
+  font-size: 18px;
+  color: #589dcc;
+}
+
+.light_bg {
+  background-color: #D4EBF8;
+}
+
+.menu p,
+.logo p {
+  border-bottom: 1px solid #589dcc;
+  font-size: 12px;
+  color: #589dcc;
+}
+
+.menu-items {
+  gap: 60px;
+}
+
+.menu-items p {
+  margin-bottom: 4px;
+  color: white;
+  border-bottom: 0;
+}
+
+.goto-btn {
+  padding: 4px 16px;
+  background-color: #e3f2fc;
+  color: #222;
+}
+
+.goto-btn span {
+  color: #589dcc;
+  border-bottom: 1px solid #589dcc;
+  font-weight: bold;
+}
+
+.menu-items p>span {
+  font-weight: bold;
+  border-bottom: 1px solid white;
+}
+
+.infobar p {
+  color: #222;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.filtered-item {
+  border: 1px solid transparent;
+  min-height: 20px;
+}
+
+.filtered-item.selected {
+  width: 100%;
+  background-color: transparent;
+  border: 1px solid #589dcc;
+}
+
+/* side bar */
+
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 4px;
+  background-color: white;
+  border-radius: 5px;
+  margin-top: 6px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.tab p:last-child {
+  color: #2a66b0;
+  font-weight: bold;
+  padding: 2px 6px 2px 12px;
+  border-left: 1px solid;
+}
+
+.tab p.disabled {
+  border-left-color: #ccc;
+  color: #ccc;
+}
+
+.tab.disabled {
+  cursor: not-allowed;
+}
+
+.tab.disabled p,
+.tab.disabled p span {
+  color: #ccc !important;
+  cursor: not-allowed;
+}
+
+.bottom-nav-bar .tab .disabled p {
+  border-top: 1px solid #ccc;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.bottom-nav-bar .tab {
+  min-height: 26px;
+}
+
+/* Table */
+
+.table-head {
+  border: 1px solid #bbb;
+  border-left: 0;
+  border-right: 0;
+}
+
+.table-body.active {
+  background-color: transparent;
+}
+
+.table-body input {
+  border: 0;
+  background-color: transparent;
+}
+
+.table-body input {
+  border: 1px solid transparent;
+  width: 100%;
+  background-color: transparent;
+}
+
+.table-body input:focus,
+.table-body textarea:focus {
+  border: 1px solid #2a66b0;
+}
+
+.table-body textarea {
+  border: 1px solid transparent;
+  width: 100%;
+  background-color: transparent;
+  resize: none;
+  width: 70%;
+  height: 50px;
+}
+
+input:not(:focus) {
+  border: 1px solid transparent;
+  font-weight: bold;
+  /* margin-left: 0.5rem; */
+  padding: 1px 0;
+}
+
+/* input:not(:focus):not([value='']),
+input[type='date']:not(:focus):not([value='']) {
+  border: 1px solid transparent;
+  font-weight: bold;
+  padding: 1px 0;
+} */
+
+.salesNo input {
+  width: 170px !important;
+}
+
+/* toast notification custom */
+.custom-toast {
+  top: 40px;
+  right: 20px;
+  font-size: 12px;
+  z-index: 9999;
+}
+
+.Toastify__toast-container--top-right {
+  right: 0 !important;
+}
+
+@media (max-width: 578px) {
+  .Toastify__toast-body>div:last-child {
+    font-size: 10px;
+  }
+
+  .Toastify__toast-container--top-left,
+  .Toastify__toast-container--top-center,
+  .Toastify__toast-container--top-right {
+    top: 1px !important;
+  }
+
+  .custom-toast {
+    top: 40px;
+    right: 0px;
+    left: 13px;
+    font-size: 12px;
+    /* border: 2px solid red; */
+    width: 350px;
+  }
+}
+
+/* Popup */
+
+.popup {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 63.1px;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 9;
+}
+
+.popup-body {
+  background-color: white;
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
+  padding: 20px;
+  border-radius: 8px;
+  gap: 20px;
+}
+
+.company-popup .popup-body {
+  width: 530px;
+  max-width: 600px;
+  padding: 16px;
+  gap: 2px;
+  margin-left: -16%;
+}
+
+input[type="checkbox"]:focus {
+  outline: 3px auto #ccc !important;
+}
+
+.input-group>.form-control {
+  border: none !important;
+}
+
+.input-group>.form-control:focus {
+  box-shadow: none !important;
+  outline: none !important;
+  border: none !important;
+}
+
+/* css for register table */
+
+.register_table tr {
+  border: 1px solid lightgray !important;
+}

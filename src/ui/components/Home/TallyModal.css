@@ -1,0 +1,67 @@
+/* CSS (TallyModal.css) */
+.tally-modal .modal-header-custom {
+  background-color: #4c8bf5;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+}
+
+.tally-modal .modal-body-custom {
+  background-color: #eaf3ff;
+  padding: 20px;
+}
+
+.master-creation {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+  width: 260px !important;
+  border: 1px solid lightgray;
+  overflow: hidden;
+  margin-left: 60px;
+  background-color: white;
+
+}
+
+.master-input {
+  width: 80%;
+  padding: 5px;
+  border: 1px solid #4c8bf5 !important;
+  background-color: wheat !important;
+}
+
+.list-of-masters {
+  background-color: #cde5ff;
+  border: 1px solid #4c8bf5;
+  width: 100%
+}
+
+.masters-header {
+  font-weight: bold;
+  background-color: #4c8bf5;
+  color: white;
+  padding: 5px;
+}
+
+.masters-list {
+  width: 100%;
+  padding: 0;
+}
+
+.masters-list li {
+  list-style: none;
+  padding: 5px;
+}
+
+.masters-list .highlight {
+  background-color: #fdd835;
+}
+
+.masters-list .modal-menu-item {
+  /* font-size: 14px; */
+  cursor: pointer;
+}
+
+.masters-list .modal-menu-item:focus {
+  outline: none !important;
+}

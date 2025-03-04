@@ -1,0 +1,7 @@
+.account_table_head>tr {
+    border-top: 0 !important;
+}
+
+button {
+    font-size: 12px !important;
+}
