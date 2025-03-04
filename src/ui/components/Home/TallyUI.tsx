@@ -13,7 +13,6 @@ const TallyUI = ({
   setIsSales,
   setShowCustomerForm,
   setShowSupplierForm,
-  handlekeyfunctions,
   setSelectedIndex,
   selectedIndex,
   globalData,
@@ -77,16 +76,17 @@ const TallyUI = ({
       } else if (selectedText === 'BaNking') {
         navigate('/payment-reconciliation');
       }
-    } else if (e.key === 'd' && accountBooksList && !moreReportList) {
-      //menu list button click functionality
-      navigate('/debit-note-register');
-    } else if (e.key === 'd') {
+    } else if (e.key === 'd' && !moreReportList && !accountBooksList) {  //menu list button click functionality
       setMoreReportList(true);
       setSelectedIndex(0);
+    } else if (e.key === 'v' && !moreReportList && !accountBooksList) {  //menu list button click functionality
+      navigate('/sales');
     } else if (e.key === 'a' && moreReportList) {
       setAccountBooksList(true);
       setMoreReportList(false);
       setSelectedIndex(0);
+    } else if (e.key === 'd' && accountBooksList) {
+      navigate('/debit-note-register');
     } else if (e.key === 's' && accountBooksList) {
       navigate('/sales-register');
     } else if (e.key === 'e' && accountBooksList) {
@@ -148,7 +148,7 @@ const TallyUI = ({
   };
 
   return (
-    <div className="container-fluid home_page" style={{ height: '100%' }} onKeyDown={handlekeyfunctions}>
+    <div className="container-fluid home_page" style={{ height: '100%' }}>
       <div className="row" style={{ height: '100%' }}>
         {/* Left Section */}
         <div className="col-md-7 left-section">
