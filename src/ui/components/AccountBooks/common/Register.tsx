@@ -161,7 +161,7 @@ const Register = ({ homeHookData, globalData, registerList, type }: any) => {
                                 tabIndex={0}
                                 onKeyDown={(e) => handleKeyDown(e, index, data?.month)}
                                 onClick={() => handleClick(data?.month)}
-                                style={{cursor:'pointer'}}
+                                style={{ cursor: 'pointer' }}
                             >
                                 <td className={`text-start ${styles.noBordeAll} ${index === selectedIndex ? styles.voucherRowActive : ""}`}>{data.month}</td>
 
@@ -237,20 +237,43 @@ const Register = ({ homeHookData, globalData, registerList, type }: any) => {
                 </tbody>
             </Table>
 
-            <div className="mt-4" style={{ height: '200px' }}>
-                <Bar
-                    data={{
-                        labels: registerList?.map((data: any) => data?.month) || [],
-                        datasets: [
-                            {
-                                label: registerLabel[type] || "Unknown",
-                                data: chartData,
-                                backgroundColor: 'red',
-                            }
-                        ]
-                    }}
-                />
-            </div>
+            {(type === "sales_register" || type === 'debit_note_register' || type === "credit_note_register" || type === 'purchase_register')
+                && (
+                    <div className="mt-4" style={{ height: '200px', width: '80%' }}>
+                        <Bar
+                            data={{
+                                labels: registerList?.map((data: any) => data?.month) || [],
+                                datasets: [
+                                    {
+                                        label: registerLabel[type] || "Unknown",
+                                        data: chartData,
+                                        backgroundColor: 'red',
+                                    }
+                                ]
+                            }}
+                            options={{
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    x: {
+                                        ticks: { font: { size: 14 } },
+                                    },
+                                    y: {
+                                        ticks: { font: { size: 14 } },
+                                    },
+                                },
+                                plugins: {
+                                    legend: {
+                                        labels: {
+                                            font: { size: 14 }, // Make legend clearer
+                                        },
+                                    },
+                                },
+                            }}
+                        />
+                    </div>
+                )
+            }
             {isQuitModalOpen && (
                 <QuitConfirmationModal
                     type={type}
