@@ -60,11 +60,19 @@ export default function PaymentReconciliationRework({ homeHookData, globalData }
   const [filteredInvoices, setFilteredInvoices] = useState(invoiceData);
   const [filteredPayments, setFilteredPayments] = useState(paymnentData);
   const { allocationListData, fetchAllocationList } = useAllocateList();
+  console.log('Fetched reconciliation data : from hook', allocationListData);
   const { reconcileData, fetchReconcile } = useReconcile();
+  console.log('Fetched reconciliation data : reconcile from hook', reconcileData);
+
   const [selectedInvoices, setSelectedInvoices] = useState<any[]>([]);
   const [selectedPayments, setSelectedPayments] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-
+  const [hideAllocationTable, setHideAllocationTable] = useState<boolean>(false);
+  useEffect(() => {
+    if (allocationListData?.length > 0) {
+      setHideAllocationTable(false);
+    }
+  }, [allocationListData]); // Reset the state when new data arrives
   useEffect(() => {
     if (inputRefs.current) {
       inputRefs.current.focus();
@@ -300,6 +308,8 @@ export default function PaymentReconciliationRework({ homeHookData, globalData }
         autoClose: 3000, // Closes after 3 seconds
       });
 
+      setHideAllocationTable(true);
+
       setTimeout(() => {
         inputRefs.current?.focus(); // Move focus to invoice search field
       }, 100);
@@ -332,8 +342,8 @@ export default function PaymentReconciliationRework({ homeHookData, globalData }
   }, [isQuitModalOpen]);
 
   return (
-    <div className="container-fluid p-4 bg-light" style={{ width: '1200px' }}>
-      <h2 className="mb-4">Payment Reconciliation</h2>
+    <div className="container-fluid px-3 py-2 bg-light" style={{ width: '1200px' }}>
+      <h2 className="mb-3">Payment Reconciliation</h2>
       <div className="row mb-4" ref={formRef} tabIndex={0}>
         <div className="col-md-6">
           <div className="row">
@@ -528,7 +538,7 @@ export default function PaymentReconciliationRework({ homeHookData, globalData }
             : ''} */}
         </div>
 
-        {allocationListData?.length > 0 && (
+        {allocationListData?.length > 0 && !hideAllocationTable && (
           <div className="mt-4 col-md-12 reconciled-table" tabIndex={-1}>
             <h2 className="mb-3">Reconciled Entries</h2>
             <div className="table-responsive">
