@@ -33,13 +33,24 @@ export default function PaymentReconciliationRework({ homeHookData, globalData }
   });
 
   // Fetching data only when all values are available
-  const { receivablePayableAccount, defaultAdvanceAccount, invoiceData, paymnentData, setInvoiceData, setPaymentData, refreshData }: any =
-    useUnreconcileEntriesData(
-      initalPaymentReconcileCompanyData?.company,
-      initalPaymentReconcileCompanyData?.party_type,
-      initalPaymentReconcileCompanyData?.party
-    );
+  const {
+    receivablePayableAccount,
+    defaultAdvanceAccount,
+    invoiceData,
+    paymnentData,
+    setInvoiceData,
+    setPaymentData,
+    refreshData,
+    apiErrorMessage,
+    apiError,
+    data,
+  }: any = useUnreconcileEntriesData(
+    initalPaymentReconcileCompanyData?.company,
+    initalPaymentReconcileCompanyData?.party_type,
+    initalPaymentReconcileCompanyData?.party
+  );
 
+  // console.log('Fetched reconciliation data : in component@@', receivablePayableAccount, defaultAdvanceAccount, invoiceData, paymnentData);
   const company = initalPaymentReconcileCompanyData?.company;
   const partyType = initalPaymentReconcileCompanyData?.party_type;
   const party = initalPaymentReconcileCompanyData?.party;
@@ -85,7 +96,6 @@ export default function PaymentReconciliationRework({ homeHookData, globalData }
         handleReconcile();
       }
     } else if (e.key === 'Enter' && !showFilter) {
-      console.log('enter');
       e.preventDefault();
       if (e.shiftKey) {
         if (index > 0) {
@@ -107,6 +117,13 @@ export default function PaymentReconciliationRework({ homeHookData, globalData }
       setSelectedIndex(newIndex);
     } else if (e.key === 'Enter' && showFilter) {
       e.preventDefault();
+      // if (field === 'party' && apiError) {
+      //   toast.warning(apiErrorMessage, {
+      //     position: 'top-right',
+      //     autoClose: 3000, // Closes after 3 seconds
+      //     className: 'custom-toast', // Custom class
+      //   });
+      // }
       setInitalPaymentReconcileCompanyData((prevData) => ({
         ...prevData,
         [currentField]: currentFilterList[selectedIndex]?.name || currentFilterList[selectedIndex],
@@ -127,13 +144,10 @@ export default function PaymentReconciliationRework({ homeHookData, globalData }
     if (field === 'company' || field === 'party_type' || field === 'party') {
       setShowFilter(true);
       setCurrentField(field);
-      setSelectedIndex(0);
 
-      let currentValue = initalPaymentReconcileCompanyData[field];
-      if (currentValue) {
-        const index = currentFilterList.findIndex((item) => item.name === currentValue);
-        setSelectedIndex(index !== -1 ? index : 0); // Highlight the selected value
-      }
+      const selectedValue = initalPaymentReconcileCompanyData[field]; // Get the selected value
+      const foundIndex = masterList.findIndex((item) => item.name === selectedValue);
+      setSelectedIndex(foundIndex !== -1 ? foundIndex : 0); // Highlight the selected value in the filter
     }
 
     if (field === 'company') {
