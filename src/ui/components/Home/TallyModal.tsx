@@ -3,7 +3,7 @@ import BottomNavbar from "../Sales/BottomNavbar";
 import "./TallyModal.css";
 import { useNavigate } from "react-router-dom";
 
-function MainBody({ isModalOpen, setShowCustomerForm, setShowSupplierForm }: any) {
+function MainBody({ isModalOpen, onClose }: any) {
   const formRef = useRef<HTMLDivElement | null>(null);
   // const inputRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLLIElement | null>(null);
@@ -54,6 +54,8 @@ function MainBody({ isModalOpen, setShowCustomerForm, setShowSupplierForm }: any
       } else if (item === "Supplier") {
         navigate('/supplier-form')
       }
+    } else if (e.key === 'Escape') {
+      onClose()
     }
   };
 
