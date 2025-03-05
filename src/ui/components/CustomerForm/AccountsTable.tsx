@@ -35,7 +35,8 @@ const AccountsTable = ({
 
     const addRowRef = useRef<HTMLButtonElement | null>(null);
     const inputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
-    const companyList = useFetchData("Company");
+    const token = localStorage.getItem('token');
+    const companyList = useFetchData("Company", {}, token);
     // Add a new row dynamically
     const addRow = () => {
         const newRow = {
@@ -57,7 +58,7 @@ const AccountsTable = ({
     };
 
     const fetchAccountList = async (company: any) => {
-        const x = await window.electron.getData({ doctype: "Account", filters: { 'root_type': "Asset", account_type: "Receivable", company: company, is_group: 0 } });
+        const x = await window.electron.getData({ doctype: "Account", filters: { 'root_type': "Asset", account_type: "Receivable", company: company, is_group: 0 }, token });
         setAccountList(x)
     };
 

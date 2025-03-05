@@ -42,7 +42,7 @@ const useSubmitHooks = ({ setIsAdressFormOpen, setIsBankFormOpen, rows, setRows 
         branch_code: '',
         bank_account_no: '',
     });
-
+    const token = localStorage.getItem('token');
     //supplier submit with full form submitt
 
     const handleSupplierFormSubmit = async () => {
@@ -90,7 +90,7 @@ const useSubmitHooks = ({ setIsAdressFormOpen, setIsBankFormOpen, rows, setRows 
         }
 
         try {
-            const x = await window.electron.postData({ doctype: 'Supplier', data: supplierPayload });
+            const x = await window.electron.postData({ doctype: 'Supplier', data: supplierPayload, token });
             if (x !== undefined) {
                 toast.success('Supplier Form is submitted!', {
                     autoClose: 2000,
@@ -114,7 +114,7 @@ const useSubmitHooks = ({ setIsAdressFormOpen, setIsBankFormOpen, rows, setRows 
                 if (updatedStoredAddressList?.length > 0) {
                     for (const address of updatedStoredAddressList) {
                         try {
-                            const addressResponse = await window.electron.postData({ doctype: "Address", data: address });
+                            const addressResponse = await window.electron.postData({ doctype: "Address", data: address, token });
                             if (addressResponse !== undefined) {
                                 toast.success('Address Form is submitted!', {
                                     autoClose: 2000,
@@ -154,7 +154,7 @@ const useSubmitHooks = ({ setIsAdressFormOpen, setIsBankFormOpen, rows, setRows 
                 if (updatedStoredBankList?.length > 0) {
                     for (const bank of updatedStoredBankList) {
                         try {
-                            const bankResponse = await window.electron.postData({ doctype: "Bank Account", data: bank });
+                            const bankResponse = await window.electron.postData({ doctype: "Bank Account", data: bank, token });
                             if (bankResponse !== undefined) {
                                 toast.success('Bank Form is submitted!', {
                                     autoClose: 2000,
