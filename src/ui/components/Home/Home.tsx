@@ -2,7 +2,7 @@ import TallyUI from "./TallyUI";
 import Sidebar from "../Sales/Sidebar";
 import { homeSideBarData } from "../../utils/data";
 
-const Home = ({ globalData, homeHookData, handlekeyfunctions }: any) => {
+const Home = ({ globalData, homeHookData }: any) => {
   const { isModalOpen, setIsModalOpen, setShowCustomerForm, setShowSupplierForm, setSelectedIndex,
     selectedIndex } = homeHookData;
 
@@ -56,7 +56,6 @@ const Home = ({ globalData, homeHookData, handlekeyfunctions }: any) => {
           setIsSales={globalData.setIsSales}
           setShowCustomerForm={setShowCustomerForm}
           setShowSupplierForm={setShowSupplierForm}
-          handlekeyfunctions={handlekeyfunctions}
           setSelectedIndex={setSelectedIndex}
           selectedIndex={selectedIndex}
           globalData={globalData}

@@ -23,7 +23,6 @@ export default function PaymentReconcileSection({
   setInvoiceData,
   setPaymentData,
   refreshData,
-  setIsQuitModalOpen,
 }: any) {
   console.log('selected@ in reconcile section', company, partyType, party);
   const [invoiceFilter, setInvoiceFilter] = useState('');
@@ -127,8 +126,6 @@ export default function PaymentReconcileSection({
           allocateButtonRef.current?.focus();
         }
       }
-    } else if (e.key === 'Escape') {
-      setIsQuitModalOpen(true);
     }
 
     if (e.key === ' ' && document.activeElement instanceof HTMLInputElement && document.activeElement.type === 'checkbox') {

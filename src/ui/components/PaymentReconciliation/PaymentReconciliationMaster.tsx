@@ -1,11 +1,13 @@
 import React from 'react';
 import PaymentReconciliation from './PaymentReconciliation';
+import PaymentReconciliationRework from './PaymentReconciliationRework';
 
-const PaymentReconciliationMaster = () => {
+const PaymentReconciliationMaster = ({ homeHookData, globalData }: any) => {
   return (
     <div>
       <div>
-        <PaymentReconciliation />
+        <PaymentReconciliationRework homeHookData={homeHookData} globalData={globalData} />
+        {/* <PaymentReconciliation homeHookData={homeHookData} globalData={globalData} /> */}
       </div>
     </div>
   );

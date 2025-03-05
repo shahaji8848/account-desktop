@@ -5,7 +5,7 @@ import Sidebar from '../../Sales/Sidebar'
 import BottomNavbar from '../../Sales/BottomNavbar'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/root-reducer'
-import RegistePageHeader from '../common/RegistePageHeader'
+import PageHeader from '../../common/PageHeader'
 
 const SalesRegister = ({ homeHookData, globalData }: any) => {
     const [salesRegisterList, setSalesRegisterList] = useState([]);
@@ -36,7 +36,7 @@ const SalesRegister = ({ homeHookData, globalData }: any) => {
             style={{ overflow: 'hidden' }}
         >
             <div className="main-body" style={{ width: "86%" }}>
-                <RegistePageHeader ragisterName='Sales Register' company={companyName} />
+                <PageHeader ragisterName='Sales Register' company={companyName} />
                 <Register
                     homeHookData={homeHookData}
                     globalData={globalData}

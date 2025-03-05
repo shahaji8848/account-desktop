@@ -95,22 +95,39 @@ const Register = ({ homeHookData, globalData, registerList, type }: any) => {
                 start_date,
                 end_date
             })
-            // @ts-expect-error
-            const selectedText = menuItems[index]?.textContent;
-            if (selectedText === "Create") {
 
-            } else if (selectedText === "Vouchers") {
-
-            } else if (selectedText === "Quit") {
-
-            }
         } else if (e.key === "Escape") {
             setIsQuitModalOpen(true);
-            // homeHookData?.setShowSalesRegister(false)
-            // homeHookData?.setAccountBooksList(true)
-
         }
     };
+
+    const handleClick = (month: any) => {
+        if (type === "sales_register") {
+            navigate("/sales-voucher-register")
+        } else if (type === "credit_note_register") {
+            navigate("/credit-note-voucher-register")
+        } else if (type === "purchase_register") {
+            navigate("/purchase-voucher-register")
+        } else if (type === "debit_note_register") {
+            navigate("/debit-note-voucher-register")
+        } else if (type === "journal_register") {
+            navigate("/journal-voucher-register")
+        } else if (type === "payment_register") {
+            navigate("/payment-voucher-register")
+        } else if (type === "receipt_register") {
+            navigate("/receipt-voucher-register")
+        } else if (type === "contra_register") {
+            navigate("/contra-voucher-register")
+        }
+        const year = new Date().getFullYear();
+        // function to get start date and end date of month
+        const month_name = month.split(" ")[0];
+        const { start_date, end_date } = getFinancialMonthDates(month_name, year)
+        homeHookData?.setVoucherRegisterMonthDate({
+            start_date,
+            end_date
+        })
+    }
 
     return (
         <div className="container-fluid p-0 mt-4">
@@ -143,6 +160,8 @@ const Register = ({ homeHookData, globalData, registerList, type }: any) => {
                                 className={`ps-2 ${styles.noBordeAll} ${index === selectedIndex ? "active" : ""}`}
                                 tabIndex={0}
                                 onKeyDown={(e) => handleKeyDown(e, index, data?.month)}
+                                onClick={() => handleClick(data?.month)}
+                                style={{ cursor: 'pointer' }}
                             >
                                 <td className={`text-start ${styles.noBordeAll} ${index === selectedIndex ? styles.voucherRowActive : ""}`}>{data.month}</td>
 
@@ -218,20 +237,43 @@ const Register = ({ homeHookData, globalData, registerList, type }: any) => {
                 </tbody>
             </Table>
 
-            <div className="mt-4" style={{ height: '200px' }}>
-                <Bar
-                    data={{
-                        labels: registerList?.map((data: any) => data?.month) || [],
-                        datasets: [
-                            {
-                                label: registerLabel[type] || "Unknown",
-                                data: chartData,
-                                backgroundColor: 'red',
-                            }
-                        ]
-                    }}
-                />
-            </div>
+            {(type === "sales_register" || type === 'debit_note_register' || type === "credit_note_register" || type === 'purchase_register')
+                && (
+                    <div className="mt-4" style={{ height: '200px', width: '80%' }}>
+                        <Bar
+                            data={{
+                                labels: registerList?.map((data: any) => data?.month) || [],
+                                datasets: [
+                                    {
+                                        label: registerLabel[type] || "Unknown",
+                                        data: chartData,
+                                        backgroundColor: 'red',
+                                    }
+                                ]
+                            }}
+                            options={{
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    x: {
+                                        ticks: { font: { size: 14 } },
+                                    },
+                                    y: {
+                                        ticks: { font: { size: 14 } },
+                                    },
+                                },
+                                plugins: {
+                                    legend: {
+                                        labels: {
+                                            font: { size: 14 }, // Make legend clearer
+                                        },
+                                    },
+                                },
+                            }}
+                        />
+                    </div>
+                )
+            }
             {isQuitModalOpen && (
                 <QuitConfirmationModal
                     type={type}
