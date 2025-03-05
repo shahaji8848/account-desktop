@@ -4,15 +4,19 @@ export function isDev(): boolean {
   return process.env.NODE_ENV === 'development';
 }
 
+
 const baseUrl = 'https://yatish-testing-v15.frappe.cloud/api/resource';
 const headers = {
   'Content-Type': 'application/json',
   Authorization: 'token 617c5524f5a912e:aa8ae3123dc7d6d',
 };
 
-// Function to fetch taxes
-async function fetchTaxes(doctype: any, filters: any) {
+async function fetchTaxes(doctype: any, filters: any , headers:any) {
   let url = `${baseUrl}/${doctype}`;
+  let header_details = {
+    'Content-Type': 'application/json',
+    Authorization: headers,
+  };
   const taxesApiFilter: any = [];
   if (filters.company) {
     taxesApiFilter.push(['company', '=', filters.company]);
@@ -31,7 +35,7 @@ async function fetchTaxes(doctype: any, filters: any) {
   if (taxesApiFilter.length > 0) {
     url = `${baseUrl}/${doctype}?filters=${JSON.stringify(taxesApiFilter)}&fields=${fields}`;
   }
-  const response = await fetch(url, { method: 'GET', headers });
+  const response = await fetch(url, { method: 'GET', headers:header_details });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch taxes: ${response.status} - ${response.statusText}`);
@@ -41,8 +45,14 @@ async function fetchTaxes(doctype: any, filters: any) {
   return data;
 }
 
-async function fetchData(url: string) {
-  const response = await fetch(url, { method: 'GET', headers });
+
+async function fetchData(url: string , headers:any) {
+  let header_details ={
+    'Content-Type': 'application/json',
+    "Authorization": headers,
+  }
+  const response = await fetch(url, { method: 'GET', headers:header_details });
+ 
   if (!response.ok) {
     throw new Error(`Failed to fetch data: ${response.status} - ${response.statusText}`);
   }
@@ -50,13 +60,13 @@ async function fetchData(url: string) {
   return data;
 }
 
-async function getAddressData(doctype: any, filters: any) {
+async function getAddressData(doctype: any, filters: any ,headers:any) {
   const addressFilters: any = [];
   if (filters?.address_type) addressFilters.push(['address_type', '=', filters.address_type]);
   if (filters?.type) addressFilters.push(['Dynamic Link', 'link_doctype', '=', filters.type]);
   if (filters?.name) addressFilters.push(['Dynamic Link', 'link_name', '=', filters.name]);
   const url = `${baseUrl}/${doctype}?filters=${JSON.stringify(addressFilters)}&fields=${JSON.stringify(['*'])}`;
-  return await fetchData(url);
+  return await fetchData(url,headers);
 }
 
 export async function login(kwargs: any) {
@@ -78,10 +88,14 @@ export async function login(kwargs: any) {
       const data = await response.json();
 
       if (response.ok && data.message == "Logged In") {
-        const generateKeysUrl = `https://yatish-testing-v15.frappe.cloud/api/method/frappe.core.doctype.user.user.generate_keys?user=${kwargs.email}`;
+        const generateKeysUrl = `https://yatish-testing-v15.frappe.cloud/api/method/frappe.core.doctype.user.user.generate_keys`;
         const keysResponse = await fetch(generateKeysUrl, {
           method: 'POST',
-          headers: headers
+          body: JSON.stringify({
+            user:kwargs.email,
+            usr: kwargs.email,
+            pwd: kwargs.password,
+          }),
         });
 
         const keysData = await keysResponse.json();
@@ -90,7 +104,7 @@ export async function login(kwargs: any) {
           const res = await fetch(userDetails, { method: 'GET', headers });
           let response = await res.json()
           if (response.data.api_key){
-            return {status: "success", token: `token ${keysData.message.api_secret}:${response.data.api_key}`}
+            return {status: "success", token: `token ${response.data.api_key}:${ keysData.message.api_secret}`}
 
           }
           else{
@@ -111,7 +125,7 @@ export async function login(kwargs: any) {
   }
 }
 
-async function getItemData(doctype: string, filters: any) {
+async function getItemData(doctype: string, filters: any ,headers:any) {
   let url = `${baseUrl}/${doctype}`;
   const itemApiFilter: any[] = [];
 
@@ -121,14 +135,14 @@ async function getItemData(doctype: string, filters: any) {
     itemApiFilter.push(['name', 'like', `%${filters.input}%`]);
   } else {
     url = `${url}?limit_page_length=None`;
-    return await fetchData(url);
+    return await fetchData(url,headers);
   }
 
   if (itemApiFilter.length > 0) {
     url = `${baseUrl}/${doctype}?filters=${encodeURIComponent(JSON.stringify(itemApiFilter))}&limit_page_length=None`;
   }
 
-  let responseItemData = await fetchData(url);
+  let responseItemData = await fetchData(url,headers);
   let itemdata: any = {};
   let item_defaults: any[] = [];
   let taxes: any[] = [];
@@ -151,7 +165,7 @@ async function getItemData(doctype: string, filters: any) {
   if (responseItemData?.taxes) {
     for (let row of responseItemData.taxes) {
       if (row?.item_tax_template) {
-        let companyData = await getItemTaxTemplate('Item Tax Template', { name: row.item_tax_template });
+        let companyData = await getItemTaxTemplate('Item Tax Template', { name: row.item_tax_template },headers);
         if (companyData?.length > 0 && companyData[0]?.company === filters.company) {
           taxes.push(row);
         }
@@ -161,11 +175,10 @@ async function getItemData(doctype: string, filters: any) {
 
   itemdata['taxes'] = taxes;
   itemdata['item_defaults'] = item_defaults;
-  // console.log(responseItemData, itemdata, 'itemdata');
   return itemdata;
 }
 
-async function getCostCenterData(doctype: any, filters: any) {
+async function getCostCenterData(doctype: any, filters: any ,headers:any) {
   let url = `${baseUrl}/${doctype}`;
   const costCenterApiFilter: any = [];
   if (filters?.company) {
@@ -179,9 +192,9 @@ async function getCostCenterData(doctype: any, filters: any) {
   } else {
     url = `${baseUrl}/${doctype}?limit_page_length=None`;
   }
-  return await fetchData(url);
+  return await fetchData(url,headers);
 }
-async function getWarehouseData(doctype: any, filters: any) {
+async function getWarehouseData(doctype: any, filters: any,headers:any) {
   let url = `${baseUrl}/${doctype}`;
   const warehouseApiFilter: any = [];
   if (filters?.company) {
@@ -196,11 +209,11 @@ async function getWarehouseData(doctype: any, filters: any) {
       url = `${baseUrl}/${doctype}?limit_page_length=None`;
     }
 
-    return await fetchData(url);
+    return await fetchData(url,headers);
   }
 }
 
-async function getAccountsData(doctype: any, filters: any) {
+async function getAccountsData(doctype: any, filters: any,headers:any) {
   let url = `${baseUrl}/${doctype}`;
   let accountsApiFilter: any = [];
   if (filters?.company) {
@@ -224,9 +237,9 @@ async function getAccountsData(doctype: any, filters: any) {
   } else {
     url = `${baseUrl}/${doctype}?limit_page_length=None`;
   }
-  return await fetchData(url);
+  return await fetchData(url,headers);
 }
-async function getItemTaxTemplate(doctype: any, filters: any) {
+async function getItemTaxTemplate(doctype: any, filters: any,headers:any) {
   const fields = JSON.stringify(['name', 'gst_rate', 'company']);
   const apiFilters: any[] = [];
   let taxes = [];
@@ -237,8 +250,7 @@ async function getItemTaxTemplate(doctype: any, filters: any) {
   }
 
   if (filters?.item_code) {
-    let itemData = await getItemData('Item', { name: filters.item_code, company: filters.company });
-    console.log(itemData);
+    let itemData = await getItemData('Item', { name: filters.item_code, company: filters.company },headers);
     if (itemData?.taxes?.length > 0) {
       for (let row in itemData.taxes) {
         if (itemData.taxes[row].valid_from <= new Date().toISOString()) {
@@ -257,9 +269,9 @@ async function getItemTaxTemplate(doctype: any, filters: any) {
   queryParams.append('fields', fields);
 
   const url = `${baseUrl}/${doctype}?${queryParams.toString()}`;
-  return await fetchData(url);
+  return await fetchData(url,headers);
 }
-async function getUomData(doctype: any, filters: any) {
+async function getUomData(doctype: any, filters: any,headers:any) {
   const uomapiFilters: any[] = [];
 
   if (filters?.input) {
@@ -271,10 +283,10 @@ async function getUomData(doctype: any, filters: any) {
   }
 
   const url = `${baseUrl}/${doctype}?${queryParams.toString()}`;
-  return await fetchData(url);
+  return await fetchData(url,headers);
 }
 
-async function getGstHsnData(doctype: any, filters: any) {
+async function getGstHsnData(doctype: any, filters: any,headers:any) {
   const hsnFilter: any[] = [];
 
   if (filters?.input) {
@@ -286,19 +298,20 @@ async function getGstHsnData(doctype: any, filters: any) {
   }
 
   const url = `${baseUrl}/${doctype}?${queryParams.toString()}`;
-  return await fetchData(url);
+  return await fetchData(url,headers);
 }
 
-async function getOtherRecords(doctype: any) {
+async function getOtherRecords(doctype: any,filters:any ,headers:any) {
   let url = `${baseUrl}/${doctype}`;
-  return await fetchData(url);
+  let data  = await  fetchData(url,headers);
+  return data
 }
 
-async function getShippingData(doctype: any, filters: any) {
+async function getShippingData(doctype: any, filters: any,headers:any) {
   let url = `${baseUrl}/${doctype}`;
   if (filters.name) {
     url = url + '/' + filters.name;
-    let data = await fetchData(url);
+    let data = await fetchData(url,headers);
     return { conditions: data.conditions, account: data.account, cost_center: data.cost_center };
   }
   const shippingFilter: any[] = [];
@@ -313,42 +326,41 @@ async function getShippingData(doctype: any, filters: any) {
   }
 
   url = `${baseUrl}/${doctype}?${queryParams.toString()}`;
-  return await fetchData(url);
+  return await fetchData(url,headers);
 }
 
-export async function getItemRate(doctype: any, filters: any) {
+export async function getItemRate(doctype: any, filters: any,headers:any) {
   let url = `${baseUrl}/${doctype}`;
   const itemRateFilter: any[] = [];
   if (filters?.item_code) {
     itemRateFilter.push(['item_code', '=', `${filters.item_code}`]);
     itemRateFilter.push(['price_list', '=', 'Standard Selling']);
     url = `${baseUrl}/${doctype}?filters=${encodeURIComponent(JSON.stringify(itemRateFilter))}&fields=["*"]`;
-    console.log(url);
-    let data = await fetchData(url);
+    let data = await fetchData(url,headers);
     return data;
   }
 }
 
-export async function getPaymentTerms(doctype: any, filters: any) {
+export async function getPaymentTerms(doctype: any, filters: any,headers:any) {
   let url = `${baseUrl}/${doctype}`;
   const getPaymentTermsFilters: any[] = [];
   if (filters?.input) {
     getPaymentTermsFilters.push(['name', 'like', `%${filters.input}%`]);
     url = `${baseUrl}/${doctype}?filters=${JSON.stringify(getPaymentTermsFilters)}`;
-    let data = await fetchData(url);
+    let data = await fetchData(url,headers);
     return data;
   }
   if (filters?.name) {
     url = `${baseUrl}/${doctype}/${filters.name}`;
-    let data = await fetchData(url);
+    let data = await fetchData(url,headers);
     return data;
   } else {
-    let data = await fetchData(url);
+    let data = await fetchData(url,headers);
     return data;
   }
 }
 
-export async function getTermsCondtions(doctype: any, filters: any) {
+export async function getTermsCondtions(doctype: any, filters: any,headers:any) {
   let url = `${baseUrl}/${doctype}`;
   const termsnConditionFilter: any[] = [];
 
@@ -359,7 +371,7 @@ export async function getTermsCondtions(doctype: any, filters: any) {
     url = `${baseUrl}/${doctype}/${filters.name}`;
   }
 
-  let data = await fetchData(url);
+  let data = await fetchData(url,headers);
 
   // Extract text content using jsdom
   if (data && data.terms) {
@@ -370,7 +382,7 @@ export async function getTermsCondtions(doctype: any, filters: any) {
   return data;
 }
 
-export async function getCurrency(doctype: any, filters: any) {
+export async function getCurrency(doctype: any, filters: any,headers:any) {
   let url = `${baseUrl}/${doctype}`;
   const curencyFilter = [];
   curencyFilter.push(['enabled', '=', 1]);
@@ -378,10 +390,10 @@ export async function getCurrency(doctype: any, filters: any) {
     curencyFilter.push(['name', 'like', `%${filters.input}%`]);
   }
   url = `${baseUrl}/${doctype}?filters=${JSON.stringify(curencyFilter)}&limit_page_length=None`;
-  let data = await fetchData(url);
+  let data = await fetchData(url,headers);
   return data;
 }
-async function getPromotionalSchemes(doctype: string, filters: any) {
+async function getPromotionalSchemes(doctype: string, filters: any,headers:any) {
   const schemeFilters: any = [];
   const currentDate = new Date().toISOString().split('T')[0];
 
@@ -400,117 +412,119 @@ async function getPromotionalSchemes(doctype: string, filters: any) {
     url = `${baseUrl}/${doctype}?filters=${encodeURIComponent(JSON.stringify(schemeFilters))}`;
   }
 
-  return await fetchData(url);
+  return await fetchData(url,headers);
 }
 
-export async function getSerialNo(doctype: any, filters: any) {
+export async function getSerialNo(doctype: any, filters: any,headers:any) {
   let url = `${baseUrl}/${doctype}`;
   const apiFilter: any[] = [];
   Object.entries(filters).forEach(([key, value]) => {
     apiFilter.push([key, '=', value]);
   });
   url = `${baseUrl}/${doctype}?filters=${encodeURIComponent(JSON.stringify(apiFilter))}&limit_page_length=None`;
-  return await fetchData(url);
+  return await fetchData(url,headers);
 }
-export async function getBatch(doctype: any, filters: any) {
+export async function getBatch(doctype: any, filters: any,headers:any) {
   let url = `${baseUrl}/${doctype}`;
   const apiFilter: any[] = [];
   Object.entries(filters).forEach(([key, value]) => {
     apiFilter.push([key, '=', value]);
   });
   url = `${baseUrl}/${doctype}?filters=${encodeURIComponent(JSON.stringify(apiFilter))}&limit_page_length=None`;
-  console.log(url, 'batch url')
-  return await fetchData(url);
+  return await fetchData(url,headers);
 }
+
+
 
 export async function getCurrencyData(kwargs:any) {
   let endpoint = 'https://yatish-testing-v15.frappe.cloud/api/method/erpnext.setup.utils.get_exchange_rate';
   const response = await fetch(endpoint, {
     method: 'POST',
-    headers,
+    headers:{Authorization:kwargs?.headers},
     body: JSON.stringify(kwargs.data),
   });
   return response.json();
 }
 
-export async function getPaymentReconciliationParty(doctype: any, filters: any) {
+export async function getPaymentReconciliationParty(doctype: any, filters: any,headers:any) {
   const url = `${baseUrl}/DocType?filters=${encodeURIComponent(JSON.stringify([["name", "in", ["Customer", "Supplier", "Employee", "Shareholder"]]]))}`;
-  return await fetchData(url);
+  return await fetchData(url,headers);
 }
 
 
 export async function getData(kwargs: any) {
-  const { doctype, filters } = kwargs;
+  const { doctype, filters , headers } = kwargs;
+  console.log(doctype, filters, headers);
 
   switch (doctype) {
     case 'Address':
-      return await getAddressData(doctype, filters);
+      return await getAddressData(doctype, filters,headers);
     case 'Item':
-      return await getItemData(doctype, filters);
+      return await getItemData(doctype, filters,headers);
     case 'Cost Center':
-      return await getCostCenterData(doctype, filters);
+      return await getCostCenterData(doctype, filters,headers);
     case 'Warehouse':
-      return await getWarehouseData(doctype, filters);
+      return await getWarehouseData(doctype, filters,headers);
     case 'Account':
-      return await getAccountsData(doctype, filters);
+      return await getAccountsData(doctype, filters,headers);
     case 'Sales Taxes and Charges Template':
       return await fetchTaxes(doctype, filters);
     case 'Item Tax Template':
-      return await getItemTaxTemplate(doctype, filters);
+      return await getItemTaxTemplate(doctype, filters,headers);
     case 'UOM':
-      return await getUomData(doctype, filters);
+      return await getUomData(doctype, filters,headers);
     case "GST HSN Code":
-        return await getGstHsnData(doctype, filters);
+        return await getGstHsnData(doctype, filters,headers);
     case "Shipping Rule":
-      return await getShippingData(doctype , filters);
+      return await getShippingData(doctype , filters,headers);
     case "Item Price":
-      return await getItemRate(doctype ,filters);
+      return await getItemRate(doctype ,filters,headers);
     case "Payment Terms Template":
-        return await getPaymentTerms(doctype ,filters);
+        return await getPaymentTerms(doctype ,filters,headers);
     case "Terms and Conditions":
-      return await getTermsCondtions(doctype ,filters);
+      return await getTermsCondtions(doctype ,filters,headers);
     case "Currency":
-      return await getCurrency(doctype ,filters);
+      return await getCurrency(doctype ,filters,headers);
     case "Serial No":
-      return await getSerialNo(doctype ,filters);
+      return await getSerialNo(doctype ,filters,headers);
     case "Batch":
-       return await getBatch(doctype ,filters);
+       return await getBatch(doctype ,filters,headers);
     case "Promotional Scheme":
-      return await getPromotionalSchemes(doctype, filters);
+      return await getPromotionalSchemes(doctype, filters,headers);
     case 'Serial No':
-      return await getSerialNo(doctype, filters);
+      return await getSerialNo(doctype, filters,headers);
     case 'Batch':
-      return await getBatch(doctype, filters);
+      return await getBatch(doctype, filters,headers);
     case "Payment Reconciliation Party":
-      return await getPaymentReconciliationParty(doctype ,filters);
+      return await getPaymentReconciliationParty(doctype ,filters,headers);
     default:
-      return getOtherRecords(doctype);
+      return getOtherRecords(doctype,filters , headers);
   }
 }
 
-async function postSalesInvoice(invoiceData: any, method: any) {
-  let endpoint = `${baseUrl}/Sales Invoice`;
-  if (method == 'PUT') {
-    endpoint += `/${invoiceData.name}`;
-  }
-  const response = await fetch(endpoint, {
-    method: method,
-    headers,
-    body: JSON.stringify(invoiceData),
-  });
+// async function postSalesInvoice(invoiceData: any, method: any, headers:any) {
+//   let endpoint = `${baseUrl}/Sales Invoice`;
+//   if (method == 'PUT') {
+//     endpoint += `/${invoiceData.name}`;
+//   }
+//   const response = await fetch(endpoint, {
+//     method: method,
+//     headers: headers,
+//     body: JSON.stringify(invoiceData),
+//   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to post sales invoice: ${response.status} - ${response.statusText}`);
-  }
+//   if (!response.ok) {
+//     throw new Error(`Failed to post sales invoice: ${response.status} - ${response.statusText}`);
+//   }
 
-  const result = await response.json();
-  return result;
-}
+//   const result = await response.json();
+//   return result;
+// }
 
 export async function getTaxes(kwargs: any) {
   try {
-    const { company, templateName } = kwargs;
-    const taxes = await fetchTaxes(company, templateName);
+    const { company, templateName , headers } = kwargs;
+    const taxes = await fetchTaxes(company, templateName , headers);
     return taxes;
   } catch (error: any) {
     console.error('Error in getTaxes:', error);
@@ -518,15 +532,15 @@ export async function getTaxes(kwargs: any) {
 }
 
 export async function saveForm(kwargs: any) {
-  try {
-    if (kwargs.method == 'POST') {
-      return await postSalesInvoice(kwargs.salesInvoiceData, kwargs.method);
-    } else if (kwargs.method == 'PUT') {
-      return await postSalesInvoice(kwargs.salesInvoiceData, kwargs.method);
-    }
-  } catch (error: any) {
-    console.error('Error in saveForm:', error);
-  }
+  // try {
+  //   if (kwargs.method == 'POST') {
+  //     return await postSalesInvoice(kwargs.salesInvoiceData, kwargs.method , kwargs.headers);
+  //   } else if (kwargs.method == 'PUT') {
+  //     return await postSalesInvoice(kwargs.salesInvoiceData, kwargs.method, kwargs.headers);
+  //   }
+  // } catch (error: any) {
+  //   console.error('Error in saveForm:', error);
+  // }
 }
 
 export async function postData(kwargs: any) {
@@ -536,11 +550,12 @@ export async function postData(kwargs: any) {
   }
   const response = await fetch(endpoint, {
     method: 'POST',
-    headers,
+    headers:{Authorization:kwargs?.headers},
     body: JSON.stringify(kwargs.data),
   });
   return response;
 }
+
 
 export async function updateData(kwargs: any) {
   let endpoint = baseUrl;
@@ -552,18 +567,19 @@ export async function updateData(kwargs: any) {
   }
   const response = await fetch(endpoint, {
     method: 'PUT',
-    headers,
+    headers:{Authorization:kwargs?.headers},
     body: JSON.stringify(kwargs.data),
   });
   return response;
 }
+
 
 export async function getGstinInfo(kwargs: any) {
   if (kwargs.gstin) {
     let gstinUrl = `https://yatish-testing-v15.frappe.cloud/api/method/india_compliance.gst_india.utils.gstin_info.get_gstin_info?gstin=${kwargs.gstin}`;
     const response = await fetch(gstinUrl, {
       method: 'POST',
-      headers,
+      headers:{Authorization:kwargs?.headers},
     });
     return response.json();
   } else {
