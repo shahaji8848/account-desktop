@@ -1,207 +1,282 @@
-'use client';
-import React, { useEffect, useRef, useState } from 'react';
-import { Table } from 'react-bootstrap';
-import styles from './journal.module.css'
-import QuitConfirmationModal from '../Home/QuitConfirmationModal';
+import React, { useEffect, useRef, useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import styles from "./journal.module.css";
+import QuitConfirmationModal from "../Home/QuitConfirmationModal";
+import ShowFilter from "../common/ShowFilter";
+import { ledgerAccountList, journalEntryType } from "../../utils/journalFormData";
 
 
 
-const JournalTable = ({ homeHookData, globalData, VoucherRegisterList, type }: any) => {
+
+const JournalTable = ({ homeHookData, globalData }: any) => {
+    const formRef = useRef<any>(null);
+    const entryRefs = useRef<any>(null);
+    const inputRefs = useRef<any>([]);
     const { isQuitModalOpen, setIsQuitModalOpen } = globalData;
-    const menuItemsRef = useRef<any>([]);
-    const tableRef = useRef<any>(null);
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [showFilter, setShowFilter] = useState(false);
+    const [currentFilterList, setCurrentFilterList] = useState<any[]>([]);
+    // State to manage input values for multiple rows
+    const [entryType, setEntryType] = useState('');
+    const [entries, setEntries] = useState<any>([
+        { type: "", particulars: "", debit: "", credit: "", curBalance: 0 }
+    ]);
+
+
 
     useEffect(() => {
-        // Focus the first menu item on mount
-        if (menuItemsRef.current[selectedIndex]) {
-            const element = menuItemsRef.current[selectedIndex];
-            element.focus();
+        if (entryRefs.current) {
+            entryRefs.current.focus();
+        }
+    }, []);
+    // Handle input changes for different fields
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+        const { name, value } = e.target;
+        const newEntries = [...entries];
+        newEntries[index][name] = value;
 
-            // Remove focus styles dynamically
-            element.style.outline = "none";
-            element.style.border = "none";
-            element.style.boxShadow = "none";
+        // Enable/Disable fields based on type value
+        if (name === "type") {
+            if (value.toLowerCase() === "to") {
+                newEntries[index].debit = "";
+                newEntries[index].credit = "disabled";
+            } else if (value.toLowerCase() === "cr") {
+                newEntries[index].credit = "";
+                newEntries[index].debit = "disabled";
+            } else {
+                newEntries[index].debit = "";
+                newEntries[index].credit = "";
+            }
         }
 
-        // Focus the table head if no data
-        if (VoucherRegisterList?.length === 0 && tableRef.current) {
-            const element = tableRef.current
-            element.focus();
-            // Remove focus styles dynamically
-            element.style.outline = "none";
-            element.style.border = "none";
-            element.style.boxShadow = "none";
+        setEntries(newEntries);
+    };
+
+    // Handle key press (Enter to add new row, Escape to close modal)
+    const handleKeyDown = (e: any, field: any, index: number) => {
+        const { name, value } = e.target;
+        const focusableElements = Array.from(
+            formRef.current?.querySelectorAll(
+                "input, button, select, textarea, [tabindex]:not([tabindex='-1'])"
+            ) || []
+        ) as HTMLElement[];
+
+        const focusIndex = focusableElements.indexOf(e.currentTarget);
+
+        if (e.key === "Escape") {
+            setIsQuitModalOpen(true);
         }
-    }, [selectedIndex, VoucherRegisterList, isQuitModalOpen]);
 
-    // const handleKeyDown = (e: React.KeyboardEvent, index?: number) => {
-    //     const menuItems = menuItemsRef.current.filter((item: any) => item !== null); // Filter out null values
+        if (e.key === "Enter" && !showFilter) {
+            const newEntries = [...entries];
 
-    //     if (e.key === "ArrowDown") {
-    //         e.preventDefault();
-    //         setSelectedIndex((prevIndex: any) =>
-    //             prevIndex === menuItems.length - 1 ? 0 : prevIndex + 1
-    //         );
-    //     } else if (e.key === "ArrowUp") {
-    //         e.preventDefault();
-    //         setSelectedIndex((prevIndex: any) =>
-    //             prevIndex === 0 ? menuItems.length - 1 : prevIndex - 1
-    //         );
-    //     } else if (e.key === "Enter") {
-    //         e.preventDefault();
-    //         // @ts-expect-error
-    //         const selectedText = menuItems[index]?.textContent;
-    //         if (selectedText === "Create") {
+            if (field === "debit") {
+                const debitValue = parseFloat(newEntries[index].debit) || 0;
+                newEntries[index].curBalance -= debitValue; // Subtract from balance
+            }
+            else if (field === "credit") {
+                const creditValue = parseFloat(newEntries[index].credit) || 0;
+                newEntries[index].curBalance += creditValue; // Add to balance
+            }
 
-    //         } else if (selectedText === "Vouchers") {
+            setEntries(newEntries);
 
-    //         } else if (selectedText === "Quit") {
+            // Add new row when Enter is pressed in Debit or Credit field
+            if ((field === "debit" || field === "credit") && value) {
+                setEntries([...newEntries, { type: "", particulars: "", debit: "", credit: "", curBalance: 0 }]);
+            }
 
-    //         }
-    //     } else if (e.key === "Escape") {
-    //         setIsQuitModalOpen(true)
-    //     }
-    // };
+            setTimeout(() => {
+                if (inputRefs.current[index + 1]) {
+                    inputRefs.current[index + 1].focus(); // Focus on "type" field of new row
+                }
+            }, 0);
+
+            // Enter: Move focus forward
+            if (focusIndex < focusableElements.length - 1) {
+                focusableElements[focusIndex + 1].focus();
+            }
+        }
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            // setCurrentField(field);
+
+            const newIndex = e.key === 'ArrowDown'
+                ? (selectedIndex + 1) % currentFilterList?.length
+                : (selectedIndex - 1 + currentFilterList?.length) % currentFilterList?.length;
+            setSelectedIndex(newIndex);
+        }
+        if (e.key === 'Enter' && showFilter) {
+            e.preventDefault();
+            let newEntries = [...entries];
+            if (field === 'particulars') {
+                newEntries[index][field] = currentFilterList[selectedIndex]?.name || '';
+                newEntries[index]['curBalance'] = currentFilterList[selectedIndex]?.cur_balance;
+                setEntries(newEntries);
+            } else if (field === 'entry_type') {
+                setEntryType(currentFilterList[selectedIndex]?.name || '')
+            }
+            setShowFilter(false);
+            setSelectedIndex(0);
+        };
+
+    }
+
+    const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+        const { name: field, value } = e.target;
+        setShowFilter(false);
+        if (field === 'particulars') {
+            setShowFilter(true);
+            setCurrentFilterList(ledgerAccountList);
+            setSelectedIndex(0)
+        } else if (field === 'entry_type') {
+            setShowFilter(true);
+            setCurrentFilterList(journalEntryType);
+            setSelectedIndex(0)
+        }
+
+    }
+
+    // Calculate total debit and credit amounts
+    const totalDebit = entries.reduce((sum: any, entry: any) => sum + (parseFloat(entry.debit) || 0), 0);
+    const totalCredit = entries.reduce((sum: any, entry: any) => sum + (parseFloat(entry.credit) || 0), 0);
 
     return (
-        <div className={`${styles.journal_table_container}`}>
-            <div className='d-flex justify-content-between pb-2 ps-1 pe-1'
-                ref={(el) => (tableRef.current = el)}
-                tabIndex={0}
-            >
-                <p>Journal</p>
+        <div
+            className={`container-fluid ${styles.journal_table_container}`}
+            ref={formRef}
+        >
+            <div className="row  pb-2 ps-1 pe-1">
+                <p className={`col-1 ${styles.journal_label}`}>Journal</p>
+                <div className="col-5 d-flex align-items-center">
+                    <label className="fw-bold" style={{ flexBasis: '20%' }}>Entry Type</label>
+                    <span className='colon-span me-2'>:</span>
+                    <input
+                        type="text"
+                        className="form-control"
+                        ref={(el) => el && (entryRefs.current = el)}
+                        onKeyDown={(e) => handleKeyDown(e, 'entry_type', 0)}
+                        name="entry_type"
+                        onFocus={handleInputFocus}
+                        onChange={(e) => { handleInputChange(e, 0) }}
+                        value={entryType}
+                        style={{ height: '20px', flexBasis: '40%' }}
+                    />
+                </div>
             </div>
 
-            <Table
-                bordered
-                className={styles.voucherTable}
-
+            {/* Header Row */}
+            <div
+                className={`row py-2 fw-bold`}
+                style={{ border: '1px solid lightgray' }}
             >
-                <thead>
-                    <tr>
-                        <th className={styles.noBorderSides}></th>
-                        <th style={{ width: "80%" }} className={styles.noBorderSides}>Particulars</th>
-                        <th className={styles.noBorderSides}>Debit</th>
-                        <th className={styles.noBorderSides}>Credit</th>
-                    </tr>
-                </thead>
-                <tbody>
+                <div className="col-1">{' '}</div>
+                <div className="col-5">Particulars</div>
+                <div className="col-3 text-center">Debit</div>
+                <div className="col-2 text-end">Credit</div>
+            </div>
 
-                    <tr
-                        className={`${styles.noBordeAll}`}
-                        tabIndex={0}
+            {/* Dynamic Entry Rows */}
+            {entries.map((entry: any, index: any) => (
+                <div key={index} className={`row py-2 align-items-center ${styles.entryRow}`}>
+                    {/* Left Icon Input */}
+                    <div className={`col-1 d-flex align-items-center ${styles.voucherRowActive}`}>
+                        <input
+                            type="text"
+                            className={`form-control ${styles.voucherRowActive}`}
+                            ref={(el) => (inputRefs.current[index] = el)}
+                            name="type"
+                            value={entry.type}
+                            onChange={(e) => handleInputChange(e, index)}
+                            onKeyDown={(e) => handleKeyDown(e, 'particulars', index)}
 
-                    >
-                        <td className={`${styles.noBordeAll} ${0 === selectedIndex ? styles.voucherRowActive : ""}`}>
-                            <input
-                                type="text"
-                                className={`form-control ${0 === selectedIndex ? styles.voucherRowActive : ""}`}
-                                name="customer_name"
-                                value='cr'
-                            />
-                        </td>
-                        <td className={`${styles.noBordeAll} ${0 === selectedIndex ? styles.voucherRowActive : ""}`}>
-                            <div className="position-relative d-flex flex-column">
+                        />
+                    </div>
+
+                    {/* Particulars */}
+                    <div className={`col-5 ${styles.voucherRowActive}`}>
+                        <input
+                            type="text"
+                            className={`form-control ${styles.voucherRowActive}`}
+                            name="particulars"
+                            value={entry.particulars}
+                            onChange={(e) => handleInputChange(e, index)}
+                            onKeyDown={(e) => handleKeyDown(e, 'particulars', index)}
+                            onFocus={handleInputFocus}
+                        />
+                    </div>
+
+                    {/* Debit Amount */}
+                    <div className={`col-3 d-flex justify-center fw-bold ${styles.voucherRowActive}`} style={{ height: '32px' }}>
+                        {entry.debit === "disabled" ? <span style={{ visibility: 'hidden' }}>debit</span>
+                            : (
                                 <input
                                     type="text"
-                                    className={`form-control ${0 === selectedIndex ? styles.voucherRowActive : ""}`}
-                                    name="customer_name"
-                                    style={{ width: "20%" }} // Adjust width as needed
+                                    className={`form-control ${styles.voucherRowActive}`}
+                                    style={{width:'50%'}}
+                                    name="debit"
+                                    value={entry.debit}
+                                    disabled={entry.debit === "disabled"} // Disable if "Cr" was typed
+                                    onChange={(e) => handleInputChange(e, index)}
+                                    onKeyDown={(e) => handleKeyDown(e, 'debit', index)}
                                 />
-                                <span className={`position-absolute ${styles.curBal}`}>
-                                    Cur Bal: 1233
-                                </span>
-                            </div>
+                            )
+                        }
 
-                        </td>
+                    </div>
 
-
-
-                        <td className={`${styles.noBordeAll} ${0 === selectedIndex ? styles.voucherRowActive : ""}`}>
-                            <input
-                                type="text"
-                                className={`form-control ${0 === selectedIndex ? styles.voucherRowActive : ""}`}
-                                name="customer_name"
-                            />
-                        </td>
-
-
-                        <td className={`${styles.noBordeAll} ${0 === selectedIndex ? styles.voucherRowActive : ""}`}>
-                            <input
-                                type="text"
-                                className={`form-control ${0 === selectedIndex ? styles.voucherRowActive : ""}`}
-                                name="customer_name"
-                            />
-                        </td>
-
-
-                    </tr>
-
-                    {/* second row  */}
-
-                    <tr
-                        className={`${styles.noBordeAll}`}
-                        tabIndex={0}
-
-                    >
-                        <td className={`${styles.noBordeAll} ${1 === selectedIndex ? styles.voucherRowActive : ""}`}>
-                            <input
-                                type="text"
-                                className={`form-control ${1 === selectedIndex ? styles.voucherRowActive : ""}`}
-                                name="customer_name"
-                                value='cr'
-                            />
-                        </td>
-                        <td className={`${styles.noBordeAll} ${1 === selectedIndex ? styles.voucherRowActive : ""}`}>
-                            <div className="position-relative d-flex flex-column">
+                    {/* Credit Amount */}
+                    <div className={`col-3 ${styles.voucherRowActive}`} style={{ height: '32px' }}>
+                        {entry.credit === "disabled" ? <span style={{ visibility: 'hidden' }}>credit</span>
+                            : (
                                 <input
                                     type="text"
-                                    className={`form-control ${1 === selectedIndex ? styles.voucherRowActive : ""}`}
-                                    name="customer_name"
-                                    style={{ width: "20%" }} // Adjust width as needed
+                                    className={`form-control ${styles.voucherRowActive}`}
+                                    name="credit"
+                                    value={entry.credit}
+                                    disabled={entry.credit === "disabled"} // Disable if "To" was typed
+                                    onChange={(e) => handleInputChange(e, index)}
+                                    onKeyDown={(e) => handleKeyDown(e, 'credit', index)}
                                 />
-                                <span className={`position-absolute ${styles.curBal}`}>
-                                    Cur Bal: 1233
-                                </span>
-                            </div>
+                            )
+                        }
 
-                        </td>
+                    </div>
 
 
-
-                        <td className={`${styles.noBordeAll} ${1 === selectedIndex ? styles.voucherRowActive : ""}`}>
-                            <input
-                                type="text"
-                                className={`form-control ${1 === selectedIndex ? styles.voucherRowActive : ""}`}
-                                name="customer_name"
-                            />
-                        </td>
+                    {/* Cur Balance Row */}
+                    <div className="col-3">
+                        <div className={`text-muted ${entry.curBalance < 0 ? styles.negativeBalance : styles.curBal}`}>
+                            Cur Bal: <i>{Math.abs(entry.curBalance)?.toFixed(2)}</i>
+                        </div>
+                    </div>
 
 
-                        <td className={`${styles.noBordeAll} ${1 === selectedIndex ? styles.voucherRowActive : ""}`}>
-                            <input
-                                type="text"
-                                className={`form-control ${1 === selectedIndex ? styles.voucherRowActive : ""}`}
-                                name="customer_name"
-                            />
-                        </td>
+                </div>
+            ))}
 
+            {/* Narration Row */}
+            <div className={`row border-top py-2 ${styles.narrationRow}`}>
+                <div className="col-6 text-muted">Narration:</div>
+                {/* Footer (Total Debit  Amount) */}
+                <div className="col-3 text-end fw-bold">{totalDebit.toFixed(2)}</div>
+                {/* Footer (Total Credit Amount) */}
+                <div className="col-3 text-end fw-bold">{totalCredit.toFixed(2)}</div>
+            </div>
 
-                    </tr>
+            {/* Filter Dropdown */}
+            {showFilter && (
+                <ShowFilter
+                    filteredItems={currentFilterList}
+                    selectedIndex={selectedIndex}
+                    handleItemFocus={(index: number) => setSelectedIndex(index)}
+                />
+            )}
 
-
-                    {/* Total row  */}
-                    <tr className={`d-flex position-absolute ${styles.voucher_total}`}>
-                        <td colSpan={4} className={`${styles.noBordeAll}`} style={{ flexBasis: '55%' }}></td>
-                        <td colSpan={4} className={`fw-bold ${styles.noBordeAll}`} style={{ flexBasis: '15%' }}>Total:</td>
-                        <td colSpan={4} className={`fw-bold ${styles.noBordeAll}`} style={{ flexBasis: '15%' }}>12234</td>
-                    </tr>
-                </tbody>
-            </Table>
+            {/* Quit Confirmation Modal */}
             {isQuitModalOpen && (
                 <QuitConfirmationModal
-                    type={type}
+                    type="journal_form"
                     isOpen={isQuitModalOpen}
                     setIsQuitModalOpen={setIsQuitModalOpen}
                     homeHookData={homeHookData}

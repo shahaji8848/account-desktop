@@ -60,10 +60,39 @@
     background-color: #F2E2B1 !important;
 }
 
+.journal_label {
+    color: #ffffff;
+    background-color: #2973B2;
+}
+
 .curBal {
     font-size: 12px;
     color: #888;
     margin-top: 4px;
     top: 100%;
     left: 0;
+    z-index: 10;
+}
+
+.negativeBalance {
+    font-size: 14px;
+    color: red !important;
+    /* Red color for negative balance */
+}
+
+/* ;lif */
+
+/* .entryRow {
+    background-color: #fff8dc;
+    border-left: 3px solid #d3ad3e;
+    padding: 5px;
+} */
+
+.curBal {
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.narrationRow {
+    border-color: #ddd;
 }
