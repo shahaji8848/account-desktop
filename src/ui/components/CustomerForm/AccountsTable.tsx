@@ -35,7 +35,7 @@ const AccountsTable = ({
 
     const addRowRef = useRef<HTMLButtonElement | null>(null);
     const inputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('account_desktop_token');
     const companyList = useFetchData("Company", {}, token);
     // Add a new row dynamically
     const addRow = () => {

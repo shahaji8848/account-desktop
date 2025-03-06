@@ -42,7 +42,7 @@ const useSubmitHooks = ({ setIsAdressFormOpen, setIsBankFormOpen, rows, setRows 
         branch_code: '',
         bank_account_no: '',
     });
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('account_desktop_token');
     //supplier submit with full form submitt
 
     const handleSupplierFormSubmit = async () => {

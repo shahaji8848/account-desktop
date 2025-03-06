@@ -18,11 +18,11 @@ function App() {
 
   const location = useLocation();
 
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(localStorage.getItem('account_desktop_token'));
 
   // Update token if it changes in localStorage
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
+    const storedToken = localStorage.getItem('account_desktop_token');
     if (storedToken) {
       setToken(storedToken);
     }
@@ -38,7 +38,7 @@ function App() {
 
   // Handle login success and store token
   const handleLoginSuccess = (receivedToken: string) => {
-    localStorage.setItem('token', receivedToken);
+    localStorage.setItem('account_desktop_token', receivedToken);
     setToken(receivedToken);
   };
 
