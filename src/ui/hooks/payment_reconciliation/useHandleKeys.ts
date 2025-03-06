@@ -119,6 +119,10 @@ const useHandleKeys = (globalData: any, homeHookData: any) => {
       setSelectedIndex(newIndex);
     } else if (e.key === 'Enter' && showFilter) {
       e.preventDefault();
+      if (field === 'party') {
+        refreshData();
+      }
+
       // if (field === 'party' && apiError) {
       //   toast.warning(apiErrorMessage, {
       //     position: 'top-right',
