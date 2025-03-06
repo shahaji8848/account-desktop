@@ -17,6 +17,7 @@ import ReceiptRegister from './components/AccountBooks/ReceiptRegister/ReceiptRe
 import ReceiptVoucherRegister from './components/AccountBooks/ReceiptRegister/ReceiptVoucherRegister';
 import ContraRegister from './components/AccountBooks/ContraRegister/ContraRegister';
 import ContraVoucherRegister from './components/AccountBooks/ContraRegister/ContraVoucherRegister';
+import JournalMaster from './components/Journal/JournalMaster';
 
 const routesConfig = [
     { path: "/customer-form", component: CustomerFormMaster },
@@ -38,6 +39,7 @@ const routesConfig = [
     { path: "/contra-register", component: ContraRegister },
     { path: "/contra-voucher-register", component: ContraVoucherRegister },
     { path: "/payment-reconciliation", component: PaymentReconciliationMaster },
+    { path: "/journal", component: JournalMaster },
 ];
 
 export default routesConfig;

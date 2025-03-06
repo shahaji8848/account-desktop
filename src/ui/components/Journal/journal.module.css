@@ -1,0 +1,69 @@
+.journal_table_container {
+    margin-top: 20px;
+
+}
+
+.particularsHeader {
+    font-weight: bold;
+    text-align: left;
+}
+
+.transactionsHeader {
+    text-align: center;
+}
+
+.salesHeader {
+    text-align: right;
+
+}
+
+.highlightRow {
+    background-color: #ffcc33;
+    /* Yellow highlight */
+}
+
+.grand_total {
+    border: 1px solid lightgray
+}
+
+
+.grandTotalRow {
+    font-weight: bold;
+    text-align: left;
+}
+
+/* voucher css  */
+
+.noBorderSides {
+    border-left: none !important;
+    border-right: none !important;
+}
+
+.noBordeAll {
+    border: none !important;
+    padding-top: 0 !important;
+    padding-right: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.voucherRowActive {
+    background-color: #F2E2B1 !important;
+}
+
+.voucher_total {
+    width: 86%;
+    border: 1px solid lightgray;
+    bottom: 40px
+}
+
+.journal_table_container>.form-control {
+    background-color: #F2E2B1 !important;
+}
+
+.curBal {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+    top: 100%;
+    left: 0;
+}
