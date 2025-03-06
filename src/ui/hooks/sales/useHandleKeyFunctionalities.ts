@@ -329,6 +329,7 @@ export default function useHandleKeyFunctionalities({
       }, 0);
       // console.log(value.name);
       fieldName === name &&
+        showFilter &&
         getData('Terms and Conditions', { name: value.name }).then((response: any) => {
           // console.log(response, 'terms');
           setSalesData({
@@ -667,6 +668,77 @@ export default function useHandleKeyFunctionalities({
     fieldName,
     showFilter
   );
+  const getPromotionalItemData = async (data: any) => {
+    // console.log(data);
+    let response = await window.electron.getData({
+      doctype: 'Item',
+      filters: { name: data.free_item, company: companyData.company_name || '' },
+    });
+    let rate = await window.electron.getData({
+      doctype: 'Item Price',
+      filters: { item_code: data.free_item },
+    });
+    if (response && rate) {
+      let tax_info = await window.electron.getData({
+        doctype: 'Item Tax Template',
+        filters: { input: response?.taxes[0]?.item_tax_template || '' },
+      });
+      // console.log(response, rate, tax_info, 'response and rate');
+      setProductData([
+        {
+          item_name: data.free_item,
+          item_code: data.free_item,
+          hsn: response?.gst_hsn_code || '0101',
+          uom: response?.stock_uom || response.uoms[0]?.name || 'Nos',
+          description: response.description || '',
+          rate: data.free_item_rate,
+          qty: data.free_qty,
+          amt: '',
+          income_account: response?.item_defaults[0]?.income_account || '',
+          warehouse: salesData?.source_warehouse ? salesData.source_warehouse : response?.item_defaults[0]?.expense_account || '',
+          item_tax_template: response?.taxes[0]?.item_tax_template || '',
+          expense_account: response?.item_defaults[0]?.expense_account || '',
+          cost_center: response?.item_defaults[0]?.buying_cost_center || '',
+          gst_rate: tax_info[0]?.gst_rate,
+          original_rate: data.free_item_rate,
+        },
+      ]);
+    }
+  };
+
+  const getPromotionalData = async (value: string) => {
+    const itemData = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { item_code: itemsData.item_name } });
+    if (itemData && itemData.length > 0) {
+      const promotionalData = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { name: itemData[0].name } });
+      // console.log(itemData, promotionalData, 'Promotional Scheme');
+      if (promotionalData && promotionalData.customer[0]?.customer === salesData.party_details.party_name) {
+        if (value >= promotionalData.product_discount_slabs[0]?.min_qty) {
+          getPromotionalItemData(promotionalData.product_discount_slabs[0]);
+        }
+        if (value >= promotionalData.price_discount_slabs[0]?.min_qty) {
+          return promotionalData.price_discount_slabs[0]?.discount_percentage;
+        }
+      }
+      return 0;
+    }
+    return 0;
+  };
+
+  const calculateDiscountAmt = (data: any, value: any) => {
+    let amount = 0;
+    if (data['rate_with_margin'] !== '') {
+      amount = Number(data['original_rate']) + Number(data['rate_with_margin']);
+      data['rate'] = Number(amount - (amount * Number(value)) / 100).toFixed(2);
+      data['amt'] = Number(data['qty']) * Number(data['rate']);
+      data['discount_amount'] = (amount * Number(value)) / 100;
+    } else {
+      amount = Number(data['original_rate']);
+      data['rate'] = Number(amount - (amount * Number(value)) / 100).toFixed(2);
+      data['amt'] = Number(data['qty']) * Number(data['rate']);
+      data['discount_amount'] = (amount * Number(value)) / 100;
+    }
+    return data;
+  };
 
   const handleIfNotDropdown = (name: string, value: string) => {
     switch (name) {
@@ -785,6 +857,12 @@ export default function useHandleKeyFunctionalities({
         if (data[activeIndex]['rate'] !== '') {
           data[activeIndex]['amt'] = Number(value) * Number(data[activeIndex]['rate']);
         }
+        getPromotionalData(value).then((discount: any) => {
+          data[activeIndex]['discount_percentage'] = discount;
+          data[activeIndex] = calculateDiscountAmt(data[activeIndex], discount);
+          // setItemsData({ ...data });
+          // console.log(data[activeIndex])
+        });
         setSalesData({ ...salesData, table: data });
         (tableBodyRef.current[activeIndex].childNodes[1].childNodes[1] as HTMLElement).focus();
         break;
@@ -881,6 +959,6 @@ export default function useHandleKeyFunctionalities({
     handleTableKeyEnter,
     handleTableIfNotDropdown,
     handlePartyNameAndCostCenter,
-    handleDropdown
+    handleDropdown,
   };
 }

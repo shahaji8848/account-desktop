@@ -138,8 +138,9 @@ async function getItemData(doctype: string, filters: any) {
   itemdata['item_name'] = responseItemData?.item_name || null;
   itemdata['name'] = responseItemData?.name || null;
   itemdata['item_group'] = responseItemData?.item_group || null;
-  let description = responseItemData?.description || null;
-  itemdata['description'] = description.window.document.body.textContent;
+  // let description = responseItemData?.description || null;
+  // itemdata['description'] = description.window.document.body.textContent;
+  itemdata['description'] = responseItemData?.description || null;
   if (responseItemData?.item_defaults) {
     for (let row of responseItemData.item_defaults) {
       if (row?.company === filters.company) {
@@ -362,10 +363,10 @@ export async function getTermsCondtions(doctype: any, filters: any) {
   let data = await fetchData(url);
 
   // Extract text content using jsdom
-  if (data && data.terms) {
-    const dom = data.terms;
-    data.terms = dom.window.document.body.textContent;
-  }
+  // if (data && data.terms) {
+  //   const dom = data.terms;
+  //   data.terms = dom.window.document.body.textContent;
+  // }
 
   return data;
 }
