@@ -61,7 +61,7 @@ async function getAddressData(doctype: any, filters: any) {
 
 export async function login(kwargs: any) {
   const login_url = 'https://yatish-testing-v15.frappe.cloud/api/method/login';
-  
+
   if (kwargs.email && kwargs.password) {
     try {
       const response = await fetch(login_url, {
@@ -77,27 +77,24 @@ export async function login(kwargs: any) {
 
       const data = await response.json();
 
-      if (response.ok && data.message == "Logged In") {
+      if (response.ok && data.message == 'Logged In') {
         const generateKeysUrl = `https://yatish-testing-v15.frappe.cloud/api/method/frappe.core.doctype.user.user.generate_keys?user=${kwargs.email}`;
         const keysResponse = await fetch(generateKeysUrl, {
           method: 'POST',
-          headers: headers
+          headers: headers,
         });
 
         const keysData = await keysResponse.json();
-        if (keysData.message.api_secret){
+        if (keysData.message.api_secret) {
           const userDetails = `${baseUrl}/User/${kwargs.email}`;
           const res = await fetch(userDetails, { method: 'GET', headers });
-          let response = await res.json()
-          if (response.data.api_key){
-            return {status: "success", token: `token ${keysData.message.api_secret}:${response.data.api_key}`}
-
-          }
-          else{
+          let response = await res.json();
+          if (response.data.api_key) {
+            return { status: 'success', token: `token ${keysData.message.api_secret}:${response.data.api_key}` };
+          } else {
             return { error: data.message || 'Login failed' };
           }
-        }
-        else{
+        } else {
           return { error: data.message || 'Login failed' };
         }
       } else {
@@ -107,7 +104,7 @@ export async function login(kwargs: any) {
       return { error: 'An error occurred while logging in' };
     }
   } else {
-    return { error: "Invalid username or password" };
+    return { error: 'Invalid username or password' };
   }
 }
 
@@ -371,6 +368,20 @@ export async function getTermsCondtions(doctype: any, filters: any) {
   return data;
 }
 
+export async function getIncotermList(doctype: any, filters: any) {
+  let url = `${baseUrl}/${doctype}`;
+  const incotermFilter: any[] = [];
+
+  if (filters?.input) {
+    incotermFilter.push(['name', 'like', `%${filters.input}%`]);
+    url = `${baseUrl}/${doctype}?filters=${JSON.stringify(incotermFilter)}`;
+  }
+
+  let data = await fetchData(url);
+
+  return data;
+}
+
 export async function getCurrency(doctype: any, filters: any) {
   let url = `${baseUrl}/${doctype}`;
   const curencyFilter = [];
@@ -420,11 +431,11 @@ export async function getBatch(doctype: any, filters: any) {
     apiFilter.push([key, '=', value]);
   });
   url = `${baseUrl}/${doctype}?filters=${encodeURIComponent(JSON.stringify(apiFilter))}&limit_page_length=None`;
-  console.log(url, 'batch url')
+  console.log(url, 'batch url');
   return await fetchData(url);
 }
 
-export async function getCurrencyData(kwargs:any) {
+export async function getCurrencyData(kwargs: any) {
   let endpoint = 'https://yatish-testing-v15.frappe.cloud/api/method/erpnext.setup.utils.get_exchange_rate';
   const response = await fetch(endpoint, {
     method: 'POST',
@@ -435,10 +446,11 @@ export async function getCurrencyData(kwargs:any) {
 }
 
 export async function getPaymentReconciliationParty(doctype: any, filters: any) {
-  const url = `${baseUrl}/DocType?filters=${encodeURIComponent(JSON.stringify([["name", "in", ["Customer", "Supplier", "Employee", "Shareholder"]]]))}`;
+  const url = `${baseUrl}/DocType?filters=${encodeURIComponent(
+    JSON.stringify([['name', 'in', ['Customer', 'Supplier', 'Employee', 'Shareholder']]])
+  )}`;
   return await fetchData(url);
 }
-
 
 export async function getData(kwargs: any) {
   const { doctype, filters } = kwargs;
@@ -446,6 +458,8 @@ export async function getData(kwargs: any) {
   switch (doctype) {
     case 'Address':
       return await getAddressData(doctype, filters);
+    case 'Incoterm':
+      return await getIncotermList(doctype, filters);
     case 'Item':
       return await getItemData(doctype, filters);
     case 'Cost Center':
@@ -460,30 +474,26 @@ export async function getData(kwargs: any) {
       return await getItemTaxTemplate(doctype, filters);
     case 'UOM':
       return await getUomData(doctype, filters);
-    case "GST HSN Code":
-        return await getGstHsnData(doctype, filters);
-    case "Shipping Rule":
-      return await getShippingData(doctype , filters);
-    case "Item Price":
-      return await getItemRate(doctype ,filters);
-    case "Payment Terms Template":
-        return await getPaymentTerms(doctype ,filters);
-    case "Terms and Conditions":
-      return await getTermsCondtions(doctype ,filters);
-    case "Currency":
-      return await getCurrency(doctype ,filters);
-    case "Serial No":
-      return await getSerialNo(doctype ,filters);
-    case "Batch":
-       return await getBatch(doctype ,filters);
-    case "Promotional Scheme":
-      return await getPromotionalSchemes(doctype, filters);
+    case 'GST HSN Code':
+      return await getGstHsnData(doctype, filters);
+    case 'Shipping Rule':
+      return await getShippingData(doctype, filters);
+    case 'Item Price':
+      return await getItemRate(doctype, filters);
+    case 'Payment Terms Template':
+      return await getPaymentTerms(doctype, filters);
+    case 'Terms and Conditions':
+      return await getTermsCondtions(doctype, filters);
+    case 'Currency':
+      return await getCurrency(doctype, filters);
     case 'Serial No':
       return await getSerialNo(doctype, filters);
     case 'Batch':
       return await getBatch(doctype, filters);
-    case "Payment Reconciliation Party":
-      return await getPaymentReconciliationParty(doctype ,filters);
+    case 'Promotional Scheme':
+      return await getPromotionalSchemes(doctype, filters);
+    case 'Payment Reconciliation Party':
+      return await getPaymentReconciliationParty(doctype, filters);
     default:
       return getOtherRecords(doctype);
   }

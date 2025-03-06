@@ -281,10 +281,30 @@ export default function useHandleKeyFunctionalities({
           [name]: value,
         });
       setTimeout(() => {
-        salesDataRef.current?.currency?.focus();
+        salesDataRef.current?.incoterm?.focus();
         setShowFilter(false);
         // setType('dropdown')
       }, 0);
+      setIsSelecting(false);
+    } else if (name === 'incoterm') {
+      console.log('first', value)
+      if (fieldName === name && showFilter) {
+        setSalesData({
+          ...salesData,
+          [name]: value,
+        });
+        setTimeout(() => {
+          salesDataRef.current?.named_place?.focus();
+          setShowFilter(false);
+          setType('');
+        }, 0);
+      } else {
+        setTimeout(() => {
+          salesDataRef.current?.currency?.focus();
+          setShowFilter(false);
+          setType('dropdown');
+        }, 0);
+      }
       setIsSelecting(false);
     } else if (name === 'additional_discount_account') {
       fieldName === name &&
@@ -629,7 +649,8 @@ export default function useHandleKeyFunctionalities({
         name === 'additional_discount_account' ||
         name === 'currency' ||
         name === 'item_name' ||
-        name === 'receivable_account'
+        name === 'receivable_account'||
+        name === 'incoterm'
       ) {
         handlePartyNameAndCostCenter(name, filteredItems[selectedIndex]);
       } else if (name === 'rate') {
@@ -879,6 +900,14 @@ export default function useHandleKeyFunctionalities({
         }, 0);
         break;
       }
+      case 'named_place': {
+        focusNextField(salesDataRef.current.currency);
+        setTimeout(() => {
+          setShowFilter(false);
+          setType('dropdown');
+        }, 0);
+        break;
+      }
       case 'shipping_gstin': {
         focusNextField(salesDataRef.current.cost_center);
         setPartyNamePopup(false);
@@ -891,7 +920,7 @@ export default function useHandleKeyFunctionalities({
       }
       case 'update_stock': {
         setTimeout(() => {
-          salesData.update_stock ? salesDataRef.current?.source_warehouse?.focus() : salesDataRef.current?.currency?.focus();
+          salesData.update_stock ? salesDataRef.current?.source_warehouse?.focus() : salesDataRef.current?.incoterm?.focus();
         }, 0);
         // handleShowFilter(salesData.update_stock ? 'source_warehouse' : 'currency');
         // focusNextField(salesDataRef.current.cost_center);

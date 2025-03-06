@@ -63,7 +63,8 @@ export function handleChangeOfSales(
       'margin_type',
       'batch_no',
       'item_tax_template',
-      'receivable_account'
+      'receivable_account',
+      'incoterm'
     ];
 
     if (dropdown_names.includes(name)) {

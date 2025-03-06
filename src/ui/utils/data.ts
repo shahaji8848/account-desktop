@@ -170,6 +170,8 @@ export const salesDefaultdata = {
   is_cash_or_non_trade_discount: false,
   currency: 'INR',
   conversion_rate: '1',
+  incoterm: '',
+  named_place: '',
 };
 
 export const dataRef = {
@@ -203,6 +205,8 @@ export const dataRef = {
   is_cash_or_non_trade_discount: null,
   currency: null,
   conversion_rate: null,
+  incoterm: '',
+  named_place: '',
 };
 
 export const companyDefaultData = {
@@ -353,7 +357,7 @@ export const filterTypes: any = {
   cost_center: { type: 'Cost Center' },
   table: { type: 'Item' },
   item_name: { type: 'Item' },
-  qty: { type: 'GST HSN Code' },
+  // qty: { type: 'GST HSN Code' },
   hsn: { type: 'GST HSN Code' },
   uom: { type: 'UOM' },
   income_account: { type: 'Account' },
@@ -368,6 +372,7 @@ export const filterTypes: any = {
   terms_and_conditions: { type: 'Terms and Conditions' },
   currency: { type: 'Currency' },
   batch_no: { type: 'Batch' },
+  incoterm: { type: 'Incoterm' },
 };
 
 export const filterDefaultData = {
@@ -394,4 +399,5 @@ export const filterDefaultData = {
   apply_discount_on: [],
   currency: [],
   batch_no: [],
+  incoterm: [],
 };

@@ -98,7 +98,7 @@ function useSalesHook(globalData: any) {
   };
 
   // useEffect(async () => {
-  //   let x = await window.electron.getData({doctype:'Item',filters:{ name: 'Test batch', company: companyData.company_name || '' }});
+  //   let x = await window.electron.getData({doctype:'Incoterm',filters:{}});
   //   console.log(x, 'payment terms');
   //   // let x = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { item_code: 'Product' } });
   //   // console.log(x, 'promotional scheme');
@@ -126,6 +126,7 @@ function useSalesHook(globalData: any) {
         'Account',
         'Warehouse',
         'Shipping Rule',
+        'Incoterm'
       ];
 
       if (dropdown_names.includes(type)) {
