@@ -8,6 +8,7 @@ import PartyNamePopup from './PartyNamePopup';
 import TermsPopup from './TermsPopup';
 import PaymentDataTablePopup from './PaymentDataTablePopup';
 import GstDataTablePopup from './GstDataTablePopup';
+import AdvancePaymentPopup from './AdvancePaymentPopup';
 // import CompanyPopup from "../common/CompanyPopup";
 
 function MainBody({ salesDataRef, ...salesHookData }: any) {
@@ -62,6 +63,9 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
     handlePartyNamePopup,
     handleGstPopup,
     setDate,
+    advancePaymentPopup,
+    advancePaymentData,
+    handleAdvancePaymentsPopup
   } = salesHookData;
 
   const handleFocus = (e: any) => {
@@ -454,6 +458,14 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         salesDataRef={salesDataRef}
         handleFocus={handleFocus}
       />
+      <AdvancePaymentPopup
+        advancePaymentPopup={advancePaymentPopup}
+        advancePaymentData={advancePaymentData}
+        salesData={salesData}
+        handleValueChange={handleValueChange}
+        handleValueKeyDown={handleValueKeyDown}
+        salesDataRef={salesDataRef}
+      />
       <TableItemsPopup
         tableItemsPopup={tableItemsPopup}
         itemsData={itemsData}
@@ -486,6 +498,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         handleTermsPopup={handleTermsPopup}
         handlePartyNamePopup={handlePartyNamePopup}
         handleGstPopup={handleGstPopup}
+        handleAdvancePaymentsPopup={handleAdvancePaymentsPopup}
       />
     </div>
   );

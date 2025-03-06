@@ -66,7 +66,9 @@ export function handleAllSalesFunctions(
   handlePartyNameAndCostCenter: any,
   fieldName: any,
   handleDropdown: any,
-  handleDropdownSelection: any
+  handleDropdownSelection: any,
+  advancePaymentPopup: any,
+  setAdvancePaymentPopup: any
 ) {
   const navigate = useNavigate();
   const handleSubmitData = async (salesInvoiceData: any, method: string = 'POST') => {
@@ -373,6 +375,13 @@ export function handleAllSalesFunctions(
     }, 0);
   };
 
+  const handleAdvancePaymentsPopup = () => {
+    setAdvancePaymentPopup(true);
+    setTimeout(() => {
+      (salesDataRef.current.allocate_advances_automatically as HTMLElement).focus();
+    }, 0);
+  };
+
   const handleAllKeyFunctions = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.ctrlKey && event.key === 'a') {
       event.preventDefault(); // Prevent the default "Select All" behavior
@@ -386,7 +395,8 @@ export function handleAllSalesFunctions(
       !partyNamePopup &&
       !termsPopup &&
       !paymentTermsOpen &&
-      !gstTableOpen
+      !gstTableOpen &&
+      !advancePaymentPopup
     ) {
       navigate('/');
     }
@@ -399,6 +409,11 @@ export function handleAllSalesFunctions(
     if (event.ctrlKey && event.key === 't') {
       event.preventDefault(); // Prevent the default "Select All" behavior
       handleTermsPopup();
+    }
+    if (event.altKey && event.key === 'a') {
+      event.preventDefault(); // Prevent the default "Select All" behavior
+      // setTermsPopup(true);
+      handleAdvancePaymentsPopup();
     }
     if (event.ctrlKey && event.key === 'p') {
       event.preventDefault(); // Prevent the default "Select All" behavior
@@ -415,6 +430,9 @@ export function handleAllSalesFunctions(
     }
     if (gstTableOpen && event.key === 'Escape') {
       setGstTableOpen(false);
+    }
+    if (advancePaymentPopup && event.key === 'Escape') {
+      setAdvancePaymentPopup(false);
     }
     if (event.key === 'F2') {
       event.preventDefault(); // Prevent the default "Select All" behavior
@@ -474,5 +492,6 @@ export function handleAllSalesFunctions(
     handleTermsPopup,
     handlePartyNamePopup,
     handleGstPopup,
+    handleAdvancePaymentsPopup
   };
 }

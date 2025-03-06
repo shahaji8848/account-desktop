@@ -8,7 +8,8 @@ import {
   postData,
   getGstinInfo,
   getCurrencyData,
-  login
+  login,
+  getAdvancePaymentEntries
 } from "../apis/util.js";
 import { getPreloadPath, getUIPath } from "./pathResolver.js";
 import { ipcMain } from "electron";
@@ -61,6 +62,10 @@ app.on('ready', () => {
 
   ipcMain.handle('getData', async (_, kwargs: any) => {
     return await getData(kwargs);
+  });
+  
+  ipcMain.handle('getAdvancePaymentEntries', async (_, kwargs: any) => {
+    return await getAdvancePaymentEntries(kwargs);
   });
 
   ipcMain.handle('getGstinInfo', async (_, kwargs: any) => {

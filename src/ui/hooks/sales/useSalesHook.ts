@@ -28,6 +28,7 @@ function useSalesHook(globalData: any) {
   const [shippingDetails, setShippingDetails] = useState<any>([]);
   const [shippingTaxData, setShippingTaxData] = useState<any>([]);
   const [paymentData, setPaymentData] = useState<any>([]);
+  const [advancePaymentData, setAdvancePaymentData] = useState<any>([]);
   const [gstData, setGstData] = useState<any>([]);
   const [termsData, setTermsData] = useState<any>([]);
   const [itemsData, setItemsData] = useState<any>({ ...defaultTableData });
@@ -55,6 +56,7 @@ function useSalesHook(globalData: any) {
   const [termsPopup, setTermsPopup] = useState(false);
   const [paymentTermsOpen, setPaymentTermsOpen] = useState(false);
   const [gstTableOpen, setGstTableOpen] = useState(false);
+  const [advancePaymentPopup, setAdvancePaymentPopup] = useState(false);
 
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -98,10 +100,19 @@ function useSalesHook(globalData: any) {
   };
 
   // useEffect(async () => {
-  //   let x = await window.electron.getData({doctype:'Incoterm',filters:{}});
-  //   console.log(x, 'payment terms');
+  //   let x = await window.electron.getAdvancePaymentEntries({
+  //     doctype: 'Sales Invoice',
+  //     company: '8848 Digital LLP',
+  //     only_include_allocated_payments: false,
+  //     customer: 'Namiex Chemicals Pvt. Ltd.',
+  //     rounded_total: 1600,
+  //     grand_total: 1600,
+  //     __islocal: 1,
+  //   });
+  //   // let x = await window.electron.getData({doctype:'Incoterm',filters:{}});
+  //   console.log(JSON.stringify(x), 'payment terms');
   //   // let x = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { item_code: 'Product' } });
-  //   // console.log(x, 'promotional scheme');
+  //   console.log(x, 'promotional scheme');
   //   // let x1 = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { name: 'Product Scheme' } });
   //   // console.log(x1);
   // }, []);
@@ -126,7 +137,7 @@ function useSalesHook(globalData: any) {
         'Account',
         'Warehouse',
         'Shipping Rule',
-        'Incoterm'
+        'Incoterm',
       ];
 
       if (dropdown_names.includes(type)) {
@@ -456,6 +467,7 @@ function useSalesHook(globalData: any) {
     handleTermsPopup,
     handlePartyNamePopup,
     handleGstPopup,
+    handleAdvancePaymentsPopup
   } = handleAllSalesFunctions(
     setPreviousSalesData,
     setSubmitted,
@@ -518,7 +530,9 @@ function useSalesHook(globalData: any) {
     handlePartyNameAndCostCenter,
     fieldName,
     handleDropdown,
-    handleDropdownSelection
+    handleDropdownSelection,
+    advancePaymentPopup,
+    setAdvancePaymentPopup
   );
 
   return {
@@ -589,6 +603,9 @@ function useSalesHook(globalData: any) {
     handleTermsPopup,
     handlePartyNamePopup,
     handleGstPopup,
+    advancePaymentPopup,
+    advancePaymentData,
+    handleAdvancePaymentsPopup
   };
 }
 

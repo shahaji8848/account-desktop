@@ -172,6 +172,9 @@ export const salesDefaultdata = {
   conversion_rate: '1',
   incoterm: '',
   named_place: '',
+  advances: [],
+  allocate_advances_automatically: false,
+  only_include_allocated_payments: false,
 };
 
 export const dataRef = {
@@ -205,8 +208,11 @@ export const dataRef = {
   is_cash_or_non_trade_discount: null,
   currency: null,
   conversion_rate: null,
-  incoterm: '',
-  named_place: '',
+  incoterm: null,
+  named_place: null,
+  allocate_advances_automatically: null,
+  only_include_allocated_payments: null,
+  get_advances: null,
 };
 
 export const companyDefaultData = {
@@ -221,6 +227,24 @@ export const companyDefaultData = {
   pincode: '',
   gst_category: '',
 };
+
+export const advancesDefaultInfo = {
+  reference_type: '',
+  reference_name: '',
+  remarks: '',
+  advance_amount: '',
+  allocated_amount: '',
+  difference_posting_date: '',
+}
+
+export const advancesDefaultRef = {
+  reference_type: null,
+  reference_name: null,
+  remarks: null,
+  advance_amount: null,
+  allocated_amount: null,
+  difference_posting_date: null,
+}
 
 export const taxDefaultInfo = {
   charge_type: '',

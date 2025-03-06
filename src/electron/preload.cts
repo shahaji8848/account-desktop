@@ -6,6 +6,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   saveForm: (args:any) => ipcInvoke('saveForm',args),
   getTaxes: (args:any) => ipcInvoke('getTaxes',args),
   getData: (args:any) => ipcInvoke('getData',args),
+  getAdvancePaymentEntries: (args:any) => ipcInvoke('getAdvancePaymentEntries',args),
   postData: (args:any) => ipcInvoke('postData',args),
   updateData: (args:any) => ipcInvoke('updateData',args),
   getGstinInfo: (args:any) => ipcInvoke('getGstinInfo',args),
