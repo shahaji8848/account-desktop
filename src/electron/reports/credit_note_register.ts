@@ -27,7 +27,10 @@ export async function creditNoteRegisterMonthWiseSales(kwargs: any) {
   try {
     let response = await fetch(`${baseUrl}/api/method/frappe.desk.reportview.get`, {
       method: "POST",
-      headers,
+      headers:{
+        "Content-Type": "application/json",
+        Authorization: kwargs?.token,
+      },
       body: JSON.stringify(args),
     });
 
@@ -84,7 +87,10 @@ export async function creditNoteBreakupReport(kwargs: any) {
   try {
     let response = await fetch(`${baseUrl}/api/resource/Sales Invoice?${queryParams}`, {
       method: "GET",
-      headers,
+      headers:{
+        "Content-Type": "application/json",
+        Authorization: kwargs?.token,
+      },
     });
 
     let data = await response.json();

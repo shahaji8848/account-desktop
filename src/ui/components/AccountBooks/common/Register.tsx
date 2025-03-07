@@ -223,6 +223,10 @@ const Register = ({ homeHookData, globalData, registerList, type }: any) => {
                             </>
                         )}
 
+                        {(type === 'sales_register' || type === 'debit_note_register' || type === 'credit_note_register' || type === 'purchase_register') &&
+                            <td className={`${styles.noBordeAll}`}>{totalClosingBalance?.toFixed(2)}</td>}
+
+
                         {(type === 'journal_register' || type === 'payment_register' || type === 'receipt_register' || type === 'contra_register') && (
                             <>
                                 <td className={`${styles.noBordeAll}`}></td>
@@ -230,9 +234,6 @@ const Register = ({ homeHookData, globalData, registerList, type }: any) => {
                                 <td className={`${styles.noBordeAll}`}>({totalCancelled})</td>
                             </>
                         )}
-
-                        {(type === 'sales_register' || type === 'debit_note_register' || type === 'credit_note_register' || type === 'purchase_register') &&
-                            <td className={`${styles.noBordeAll}`}>{totalClosingBalance?.toFixed(2)}</td>}
                     </tr>
                 </tbody>
             </Table>

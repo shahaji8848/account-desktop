@@ -81,10 +81,16 @@ export async function login(kwargs: any) {
           usr: kwargs.email,
           pwd: kwargs.password,
         }),
+        credentials: 'include',
       });
 
       const data = await response.json();
-
+      const cookies = response.headers.get('set-cookie');
+      const sid = cookies || data.message?.sid || null;
+      let header_detials = {
+        'Content-Type': 'application/json',
+        Cookie: `${sid}`,
+      };
       if (response.ok && data.message == 'Logged In') {
         const generateKeysUrl = `https://yatish-testing-v15.frappe.cloud/api/method/frappe.core.doctype.user.user.generate_keys`;
         const keysResponse = await fetch(generateKeysUrl, {
@@ -94,13 +100,16 @@ export async function login(kwargs: any) {
             usr: kwargs.email,
             pwd: kwargs.password,
           }),
+          headers: header_detials,
         });
 
         const keysData = await keysResponse.json();
+
         if (keysData.message.api_secret) {
           const userDetails = `${baseUrl}/User/${kwargs.email}`;
-          const res = await fetch(userDetails, { method: 'GET', headers });
+          const res = await fetch(userDetails, { method: 'GET', headers: header_detials });
           let response = await res.json();
+          console.log(response, 'response');
           if (response.data.api_key) {
             return { status: 'success', token: `token ${response.data.api_key}:${keysData.message.api_secret}` };
           } else {
@@ -435,13 +444,13 @@ export async function getCurrencyData(kwargs: any) {
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: { Authorization: kwargs?.token, 'Content-Type': 'application/json' },
-    body: JSON.stringify(kwargs.data)
+    body: JSON.stringify(kwargs.data),
   });
   console.log(
     {
       method: 'POST',
       headers: { Authorization: kwargs?.token },
-      body: {"transaction_date":"2025-03-07","from_currency":"AUD","to_currency":"INR","args":"for_selling"},
+      body: { transaction_date: '2025-03-07', from_currency: 'AUD', to_currency: 'INR', args: 'for_selling' },
     },
     'currency data'
   );
@@ -505,7 +514,7 @@ export async function getData(kwargs: any) {
   }
 }
 
-async function postSalesInvoice(invoiceData: any, method: any, headers:any) {
+async function postSalesInvoice(invoiceData: any, method: any, headers: any) {
   let endpoint = `${baseUrl}/Sales Invoice`;
   if (method == 'PUT') {
     endpoint += `/${invoiceData.name}`;
@@ -537,7 +546,7 @@ export async function getTaxes(kwargs: any) {
 export async function saveForm(kwargs: any) {
   try {
     if (kwargs.method == 'POST') {
-      return await postSalesInvoice(kwargs.salesInvoiceData, kwargs.method , kwargs.headers);
+      return await postSalesInvoice(kwargs.salesInvoiceData, kwargs.method, kwargs.headers);
     } else if (kwargs.method == 'PUT') {
       return await postSalesInvoice(kwargs.salesInvoiceData, kwargs.method, kwargs.headers);
     }

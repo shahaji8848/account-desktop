@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 
 const useAllocateList = () => {
   const [allocationListData, setAllocationListData] = useState<any>();
+  const token = localStorage.getItem('account_desktop_token');
 
   // Create a function that can be called on demand
   const fetchAllocationList = useCallback(async (company?: string, party_type?: string, party?: string, invoices?: any, payments?: any) => {
@@ -16,6 +17,7 @@ const useAllocateList = () => {
         party: party,
         invoices: invoices,
         payments: payments,
+        token,
       });
 
       setAllocationListData(result?.docs || []);

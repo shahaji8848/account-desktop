@@ -22,7 +22,10 @@ export async function JournalEntryBreakupReport(kwargs: any) {
   try {
       const response = await fetch(`${baseUrl}/api/method/frappe.desk.reportview.get`, {
           method: "POST",
-          headers: headers,
+          headers:{
+            "Content-Type": "application/json",
+            Authorization: kwargs?.token,
+          },
           body: JSON.stringify(payload),
       });
 
@@ -94,7 +97,10 @@ export async function JournalEntryDetailBreakup(kwargs: any) {
   try {
     let response = await fetch(`${baseUrl}/api/resource/Journal Entry?${queryParams}`, {
       method: "GET",
-      headers,
+      headers:{
+        "Content-Type": "application/json",
+        Authorization: kwargs?.token,
+      },
     });
 
     let data = await response.json();
