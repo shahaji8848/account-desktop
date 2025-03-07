@@ -13,7 +13,6 @@ const TallyUI = ({
   setIsSales,
   setShowCustomerForm,
   setShowSupplierForm,
-  handlekeyfunctions,
   setSelectedIndex,
   selectedIndex,
   globalData,
@@ -77,16 +76,17 @@ const TallyUI = ({
       } else if (selectedText === 'BaNking') {
         navigate('/payment-reconciliation');
       }
-    } else if (e.key === 'd' && accountBooksList && !moreReportList) {
-      //menu list button click functionality
-      navigate('/debit-note-register');
-    } else if (e.key === 'd') {
+    } else if (e.key === 'd' && !moreReportList && !accountBooksList) {  //menu list button click functionality
       setMoreReportList(true);
       setSelectedIndex(0);
+    } else if (e.key === 'v' && !moreReportList && !accountBooksList) {  //menu list button click functionality
+      navigate('/sales');
     } else if (e.key === 'a' && moreReportList) {
       setAccountBooksList(true);
       setMoreReportList(false);
       setSelectedIndex(0);
+    } else if (e.key === 'd' && accountBooksList) {
+      navigate('/debit-note-register');
     } else if (e.key === 's' && accountBooksList) {
       navigate('/sales-register');
     } else if (e.key === 'e' && accountBooksList) {
@@ -106,13 +106,49 @@ const TallyUI = ({
     }
   };
 
+  const handleClick = (index: number) => {
+    const menuItems = menuItemsRef.current.filter((item) => item !== null); // Filter out null values
+    const selectedText = menuItems[index]?.textContent;
+    console.log(">>", index, selectedIndex)
+    if (selectedText === "Create") {
+      setIsModalOpen(true);
+    } else if (selectedText === "Vouchers") {
+      navigate('/sales')
+    } else if (selectedText === "Quit") {
+      setIsQuitModalOpen(true); // Open the quit confirmation modal
+    } else if (selectedText === "Display More Reports") {
+      setMoreReportList(true);
+      setSelectedIndex(0);
+    } else if (selectedText === "Account Books") {
+      setAccountBooksList(true);
+      setMoreReportList(false);
+      setSelectedIndex(0);
+    } else if (selectedText === 'Sales Register') {
+      navigate('/sales-register')
+    } else if (selectedText === 'CrEdit Note Register') {
+      navigate('/credit-note-register')
+    } else if (selectedText === 'Purchase Register') {
+      navigate('/purchase-register')
+    } else if (selectedText === 'Debit Note Register') {
+      navigate('/debit-note-register')
+    } else if (selectedText === 'Journal Register') {
+      navigate('/journal-register')
+    } else if (selectedText === 'PaYment Register') {
+      navigate('/payment-register')
+    } else if (selectedText === 'Receipt Register') {
+      navigate('/receipt-register')
+    } else if (selectedText === 'ConTra Register') {
+      navigate('/contra-register')
+    }
+  }
+
   const handleQuitConfirm = () => {
     window.close();
     setIsQuitModalOpen(false);
   };
 
   return (
-    <div className="container-fluid home_page" style={{ height: '100%' }} onKeyDown={handlekeyfunctions}>
+    <div className="container-fluid home_page" style={{ height: '100%' }}>
       <div className="row" style={{ height: '100%' }}>
         {/* Left Section */}
         <div className="col-md-7 left-section">
@@ -145,13 +181,28 @@ const TallyUI = ({
 
         {/* Right Section */}
         {!moreReportList && !accountBooksList && (
-          <HomeMenuList menuItemsRef={menuItemsRef} selectedIndex={selectedIndex} handleKeyDown={handleKeyDown} />
+          <HomeMenuList
+            menuItemsRef={menuItemsRef}
+            selectedIndex={selectedIndex}
+            handleKeyDown={handleKeyDown}
+            handleClick={handleClick}
+          />
         )}
         {moreReportList && !accountBooksList && (
-          <MoreReportMenuList menuItemsRef={menuItemsRef} selectedIndex={selectedIndex} handleKeyDown={handleKeyDown} />
+          <MoreReportMenuList
+            menuItemsRef={menuItemsRef}
+            selectedIndex={selectedIndex}
+            handleKeyDown={handleKeyDown}
+            handleClick={handleClick}
+          />
         )}
         {accountBooksList && !moreReportList && (
-          <AccountBooksMenuList menuItemsRef={menuItemsRef} selectedIndex={selectedIndex} handleKeyDown={handleKeyDown} />
+          <AccountBooksMenuList
+            menuItemsRef={menuItemsRef}
+            selectedIndex={selectedIndex}
+            handleKeyDown={handleKeyDown}
+            handleClick={handleClick}
+          />
         )}
       </div>
       {/* pop up */}

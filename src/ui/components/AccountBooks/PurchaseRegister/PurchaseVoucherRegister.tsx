@@ -3,11 +3,14 @@ import Sidebar from '../../Sales/Sidebar'
 import { homeSideBarData } from '../../../utils/data'
 import VoucherRegister from '../common/VoucherRegister'
 import BottomNavbar from '../../Sales/BottomNavbar'
+import PageHeader from '../../common/PageHeader'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../../store/root-reducer'
 
 const PurchaseVoucherRegister = ({ homeHookData, globalData }: any) => {
     const [VoucherRegisterList, setVoucherRegisterList] = useState<any>([]);
     const { voucherRegisterMonthDate } = homeHookData
-
+    const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '';
 
     const fetchVoucherList = async () => {
         try {
@@ -31,31 +34,14 @@ const PurchaseVoucherRegister = ({ homeHookData, globalData }: any) => {
         fetchVoucherList();
     }, []);
 
-    
+
     return (
         <div
             className="w-100 d-flex align-items-stretch justify-content-between"
             style={{ overflow: 'hidden' }}
         >
             <div className="main-body" style={{ width: "86%" }}>
-                <div
-                    className="ps-3 pe-1 infobar py-0 d-flex align-items-center justify-content-between position-relative"
-                    style={{
-                        background: "#87bde6",
-                        zIndex: "999",
-
-                    }}
-                >
-                    <p className='text-center'>Voucher Register</p>
-                    <p className='text-center'>8848 digital</p>
-
-                    <p
-                        style={{ width: "5%", cursor: "pointer" }}
-                        className="text-end cursor-pointer"
-                    >
-                        X
-                    </p>
-                </div>
+                <PageHeader ragisterName='Voucher Register' company={companyName} />
                 <VoucherRegister
                     homeHookData={homeHookData}
                     globalData={globalData}

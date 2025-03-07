@@ -1,156 +1,60 @@
 'use client';
-
 import type React from 'react';
-import { useState, useEffect, useRef } from 'react';
 import ShowFilter from '../common/ShowFilter';
-import useCompanyData from '../../hooks/payment_reconciliation/useCompanyData';
-import usePartyData from '../../hooks/payment_reconciliation/usePartyData';
-import usePartyTypeData from '../../hooks/payment_reconciliation/usePartyTypeData';
-import useUnreconcileEntriesData from '../../hooks/payment_reconciliation/useUnreconcileEntriesData';
+import 'react-toastify/dist/ReactToastify.css';
+import QuitConfirmationModal from '../Home/QuitConfirmationModal';
+import useHandleKeys from '../../hooks/payment_reconciliation/useHandleKeys';
 
-interface Company {
-  id: number;
-  name: string;
-}
-
-interface PartyType {
-  id: number;
-  name: string;
-}
-
-interface Party {
-  id: number;
-  name: string;
-  receivableAccount: string;
-  advanceAccount: string;
-}
-
-export default function PaymentReconciliationRework() {
-  const { companyData } = useCompanyData('Company');
-  const { partyData } = usePartyData('Customer');
-  const { partyTypeData } = usePartyTypeData('Payment Reconciliation Party');
-
-  const [currentFilterList, setCurrentFilterList] = useState<any[]>([]);
-  const [masterList, setMasterList] = useState<any[]>([]);
-  const [showFilter, setShowFilter] = useState(false);
-  const [currentField, setCurrentField] = useState('');
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const formRef = useRef<any>(null);
-  const inputRefs = useRef<any>(null);
-
-  const [initalPaymentReconcileCompanyData, setInitalPaymentReconcileCompanyData] = useState({
-    company: '',
-    party_type: '',
-    party: '',
-  });
-
-  // Fetching data only when all values are available
-  const { receivablePayableAccount, defaultAdvanceAccount, invoiceData, paymnentData }: any = useUnreconcileEntriesData(
-    initalPaymentReconcileCompanyData?.company,
-    initalPaymentReconcileCompanyData?.party_type,
-    initalPaymentReconcileCompanyData?.party
-  );
-
-  useEffect(() => {
-    if (inputRefs.current) {
-      inputRefs.current.focus();
-    }
-    setShowFilter(true);
-    setCurrentField('company');
-    setCurrentFilterList(companyData);
-    setMasterList(companyData);
-  }, [companyData]);
-
-  const handleKeyDown = async (e: any, field?: any, type?: any) => {
-    setInitalPaymentReconcileCompanyData((prevData) => ({
-      ...prevData,
-      [field]: e.target.value,
-    }));
-
-    const focusableElements = Array.from(
-      formRef.current?.querySelectorAll("input, button, select, textarea, [tabindex]:not([tabindex='-1'])") || []
-    ) as HTMLElement[];
-    console.log('focusableElements', focusableElements);
-    const index = focusableElements.indexOf(e.currentTarget);
-    console.log('index', index);
-    if (e.key === 'Enter' && !showFilter) {
-      console.log('enter');
-      e.preventDefault();
-      if (e.shiftKey) {
-        if (index > 0) {
-          focusableElements[index - 1].focus();
-        }
-      } else {
-        if (index < focusableElements.length - 1) {
-          focusableElements[index + 1].focus();
-        }
-      }
-    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault();
-      setCurrentField(field);
-
-      const newIndex =
-        e.key === 'ArrowDown'
-          ? (selectedIndex + 1) % currentFilterList.length
-          : (selectedIndex - 1 + currentFilterList.length) % currentFilterList.length;
-      setSelectedIndex(newIndex);
-    } else if (e.key === 'Enter' && showFilter) {
-      console.log('enter --->');
-
-      e.preventDefault();
-      setInitalPaymentReconcileCompanyData((prevData) => ({
-        ...prevData,
-        [currentField]: currentFilterList[selectedIndex]?.name || currentFilterList[selectedIndex],
-      }));
-      setShowFilter(false);
-      setSelectedIndex(0);
-    }
-  };
-
-  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name: field } = e.target;
-    setShowFilter(false);
-    if (field === 'company' || field === 'party_type' || field === 'party') {
-      setShowFilter(true);
-      setCurrentField(field);
-      setSelectedIndex(0);
-    }
-
-    if (field === 'company') {
-      setCurrentFilterList(companyData);
-      setMasterList(companyData);
-    } else if (field === 'party_type') {
-      setCurrentFilterList(partyTypeData);
-      setMasterList(partyTypeData);
-    } else if (field === 'party') {
-      setCurrentFilterList(partyData);
-      setMasterList(partyData);
-    }
-  };
-
-  const handleFilter = (value: string) => {
-    if (value.trim() === '') {
-      setCurrentFilterList(masterList);
-    } else {
-      setCurrentFilterList(masterList.filter((data) => data.name.toLowerCase().includes(value.toLowerCase())));
-    }
-  };
-
-  const handleInputChange = (e: any, type: any) => {
-    const { name, value } = e.target;
-    handleFilter(value);
-
-    setInitalPaymentReconcileCompanyData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+export default function PaymentReconciliationRework({ homeHookData, globalData }: any) {
+  const {
+    formRef,
+    receivablePayableAccount,
+    defaultAdvanceAccount,
+    invoiceData,
+    paymnentData,
+    setInvoiceData,
+    setPaymentData,
+    refreshData,
+    apiErrorMessage,
+    apiError,
+    data,
+    company,
+    partyType,
+    party,
+    selectedInvoices,
+    selectedPayments,
+    errorMessage,
+    hideAllocationTable,
+    handleKeyDown,
+    handleInputFocus,
+    handleInputChange,
+    handleSelectAllInvoices,
+    handleSelectAllPayments,
+    handleInvoiceSelect,
+    handlePaymentSelect,
+    inputRefs,
+    invoiceFilter,
+    setInvoiceFilter,
+    paymentFilter,
+    setPaymentFilter,
+    filteredInvoices,
+    filteredPayments,
+    allocationListData,
+    showFilter,
+    currentFilterList,
+    selectedIndex,
+    setSelectedIndex,
+    isQuitModalOpen,
+    setIsQuitModalOpen,
+    setHideAllocationTable,
+    handleAllocation,
+    handleReconcile,
+  } = useHandleKeys(homeHookData, globalData);
 
   return (
-    <div className="container-fluid p-4 bg-light">
-      <h2 className="mb-4">Payment Reconciliation</h2>
-      <div className="row mb-4" ref={formRef}>
+    <div className="container-fluid px-3 py-2 bg-light" style={{ width: '1200px' }}>
+      <h2 className="mb-3">Payment Reconciliation</h2>
+      <div className="row mb-4" ref={formRef} tabIndex={0}>
         <div className="col-md-6">
           <div className="row">
             <div className="col-12">
@@ -163,7 +67,7 @@ export default function PaymentReconciliationRework() {
                 onKeyDown={(e) => handleKeyDown(e, 'company', 'company')}
                 onFocus={handleInputFocus}
                 onChange={(e) => handleInputChange(e, 'company')}
-                value={initalPaymentReconcileCompanyData.company}
+                value={company}
               />
             </div>
             <div className="col-12 mt-3">
@@ -175,12 +79,11 @@ export default function PaymentReconciliationRework() {
                 onKeyDown={(e) => handleKeyDown(e, 'party_type', 'Payment Reconciliation Party')}
                 onFocus={handleInputFocus}
                 onChange={(e) => handleInputChange(e, 'Payment Reconciliation Party')}
-                value={initalPaymentReconcileCompanyData.party_type}
+                value={partyType}
               />
             </div>
           </div>
         </div>
-
         <div className="col-md-6">
           <div className="row">
             <div className="col-12">
@@ -192,32 +95,199 @@ export default function PaymentReconciliationRework() {
                 onKeyDown={(e) => handleKeyDown(e, 'party', 'party')}
                 onFocus={handleInputFocus}
                 onChange={(e) => handleInputChange(e, 'party')}
-                value={initalPaymentReconcileCompanyData.party}
+                value={party}
               />
             </div>
             <div className="col-12 mt-3">
               <label className="form-label">Receivable/Payable Account:</label>
-              <input type="text" name="Receivable/Payable Account" value={receivablePayableAccount} className="form-control" />
+              <input
+                type="text"
+                name="Receivable/Payable Account"
+                onKeyDown={(e) => handleKeyDown(e, '', '')}
+                value={receivablePayableAccount}
+                className="form-control"
+              />
             </div>
             <div className="col-md-12 mt-3">
               <label className="form-label">Default Advance Account:</label>
-              <input type="text" name="Default Advance Account" className="form-control" value={defaultAdvanceAccount} />
+              <input
+                type="text"
+                name="Default Advance Account"
+                onKeyDown={(e) => handleKeyDown(e, '', '')}
+                className="form-control"
+                value={defaultAdvanceAccount}
+              />
             </div>
           </div>
         </div>
-      </div>
-      <div className="row mb-3">
+
+        {/* Unreconcile Entries */}
+        <div className="col-12">
+          <h2 className="mb-3">Unreconciled Entries</h2>
+        </div>
         <div className="col-md-6">
           <label className="form-label">Filter On Invoice:</label>
-          <input type="text" name="Filter On Invoice" className="form-control" />
+          <input
+            type="text"
+            className="form-control"
+            value={invoiceFilter}
+            onChange={(e) => setInvoiceFilter(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e, '', '')}
+          />
         </div>
         <div className="col-md-6">
           <label className="form-label">Filter On Payment:</label>
-          <input type="text" name="Filter On Payments" className="form-control" />
+          <input
+            type="text"
+            className="form-control"
+            value={paymentFilter}
+            onChange={(e) => setPaymentFilter(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e, '', '')}
+          />
         </div>
+
+        {/* Unreconcile table */}
+        <div className="col-md-6 mt-3">
+          <table className="table table-bordered invoice-table">
+            <thead className="table-primary">
+              <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    onChange={handleSelectAllInvoices}
+                    onKeyDown={(e) => handleKeyDown(e, '', '')}
+                    checked={selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0}
+                  />
+                </th>
+                <th>Invoice Type</th>
+                <th>Invoice Number</th>
+                <th>Invoice Date</th>
+                <th>Amount</th>
+                <th>Outstanding Amount</th>{' '}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredInvoices.map((invoice: any, index: number) => (
+                <tr key={index}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedInvoices.some((item) => item.idx === invoice.idx)}
+                      onChange={() => handleInvoiceSelect(invoice)}
+                      onKeyDown={(e) => handleKeyDown(e, '', '')}
+                    />
+                  </td>
+                  <td>{invoice.invoice_type}</td>
+                  <td>{invoice.invoice_number}</td>
+                  <td>{invoice.invoice_date}</td>
+                  <td>{invoice.amount}</td>
+                  <td>{invoice.outstanding_amount}</td>{' '}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="col-md-6 mt-3">
+          <table className="table table-bordered payment-table">
+            <thead className="table-primary">
+              <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    onChange={handleSelectAllPayments}
+                    onKeyDown={(e) => handleKeyDown(e, '', '')}
+                    checked={selectedPayments.length === filteredPayments.length && filteredPayments.length > 0}
+                  />
+                </th>
+                <th>Reference Type</th>
+                <th>Reference Name</th>
+                <th>Posting Date</th>
+                <th>Amount</th>
+                <th>Difference Amount</th>{' '}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPayments.map((payment: any, index: number) => (
+                <tr key={index}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      onKeyDown={(e) => handleKeyDown(e, '', '')}
+                      checked={selectedPayments.some((item) => item.idx === payment.idx)}
+                      onChange={() => handlePaymentSelect(payment)}
+                    />
+                  </td>
+                  <td>{payment.reference_type}</td>
+                  <td>{payment.reference_name}</td>
+                  <td>{payment.posting_date}</td>
+                  <td>{payment.amount}</td>
+                  <td>{payment.difference_amount}</td>{' '}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="col-12">
+          <div className="d-flex justify-content-end">
+            <div className="me-3">
+              <button className="btn btn-primary" onKeyDown={(e) => handleKeyDown(e, 'btn_allocate', '')} onClick={handleAllocation}>
+                Allocate
+              </button>
+            </div>
+            {allocationListData?.length > 0 && (
+              <div className="">
+                <button className="btn btn-secondary" onKeyDown={(e) => handleKeyDown(e, 'btn_reconcile', '')} onClick={handleReconcile}>
+                  Reconcile
+                </button>
+              </div>
+            )}
+          </div>
+          {/* {!company || !partyData || !party || selectedInvoices.length === 0 || selectedPayments.length === 0
+            ? errorMessage && <div className="alert alert-danger mt-2">{errorMessage}</div>
+            : ''} */}
+        </div>
+
+        {allocationListData?.length > 0 && !hideAllocationTable && (
+          <div className="mt-4 col-md-12 reconciled-table" tabIndex={-1}>
+            <h2 className="mb-3">Reconciled Entries</h2>
+            <div className="table-responsive">
+              <table className="table table-bordered">
+                <thead className="table-success">
+                  <tr>
+                    <th>No</th>
+                    <th>Reference No</th>
+                    <th>Invoice Number</th>
+                    <th>Allocated Amount</th>
+                    <th>Difference Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allocationListData[0]?.allocation.map((entry: any, index: number) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{entry.reference_name}</td>
+                      <td>{entry.invoice_number}</td>
+                      <td>{entry.allocated_amount}</td>
+                      <td>{entry.difference_amount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
       {showFilter && (
         <ShowFilter filteredItems={currentFilterList} selectedIndex={selectedIndex} handleItemFocus={setSelectedIndex} right="0" top="58px" />
+      )}
+      {isQuitModalOpen && (
+        <QuitConfirmationModal
+          type="payment_reconciliation"
+          isOpen={isQuitModalOpen}
+          setIsQuitModalOpen={setIsQuitModalOpen}
+          homeHookData={homeHookData}
+        />
       )}
     </div>
   );

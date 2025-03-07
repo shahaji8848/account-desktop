@@ -1,8 +1,8 @@
 import React from "react";
-import { highlightLetter } from "../../../utils/highlightLetter"; 
+import { highlightLetter } from "../../../utils/highlightLetter";
 import { HomeMenuMasterList, HomeMenuTransactionList, HomeMenuUtilitiesList, HomeMenuReportsList } from "../../../utils/menu_list";
 
-const HomeMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown }: any) => {
+const HomeMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown, handleClick }: any) => {
   return (
     <div className="col-md-5 right-section">
       <div className="menu-box">
@@ -18,7 +18,7 @@ const HomeMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown }: any) => {
               className={`menu-item ${index === selectedIndex ? "active" : ""}`}
               tabIndex={0}
               onKeyDown={(e) => handleKeyDown(e, index)}
-              onClick={() => console.log(item)}
+              onClick={() => handleClick(index)}
             >
               {highlightLetter(item.name, item.letter)}
             </li>
@@ -34,7 +34,7 @@ const HomeMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown }: any) => {
               className={`menu-item ${index + 3 === selectedIndex ? "active" : ""}`}
               tabIndex={0}
               onKeyDown={(e) => handleKeyDown(e, index + 3)}
-              onClick={() => console.log(item)}
+              onClick={() => handleClick(index + 3)}
             >
               {highlightLetter(item.name, item.letter)}
             </li>
@@ -50,7 +50,7 @@ const HomeMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown }: any) => {
               className={`menu-item ${index + 5 === selectedIndex ? "active" : ""}`}
               tabIndex={0}
               onKeyDown={(e) => handleKeyDown(e, index + 5)}
-              onClick={() => console.log(item)}
+              onClick={() => handleClick(index + 5)}
             >
               {highlightLetter(item.name, item.letter)}
             </li>
@@ -66,7 +66,7 @@ const HomeMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown }: any) => {
               className={`menu-item ${index === 4 ? 'mt-3' : ''} ${index + 6 === selectedIndex ? "active" : ""}`}
               tabIndex={0}
               onKeyDown={(e) => handleKeyDown(e, index + 6)}
-              onClick={() => console.log(item)}
+              onClick={() => handleClick(index + 6)}
             >
               {highlightLetter(item.name, item.letter)}
             </li>
@@ -77,6 +77,7 @@ const HomeMenuList = ({ menuItemsRef, selectedIndex, handleKeyDown }: any) => {
             ref={(el) => (menuItemsRef.current[12] = el)}
             tabIndex={0}
             onKeyDown={(e) => handleKeyDown(e, 12)}
+            onClick={() => handleClick(12)}
           >
             <span className="letter_style">Q</span>uit
           </li>

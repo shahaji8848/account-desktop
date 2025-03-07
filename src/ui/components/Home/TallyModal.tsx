@@ -3,7 +3,7 @@ import BottomNavbar from "../Sales/BottomNavbar";
 import "./TallyModal.css";
 import { useNavigate } from "react-router-dom";
 
-function MainBody({ isModalOpen, setShowCustomerForm, setShowSupplierForm }: any) {
+function MainBody({ isModalOpen, onClose }: any) {
   const formRef = useRef<HTMLDivElement | null>(null);
   // const inputRef = useRef<HTMLInputElement | null>(null);
   const inputRef = useRef<HTMLLIElement | null>(null);
@@ -49,10 +49,23 @@ function MainBody({ isModalOpen, setShowCustomerForm, setShowSupplierForm }: any
       focusableElements[prevIndex]?.focus();
     } else if (e.key === "Enter") {
       const item = (e.currentTarget as HTMLElement).textContent;
-      if (item === "Customer") navigate('/customer-form');
-      if (item === "Supplier") navigate('/supplier-form');;
+      if (item === "Customer") {
+        navigate('/customer-form')
+      } else if (item === "Supplier") {
+        navigate('/supplier-form')
+      }
+    } else if (e.key === 'Escape') {
+      onClose()
     }
   };
+
+  const handleClick = (item: any) => {
+    if (item === "Customer") {
+      navigate('/customer-form')
+    } else if (item === "Supplier") {
+      navigate('/supplier-form')
+    }
+  }
 
   return (
     <>
@@ -87,6 +100,7 @@ function MainBody({ isModalOpen, setShowCustomerForm, setShowSupplierForm }: any
                   className={`modal-menu-item ${selectedIndex === index + 1 ? "highlight" : ""}`}
                   tabIndex={0}
                   onKeyDown={handleKeyDown}
+                  onClick={() => handleClick(item)}
                 >
                   {item}
                 </li>

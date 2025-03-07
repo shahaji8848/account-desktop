@@ -3,10 +3,13 @@ import Register from '../common/Register'
 import { homeSideBarData } from '../../../utils/data'
 import Sidebar from '../../Sales/Sidebar'
 import BottomNavbar from '../../Sales/BottomNavbar'
+import PageHeader from '../../common/PageHeader'
+import { useSelector } from 'react-redux'
+import { RootState } from '../../../store/root-reducer'
 
 const ReceiptRegister = ({ homeHookData, globalData }: any) => {
     const [receiptRegisterList, setReceiptRegisterList] = useState([]);
-
+    const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '';
     const fetchReceiptRegisterList = async () => {
         try {
             const from_date = "2024-04-01";
@@ -38,24 +41,7 @@ const ReceiptRegister = ({ homeHookData, globalData }: any) => {
             style={{ overflow: 'hidden' }}
         >
             <div className="main-body" style={{ width: "86%" }}>
-                <div
-                    className="ps-3 pe-1 infobar py-0 d-flex align-items-center justify-content-between position-relative"
-                    style={{
-                        background: "#87bde6",
-                        zIndex: "999",
-
-                    }}
-                >
-                    <p className='text-center'>Receipt Register</p>
-                    <p className='text-center'>8848 digital</p>
-
-                    <p
-                        style={{ width: "5%", cursor: "pointer" }}
-                        className="text-end cursor-pointer"
-                    >
-                        X
-                    </p>
-                </div>
+            <PageHeader ragisterName='Receipt Register' company={companyName} />
                 <Register
                     homeHookData={homeHookData}
                     globalData={globalData}

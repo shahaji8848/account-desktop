@@ -7,39 +7,41 @@ const useUnreconcileEntriesData = (company?: string, party_type?: string, party?
   const [invoiceData, setInvoiceData] = useState<any>([]);
   const [paymnentData, setPaymentData] = useState<any>([]);
   const [shouldRefetch, setShouldRefetch] = useState(false);
-  const [invoiceFilter, setInvoiceFilter] = useState<any>('');
-  const [paymentFilter, setPaymentFilter] = useState<any>('');
+  const [apiErrorMessage, setApiErrorMessage] = useState<any>('');
+  const [apiError, setApiError] = useState<any>();
 
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     if (!company || !party_type || !party) return; // Ensure all fields are selected
     try {
-      if (filters) {
-        const result = await window.electron.getPaymentReconciliationEntries({
-          company: company,
-          party_type: party_type,
-          party: party,
-          filters: { invoice_name: invoiceFilter, payment_name: paymentFilter },
-        });
-        console.log('Fetched reconciliation data :', result);
-        setData(result);
+      const result = await window.electron.getPaymentReconciliationEntries({
+        company: company,
+        party_type: party_type,
+        party: party,
+      });
+
+      if (result?.error === true) {
+        setApiErrorMessage(result?.message);
+        setApiError(result?.error);
+        setData({});
+        console.log('Fetched reconciliation data : in hook in if', result, result.error, result?.message, apiErrorMessage);
       } else {
-        const result = await window.electron.getPaymentReconciliationEntries({
-          company: company,
-          party_type: party_type,
-          party: party,
-        });
-        console.log('Fetched reconciliation data :', result);
         setData(result);
+        console.log('Fetched reconciliation data : in hook in else', result);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+      setData({}); // Reset data on unexpected errors
+      setApiErrorMessage('Failed to fetch data.');
+      setApiError(true);
     }
-  }, [company, party_type, party]);
+  };
+
+  console.log('Fetched reconciliation data : in hook out', data, apiError, apiErrorMessage);
 
   // Initial data fetch when dependencies change
   useEffect(() => {
     fetchData();
-  }, [fetchData, shouldRefetch]);
+  }, [company, party_type, party, shouldRefetch]);
 
   // Process data when it changes
   useEffect(() => {
@@ -48,6 +50,12 @@ const useUnreconcileEntriesData = (company?: string, party_type?: string, party?
       setDefaultAdvanceAccount(data?.docs[0]?.default_advance_account || '');
       setInvoiceData(data?.docs[0]?.invoices || []);
       setPaymentData(data?.docs[0]?.payments || []);
+    } else {
+      // Reset state when data is empty
+      setReceivablePayableAccount('');
+      setDefaultAdvanceAccount('');
+      setInvoiceData([]);
+      setPaymentData([]);
     }
   }, [data]);
 
@@ -65,8 +73,8 @@ const useUnreconcileEntriesData = (company?: string, party_type?: string, party?
     setInvoiceData,
     setPaymentData,
     refreshData,
-    setInvoiceFilter,
-    setPaymentFilter,
+    apiErrorMessage,
+    apiError,
   };
 };
 
