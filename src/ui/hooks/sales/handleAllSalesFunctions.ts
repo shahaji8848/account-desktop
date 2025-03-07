@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify';
-import { defaultTableData, salesDefaultdata } from '../../utils/data';
+import { advancesDefaultInfo, defaultTableData, salesDefaultdata } from '../../utils/data';
 import { handleChangeOfSales } from './handleChangeOfSales';
 import { useNavigate } from 'react-router-dom';
 // import PartyNamePopup from '../../components/Sales/PartyNamePopup';
@@ -68,7 +68,12 @@ export function handleAllSalesFunctions(
   handleDropdown: any,
   handleDropdownSelection: any,
   advancePaymentPopup: any,
-  setAdvancePaymentPopup: any
+  setAdvancePaymentPopup: any,
+  setAdvancePaymentData: any,
+  advancePaymentData: any,
+  setAdvancePaymentIndex: any,
+  advancePaymentIndex: any,
+  advancePaymentRef: any
 ) {
   const navigate = useNavigate();
   const handleSubmitData = async (salesInvoiceData: any, method: string = 'POST') => {
@@ -135,7 +140,12 @@ export function handleAllSalesFunctions(
     getFilterData,
     setIsSelecting,
     setShowFilter,
-    handleShowFilter
+    handleShowFilter,
+    advancePaymentPopup,
+    setAdvancePaymentData,
+    advancePaymentData,
+    setAdvancePaymentIndex,
+    advancePaymentIndex
   );
 
   const handleValueKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -146,6 +156,43 @@ export function handleAllSalesFunctions(
     if (type !== 'dropdown') {
       if (e.key === 'Enter' && name !== 'update_stock' && !tableItemsPopup) {
         handleIfNotDropdown(name, value);
+      }
+
+      if (e.key === 'Enter' && advancePaymentPopup && (name === 'allocated_amount' || name === 'difference_posting_date')) {
+        if (name === 'allocated_amount') {
+          if (value === '') {
+            let data = [...advancePaymentData];
+            data = data.filter((_, i) => advancePaymentIndex !== i);
+            setAdvancePaymentData(data);
+            setTimeout(() => {
+              (advancePaymentRef.current[advancePaymentIndex - 1].childNodes[4] as HTMLElement).focus();
+              setAdvancePaymentIndex(advancePaymentIndex - 1);
+            }, 10);
+          } else {
+            setTimeout(() => {
+              (advancePaymentRef.current[advancePaymentIndex].childNodes[4] as HTMLElement).focus();
+            }, 0);
+          }
+          // console.log(advancePaymentRef.current[advancePaymentIndex].childNodes[4])
+        }
+        if (name === 'difference_posting_date') {
+          // console.log(advancePaymentIndex <= advancePaymentData.length - 1 , advancePaymentData.length - 1, advancePaymentIndex);
+          if (advancePaymentIndex < advancePaymentData.length - 1) {
+            setTimeout(() => {
+              (advancePaymentRef.current[advancePaymentIndex + 1].childNodes[3] as HTMLElement).focus();
+              setAdvancePaymentIndex(advancePaymentIndex + 1);
+            }, 0);
+          } else {
+            setTimeout(() => {
+              setAdvancePaymentData([...advancePaymentData, { ...advancesDefaultInfo, difference_posting_date: date.posting_date }]);
+            }, 0);
+            setTimeout(() => {
+              (advancePaymentRef.current[advancePaymentIndex + 1].childNodes[3] as HTMLElement).focus();
+              setAdvancePaymentIndex(advancePaymentIndex + 1);
+            }, 10);
+          }
+          // console.log(advancePaymentRef.current[advancePaymentIndex].childNodes[4])
+        }
       }
 
       if (e.ctrlKey && name === 'item_name' && e.key === 'Enter' && !tableItemsPopup) {
@@ -193,10 +240,12 @@ export function handleAllSalesFunctions(
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         setSelectedIndex((prev: any) => (prev > 0 ? prev - 1 : prev));
-      } else if (e.key === 'Enter' && !e.ctrlKey && !tableItemsPopup && !taxInfoPopup) {
+      } else if (e.key === 'Enter' && !e.ctrlKey && !tableItemsPopup && !taxInfoPopup && !advancePaymentPopup) {
         handleKeyEnter(name, value);
       } else if (e.key === 'Enter' && !e.ctrlKey && tableItemsPopup) {
         handleTableKeyEnter(name);
+      } else if (e.key === 'Enter' && !e.ctrlKey && advancePaymentPopup) {
+        // advance payment
       } else if (e.key === 'Escape') {
         setShowFilter(false);
         setPartyNamePopup(false);
@@ -300,6 +349,11 @@ export function handleAllSalesFunctions(
             additional_discount_account: salesData.additional_discount_account,
             is_cash_or_non_trade_discount: salesData.is_cash_or_non_trade_discount,
             cost_center: salesData.cost_center || '',
+            advances: advancePaymentData,
+            allocate_advances_automatically: salesData.allocate_advances_automatically,
+            only_include_allocated_payments: salesData.only_include_allocated_payments,
+            incoterm: salesData.incoterm,
+            named_place: salesData.named_place,
           };
           if (Object.keys(previousSalesData).length > 0) {
             if (previousSalesData === salesData) {
@@ -376,10 +430,17 @@ export function handleAllSalesFunctions(
   };
 
   const handleAdvancePaymentsPopup = () => {
-    setAdvancePaymentPopup(true);
-    setTimeout(() => {
-      (salesDataRef.current.allocate_advances_automatically as HTMLElement).focus();
-    }, 0);
+    if (salesData.table?.length > 0) {
+      setAdvancePaymentPopup(true);
+      setTimeout(() => {
+        (salesDataRef.current.allocate_advances_automatically as HTMLElement).focus();
+      }, 0);
+    } else {
+      toast.warning('Please fill in the items to get advance payments!', {
+        autoClose: 2000,
+        className: 'custom-toast',
+      });
+    }
   };
 
   const handleAllKeyFunctions = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -492,6 +553,6 @@ export function handleAllSalesFunctions(
     handleTermsPopup,
     handlePartyNamePopup,
     handleGstPopup,
-    handleAdvancePaymentsPopup
+    handleAdvancePaymentsPopup,
   };
 }

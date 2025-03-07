@@ -55,6 +55,7 @@ export default function useHandleKeyFunctionalities({
   setProductData,
   showFilter,
   setFilterListName,
+  getAdvancePaymentData,
 }: any) {
   const getAddressFilter = (type: any, name: any) => ({
     type: 'Address',
@@ -287,7 +288,7 @@ export default function useHandleKeyFunctionalities({
       }, 0);
       setIsSelecting(false);
     } else if (name === 'incoterm') {
-      console.log('first', value)
+      console.log('first', value);
       if (fieldName === name && showFilter) {
         setSalesData({
           ...salesData,
@@ -649,7 +650,7 @@ export default function useHandleKeyFunctionalities({
         name === 'additional_discount_account' ||
         name === 'currency' ||
         name === 'item_name' ||
-        name === 'receivable_account'||
+        name === 'receivable_account' ||
         name === 'incoterm'
       ) {
         handlePartyNameAndCostCenter(name, filteredItems[selectedIndex]);
@@ -922,6 +923,30 @@ export default function useHandleKeyFunctionalities({
         setTimeout(() => {
           salesData.update_stock ? salesDataRef.current?.source_warehouse?.focus() : salesDataRef.current?.incoterm?.focus();
         }, 0);
+        // handleShowFilter(salesData.update_stock ? 'source_warehouse' : 'currency');
+        // focusNextField(salesDataRef.current.cost_center);
+        // handleShowFilter('cost_center');
+        break;
+      }
+      case 'allocate_advances_automatically': {
+        salesData.allocate_advances_automatically && getAdvancePaymentData();
+        setTimeout(() => {
+          salesData.allocate_advances_automatically
+            ? salesDataRef.current?.only_include_allocated_payments?.focus()
+            : salesDataRef.current?.get_advances?.focus();
+        }, 0);
+        // handleShowFilter(salesData.update_stock ? 'source_warehouse' : 'currency');
+        // focusNextField(salesDataRef.current.cost_center);
+        // handleShowFilter('cost_center');
+        break;
+      }
+      case 'only_include_allocated_payments': {
+        salesData.only_include_allocated_payments && getAdvancePaymentData();
+        // setTimeout(() => {
+        //   salesData.allocate_advances_automatically
+        //     ? salesDataRef.current?.only_include_allocated_payments?.focus()
+        //     : salesDataRef.current?.get_advances?.focus();
+        // }, 0);
         // handleShowFilter(salesData.update_stock ? 'source_warehouse' : 'currency');
         // focusNextField(salesDataRef.current.cost_center);
         // handleShowFilter('cost_center');

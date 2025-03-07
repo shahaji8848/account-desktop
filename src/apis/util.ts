@@ -584,35 +584,32 @@ export async function getGstinInfo(kwargs: any) {
 
 export async function getAdvancePaymentEntries(args: any) {
   try {
-      let params:any =  {
-          doctype: "Sales Invoice",
-          company: args.company,
-          only_include_allocated_payments: args.only_include_allocated_payments,
-          customer: args.customer,
-          rounded_total: args.rounded_total,
-          grand_total: args.grand_total,
-          __islocal :1
-          }
+    let params: any = {
+      doctype: 'Sales Invoice',
+      company: args.company,
+      only_include_allocated_payments: args.only_include_allocated_payments,
+      customer: args.customer,
+      rounded_total: args.rounded_total,
+      grand_total: args.grand_total,
+      __islocal: 1,
+    };
 
-      const response = await fetch(`https://yatish-testing-v15.frappe.cloud/api/method/run_doc_method`, {
-          method: 'POST',
-          headers: headers,
-          body: JSON.stringify( 
-              {
-                  docs: params,
-                  method: "set_advances"
-              
-          })
-      });
+    const response = await fetch(`https://yatish-testing-v15.frappe.cloud/api/method/run_doc_method`, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        docs: params,
+        method: 'set_advances',
+      }),
+    });
 
-      if (!response.ok) {
-          return { error: true, message: `Failed to fetch advance payment eEntries: ${response.statusText}` };
-      }
+    if (!response.ok) {
+      return { error: true, message: `Failed to fetch advance payment eEntries: ${response.statusText}` };
+    }
 
-      return await response.json();
-  } 
-  catch (error) {
-      console.error("Error in getAdvancePaymentEntries:", error);
-      return { error: true, message: "An unexpected error occurred while fetching advance payment entries." };
+    return await response.json();
+  } catch (error) {
+    console.error('Error in getAdvancePaymentEntries:', error);
+    return { error: true, message: 'An unexpected error occurred while fetching advance payment entries.' };
   }
 }

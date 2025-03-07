@@ -344,6 +344,8 @@ export interface SalesData {
   terms_and_conditions: string;
   payment_terms: string;
   terms_description: string;
+  allocate_advances_automatically: boolean,
+  only_include_allocated_payments: boolean,
 }
 
 export interface CompanyData {
