@@ -4,11 +4,10 @@ export function isDev(): boolean {
   return process.env.NODE_ENV === 'development';
 }
 
-
 const baseUrl = 'https://yatish-testing-v15.frappe.cloud/api/resource';
 const headers = {
   'Content-Type': 'application/json',
-  Authorization: 'token 617c5524f5a912e:aa8ae3123dc7d6d',
+  // Authorization: 'token 617c5524f5a912e:aa8ae3123dc7d6d',
 };
 
 async function fetchTaxes(doctype: any, filters: any, token: any) {
@@ -45,12 +44,11 @@ async function fetchTaxes(doctype: any, filters: any, token: any) {
   return data;
 }
 
-
 async function fetchData(url: string, token: any) {
   let header_details = {
     'Content-Type': 'application/json',
-    "Authorization": token,
-  }
+    Authorization: token,
+  };
   const response = await fetch(url, { method: 'GET', headers: header_details });
 
   if (!response.ok) {
@@ -87,7 +85,7 @@ export async function login(kwargs: any) {
 
       const data = await response.json();
 
-      if (response.ok && data.message == "Logged In") {
+      if (response.ok && data.message == 'Logged In') {
         const generateKeysUrl = `https://yatish-testing-v15.frappe.cloud/api/method/frappe.core.doctype.user.user.generate_keys`;
         const keysResponse = await fetch(generateKeysUrl, {
           method: 'POST',
@@ -102,16 +100,13 @@ export async function login(kwargs: any) {
         if (keysData.message.api_secret) {
           const userDetails = `${baseUrl}/User/${kwargs.email}`;
           const res = await fetch(userDetails, { method: 'GET', headers });
-          let response = await res.json()
+          let response = await res.json();
           if (response.data.api_key) {
-            return { status: "success", token: `token ${response.data.api_key}:${keysData.message.api_secret}` }
-
-          }
-          else {
+            return { status: 'success', token: `token ${response.data.api_key}:${keysData.message.api_secret}` };
+          } else {
             return { error: data.message || 'Login failed' };
           }
-        }
-        else {
+        } else {
           return { error: data.message || 'Login failed' };
         }
       } else {
@@ -121,7 +116,7 @@ export async function login(kwargs: any) {
       return { error: 'An error occurred while logging in' };
     }
   } else {
-    return { error: "Invalid username or password" };
+    return { error: 'Invalid username or password' };
   }
 }
 
@@ -304,7 +299,7 @@ async function getGstHsnData(doctype: any, filters: any, token: any) {
 async function getOtherRecords(doctype: any, filters: any, token: any) {
   let url = `${baseUrl}/${doctype}`;
   let data = await fetchData(url, token);
-  return data
+  return data;
 }
 
 async function getShippingData(doctype: any, filters: any, token: any) {
@@ -434,23 +429,31 @@ export async function getBatch(doctype: any, filters: any, token: any) {
   return await fetchData(url, token);
 }
 
-
-
 export async function getCurrencyData(kwargs: any) {
   let endpoint = 'https://yatish-testing-v15.frappe.cloud/api/method/erpnext.setup.utils.get_exchange_rate';
+  // let d = JSON.stringify
   const response = await fetch(endpoint, {
     method: 'POST',
-    headers: { Authorization: kwargs?.token },
-    body: JSON.stringify(kwargs.data),
+    headers: { Authorization: kwargs?.token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(kwargs.data)
   });
+  console.log(
+    {
+      method: 'POST',
+      headers: { Authorization: kwargs?.token },
+      body: {"transaction_date":"2025-03-07","from_currency":"AUD","to_currency":"INR","args":"for_selling"},
+    },
+    'currency data'
+  );
   return response.json();
 }
 
 export async function getPaymentReconciliationParty(doctype: any, filters: any, token: any) {
-  const url = `${baseUrl}/DocType?filters=${encodeURIComponent(JSON.stringify([["name", "in", ["Customer", "Supplier", "Employee", "Shareholder"]]]))}`;
+  const url = `${baseUrl}/DocType?filters=${encodeURIComponent(
+    JSON.stringify([['name', 'in', ['Customer', 'Supplier', 'Employee', 'Shareholder']]])
+  )}`;
   return await fetchData(url, token);
 }
-
 
 export async function getData(kwargs: any) {
   const { doctype, filters, token } = kwargs;
@@ -473,53 +476,53 @@ export async function getData(kwargs: any) {
       return await getItemTaxTemplate(doctype, filters, token);
     case 'UOM':
       return await getUomData(doctype, filters, token);
-    case "GST HSN Code":
+    case 'GST HSN Code':
       return await getGstHsnData(doctype, filters, token);
-    case "Shipping Rule":
+    case 'Shipping Rule':
       return await getShippingData(doctype, filters, token);
-    case "Item Price":
+    case 'Item Price':
       return await getItemRate(doctype, filters, token);
-    case "Payment Terms Template":
+    case 'Payment Terms Template':
       return await getPaymentTerms(doctype, filters, token);
-    case "Terms and Conditions":
+    case 'Terms and Conditions':
       return await getTermsCondtions(doctype, filters, token);
-    case "Currency":
+    case 'Currency':
       return await getCurrency(doctype, filters, token);
-    case "Serial No":
+    case 'Serial No':
       return await getSerialNo(doctype, filters, token);
-    case "Batch":
+    case 'Batch':
       return await getBatch(doctype, filters, token);
-    case "Promotional Scheme":
+    case 'Promotional Scheme':
       return await getPromotionalSchemes(doctype, filters, token);
     case 'Serial No':
       return await getSerialNo(doctype, filters, token);
     case 'Batch':
       return await getBatch(doctype, filters, token);
-    case "Payment Reconciliation Party":
+    case 'Payment Reconciliation Party':
       return await getPaymentReconciliationParty(doctype, filters, token);
     default:
       return getOtherRecords(doctype, filters, token);
   }
 }
 
-// async function postSalesInvoice(invoiceData: any, method: any, headers:any) {
-//   let endpoint = `${baseUrl}/Sales Invoice`;
-//   if (method == 'PUT') {
-//     endpoint += `/${invoiceData.name}`;
-//   }
-//   const response = await fetch(endpoint, {
-//     method: method,
-//     headers: headers,
-//     body: JSON.stringify(invoiceData),
-//   });
+async function postSalesInvoice(invoiceData: any, method: any, headers:any) {
+  let endpoint = `${baseUrl}/Sales Invoice`;
+  if (method == 'PUT') {
+    endpoint += `/${invoiceData.name}`;
+  }
+  const response = await fetch(endpoint, {
+    method: method,
+    headers: headers,
+    body: JSON.stringify(invoiceData),
+  });
 
-//   if (!response.ok) {
-//     throw new Error(`Failed to post sales invoice: ${response.status} - ${response.statusText}`);
-//   }
+  if (!response.ok) {
+    throw new Error(`Failed to post sales invoice: ${response.status} - ${response.statusText}`);
+  }
 
-//   const result = await response.json();
-//   return result;
-// }
+  const result = await response.json();
+  return result;
+}
 
 export async function getTaxes(kwargs: any) {
   try {
@@ -532,15 +535,15 @@ export async function getTaxes(kwargs: any) {
 }
 
 export async function saveForm(kwargs: any) {
-  // try {
-  //   if (kwargs.method == 'POST') {
-  //     return await postSalesInvoice(kwargs.salesInvoiceData, kwargs.method , kwargs.headers);
-  //   } else if (kwargs.method == 'PUT') {
-  //     return await postSalesInvoice(kwargs.salesInvoiceData, kwargs.method, kwargs.headers);
-  //   }
-  // } catch (error: any) {
-  //   console.error('Error in saveForm:', error);
-  // }
+  try {
+    if (kwargs.method == 'POST') {
+      return await postSalesInvoice(kwargs.salesInvoiceData, kwargs.method , kwargs.headers);
+    } else if (kwargs.method == 'PUT') {
+      return await postSalesInvoice(kwargs.salesInvoiceData, kwargs.method, kwargs.headers);
+    }
+  } catch (error: any) {
+    console.error('Error in saveForm:', error);
+  }
 }
 
 export async function postData(kwargs: any) {
@@ -555,7 +558,6 @@ export async function postData(kwargs: any) {
   });
   return response;
 }
-
 
 export async function updateData(kwargs: any) {
   let endpoint = baseUrl;
@@ -572,7 +574,6 @@ export async function updateData(kwargs: any) {
   });
   return response;
 }
-
 
 export async function getGstinInfo(kwargs: any) {
   if (kwargs.gstin) {

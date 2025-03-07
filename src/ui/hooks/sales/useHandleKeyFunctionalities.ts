@@ -55,6 +55,7 @@ export default function useHandleKeyFunctionalities({
   setProductData,
   showFilter,
   setFilterListName,
+  token,
 }: any) {
   const getAddressFilter = (type: any, name: any) => ({
     type: 'Address',
@@ -181,6 +182,7 @@ export default function useHandleKeyFunctionalities({
         to_currency: 'INR',
         args: 'for_selling',
       },
+      token: token,
     });
     return response;
   };
@@ -302,6 +304,7 @@ export default function useHandleKeyFunctionalities({
       fieldName === name &&
         getCurrencyData()
           .then((resp: any) => {
+            console.log(resp, 'resp')
             setSalesData({
               ...salesData,
               [name]: value,
@@ -665,7 +668,8 @@ export default function useHandleKeyFunctionalities({
     setProductData,
     companyData,
     fieldName,
-    showFilter
+    showFilter,
+    token
   );
 
   const handleIfNotDropdown = (name: string, value: string) => {
@@ -881,6 +885,6 @@ export default function useHandleKeyFunctionalities({
     handleTableKeyEnter,
     handleTableIfNotDropdown,
     handlePartyNameAndCostCenter,
-    handleDropdown
+    handleDropdown,
   };
 }
