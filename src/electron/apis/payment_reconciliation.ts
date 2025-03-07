@@ -6,7 +6,7 @@ const headers = {
 
 export async function getPaymentReconciliationEntries(args: any) {
     try {
-        let partyAccounts: any = await getPartyAccounts(args.party, args.party_type, args.company);
+        let partyAccounts: any = await getPartyAccounts(args.party, args.party_type, args.company, args.token);
         if (!partyAccounts || !partyAccounts.message || partyAccounts.message.length <= 1) {
             return { error: true, message: "Payable or Advance Accounts not found for the party" };
         }
@@ -29,7 +29,10 @@ export async function getPaymentReconciliationEntries(args: any) {
 
         const response = await fetch(`${baseUrl}api/method/run_doc_method`, {
             method: 'POST',
-            headers: headers,
+            headers:{
+                "Content-Type": "application/json",
+                Authorization: args?.token,
+              },
             body: JSON.stringify( 
                 {
                     docs: params,
@@ -72,7 +75,10 @@ export async function getAllocationList(args: any) {
 
         const response = await fetch(`${baseUrl}api/method/run_doc_method`, {
             method: 'POST',
-            headers: headers,
+            headers:{
+                "Content-Type": "application/json",
+                Authorization: args?.token,
+              },
             body: JSON.stringify( 
                 {
                     docs: params,
@@ -113,7 +119,10 @@ export async function ReconcileAmount(args: any) {
             }
             const response = await fetch(`${baseUrl}api/method/run_doc_method`, {
                 method: 'POST',
-                headers: headers,
+                headers:{
+                    "Content-Type": "application/json",
+                    Authorization: args?.token,
+                  },
                 body: JSON.stringify( 
                     {
                         docs: params,
@@ -133,11 +142,14 @@ catch (error) {
 }
 
 
-export async function getPartyAccounts(party: any, party_type: any, company: any) {
+export async function getPartyAccounts(party: any, party_type: any, company: any , token:any) {
     try {
         const response = await fetch(`${baseUrl}api/method/erpnext.accounts.party.get_party_account`, {
             method: 'POST',
-            headers: headers,
+            headers:{
+                "Content-Type": "application/json",
+                Authorization: token,
+              },
             body: JSON.stringify({
                 company: company,
                 party: party,
