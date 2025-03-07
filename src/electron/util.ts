@@ -83,10 +83,16 @@ export async function login(kwargs: any) {
           usr: kwargs.email,
           pwd: kwargs.password,
         }),
+        credentials: 'include',
       });
-
+     
       const data = await response.json();
-
+      const cookies = response.headers.get('set-cookie');
+      const sid = cookies || data.message?.sid || null;
+      let header_detials = {
+        'Content-Type': 'application/json',
+        'Cookie': `${sid}`, 
+      }
       if (response.ok && data.message == "Logged In") {
         const generateKeysUrl = `https://yatish-testing-v15.frappe.cloud/api/method/frappe.core.doctype.user.user.generate_keys`;
         const keysResponse = await fetch(generateKeysUrl, {
@@ -96,13 +102,16 @@ export async function login(kwargs: any) {
             usr: kwargs.email,
             pwd: kwargs.password,
           }),
+          headers: header_detials
         });
 
         const keysData = await keysResponse.json();
+      
         if (keysData.message.api_secret) {
           const userDetails = `${baseUrl}/User/${kwargs.email}`;
-          const res = await fetch(userDetails, { method: 'GET', headers });
+          const res = await fetch(userDetails, { method: 'GET', headers: header_detials });
           let response = await res.json()
+          console.log(response, "response")
           if (response.data.api_key) {
             return { status: "success", token: `token ${response.data.api_key}:${keysData.message.api_secret}` }
 
@@ -502,24 +511,6 @@ export async function getData(kwargs: any) {
   }
 }
 
-// async function postSalesInvoice(invoiceData: any, method: any, headers:any) {
-//   let endpoint = `${baseUrl}/Sales Invoice`;
-//   if (method == 'PUT') {
-//     endpoint += `/${invoiceData.name}`;
-//   }
-//   const response = await fetch(endpoint, {
-//     method: method,
-//     headers: headers,
-//     body: JSON.stringify(invoiceData),
-//   });
-
-//   if (!response.ok) {
-//     throw new Error(`Failed to post sales invoice: ${response.status} - ${response.statusText}`);
-//   }
-
-//   const result = await response.json();
-//   return result;
-// }
 
 export async function getTaxes(kwargs: any) {
   try {
