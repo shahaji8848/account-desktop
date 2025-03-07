@@ -4,30 +4,11 @@ import { useSelector } from 'react-redux'
 import { RootState } from '../../../ui/store/root-reducer'
 import JournalTable from './JournalTable'
 
-const Journal = ({ homeHookData, globalData }: any) => {
+const Journal = ({ homeHookData, globalData,salesHookData }: any) => {
     const [VoucherRegisterList, setVoucherRegisterList] = useState<any>([]);
     const { voucherRegisterMonthDate } = homeHookData
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '';
-
-    const fetchVoucherList = async () => {
-        try {
-            let x = await window.electron.salesBreakupReport({
-                filters: {
-                    from_date: voucherRegisterMonthDate?.start_date,
-                    to_date: voucherRegisterMonthDate?.end_date,
-                    company: "8848 Digital LLP",
-                }
-            });
-            setVoucherRegisterList(x);
-        } catch (error) {
-            console.error("Error fetching sales register list:", error);
-        }
-    };
-
-    useEffect(() => {
-        fetchVoucherList();
-    }, []);
-
+ 
     return (
         <div className="main-body" style={{ width: "86%" }}>
             <div
@@ -38,7 +19,10 @@ const Journal = ({ homeHookData, globalData }: any) => {
                 <p style={{ width: "25%" }} className="text-center">
                     Company Name: {companyName || ""}
                 </p>
-               <p
+                <p style={{ width: "25%" }} className="text-center">
+                    GSTIN No.: {salesHookData.companyData.company_gstin || ""}
+                </p>
+                <p
                     onClick={() => console.log('')}
                     style={{ width: "5%", cursor: "pointer" }}
                     className="text-end cursor-pointer"

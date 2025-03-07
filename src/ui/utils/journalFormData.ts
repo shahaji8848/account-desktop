@@ -32,3 +32,14 @@ export const journalEntryType = [
     { name: "Deferred Expense" },
     { name: "Reversal Of ITC" }
 ];
+
+export const seriesList = [
+    { name: "ACC-JV-.YYYY.-" },
+];
+
+export const partyTypeList = [
+    { name: "Customer" },
+    { name: "Employee" },
+    { name: "Shareholder" },
+    { name: "Supplier" },
+];

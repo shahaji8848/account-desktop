@@ -439,8 +439,58 @@ export async function getPaymentReconciliationParty(doctype: any, filters: any) 
 }
 
 
+// to be deleted later 
+export async function getJournalEntryAccountsData(doctype: any, filters: any, token?: any) {
+  console.log("GGGGGGGGGGGGGG")
+  if (!filters?.account) {
+    return { error: true, msg: "Please select an account" };
+  }
+  let h = { Authorization: token }
+  console.log(h)
+  const getBalanceUrl = "https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.utils.get_account_balances";
+  const getAccountsDetails = await fetch(`${baseUrl}/Account/${encodeURIComponent(filters.account)}?fields=["*"]`, {
+    method: 'GET',
+    headers: { Authorization: token }
+  });
+  const accountsData = await getAccountsDetails.json();
+  console.log(accountsData)
+  const accountCurrency = accountsData?.data?.account_currency;
+  if (!accountCurrency) {
+    return { error: true, msg: "Please try again selecting an account" };
+  }
+  const args = {
+    accounts: [{ value: filters.account, account_currency: accountCurrency }],
+    company: filters?.company,
+  };
+  const response = await fetch(getBalanceUrl, {
+    method: 'POST',
+    headers: {
+      Authorization: token,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(args),
+  });
+  const accountBalanceData = await response.json();
+  const balance = accountBalanceData?.message?.[0]?.balance || 0;
+  const accountType = accountsData?.data?.root_type;
+  let type;
+  if (accountType === "Asset" || accountType === "Expenses") {
+    type = balance >= 0 ? "Debit" : "Credit";
+  } else if (accountType === "Liability" || accountType === "Equity" || accountType === "Income") {
+    type = balance >= 0 ? "Credit" : "Debit";
+  } else {
+    return { error: true, msg: "Unknown account type" };
+  }
+  return {
+    account: filters.account,
+    account_currency: accountCurrency,
+    balance: Math.abs(balance),
+    type: type,
+  }
+}
+
 export async function getData(kwargs: any) {
-  const { doctype, filters } = kwargs;
+  const { doctype, filters, token } = kwargs;
 
   switch (doctype) {
     case 'Address':
@@ -460,21 +510,21 @@ export async function getData(kwargs: any) {
     case 'UOM':
       return await getUomData(doctype, filters);
     case "GST HSN Code":
-        return await getGstHsnData(doctype, filters);
+      return await getGstHsnData(doctype, filters);
     case "Shipping Rule":
-      return await getShippingData(doctype , filters);
+      return await getShippingData(doctype, filters);
     case "Item Price":
-      return await getItemRate(doctype ,filters);
+      return await getItemRate(doctype, filters);
     case "Payment Terms Template":
-        return await getPaymentTerms(doctype ,filters);
+      return await getPaymentTerms(doctype, filters);
     case "Terms and Conditions":
-      return await getTermsCondtions(doctype ,filters);
+      return await getTermsCondtions(doctype, filters);
     case "Currency":
-      return await getCurrency(doctype ,filters);
+      return await getCurrency(doctype, filters);
     case "Serial No":
-      return await getSerialNo(doctype ,filters);
+      return await getSerialNo(doctype, filters);
     case "Batch":
-       return await getBatch(doctype ,filters);
+      return await getBatch(doctype, filters);
     case "Promotional Scheme":
       return await getPromotionalSchemes(doctype, filters);
     case 'Serial No':
@@ -482,7 +532,9 @@ export async function getData(kwargs: any) {
     case 'Batch':
       return await getBatch(doctype, filters);
     case "Payment Reconciliation Party":
-      return await getPaymentReconciliationParty(doctype ,filters);
+      return await getPaymentReconciliationParty(doctype, filters);
+    case "Journal Entry Accounts":
+      return await getJournalEntryAccountsData(doctype, filters, token);
     default:
       return getOtherRecords(doctype);
   }

@@ -1,9 +1,9 @@
 import React from 'react'
 import Sidebar from '../../../ui/components/Sales/Sidebar'
-import { homeSideBarData } from '../../../ui/utils/data'
+import { sideBarData } from '../../../ui/utils/data'
 import Journal from './Journal'
 
-const JournalMaster = ({ homeHookData, globalData }: any) => {
+const JournalMaster = ({ homeHookData, globalData,salesHookData}: any) => {
     return (
         <div
             className="w-100 d-flex align-items-stretch justify-content-between"
@@ -12,10 +12,11 @@ const JournalMaster = ({ homeHookData, globalData }: any) => {
             <Journal
                 homeHookData={homeHookData}
                 globalData={globalData}
+                salesHookData={salesHookData}
 
             />
             <Sidebar
-                sideBarData={homeSideBarData}
+                sideBarData={sideBarData}
             />
         </div>
     )

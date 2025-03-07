@@ -38,7 +38,7 @@ export const sideBarData = [
     label: 'F7',
     text: 'Journal',
     arrow_inactive: true,
-    tab_inactive: true,
+    tab_inactive: false,
     next_tab: false,
   },
   {
