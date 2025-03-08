@@ -10,6 +10,7 @@ import { RootState } from '../../../store/root-reducer'
 const PaymentRegister = ({ homeHookData, globalData }: any) => {
     const [paymentRegisterList, setPaymentRegisterList] = useState([]);
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '';
+    const token = localStorage.getItem('account_desktop_token');
     const fetchPaymentRegisterList = async () => {
         try {
             const from_date = "2024-04-01";
@@ -21,7 +22,8 @@ const PaymentRegister = ({ homeHookData, globalData }: any) => {
                     to_date,
                     company: "8848 Digital LLP",
                     payment_type: 'Pay'
-                }
+                },
+                token
             });
 
             setPaymentRegisterList(x);

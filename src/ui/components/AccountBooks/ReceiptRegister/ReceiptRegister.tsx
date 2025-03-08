@@ -10,6 +10,7 @@ import { RootState } from '../../../store/root-reducer'
 const ReceiptRegister = ({ homeHookData, globalData }: any) => {
     const [receiptRegisterList, setReceiptRegisterList] = useState([]);
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '';
+    const token = localStorage.getItem('account_desktop_token');
     const fetchReceiptRegisterList = async () => {
         try {
             const from_date = "2024-04-01";
@@ -21,7 +22,8 @@ const ReceiptRegister = ({ homeHookData, globalData }: any) => {
                     to_date,
                     company: "8848 Digital LLP",
                     payment_type: 'Receive'
-                }
+                },
+                token
             });
 
             setReceiptRegisterList(x);
@@ -41,7 +43,7 @@ const ReceiptRegister = ({ homeHookData, globalData }: any) => {
             style={{ overflow: 'hidden' }}
         >
             <div className="main-body" style={{ width: "86%" }}>
-            <PageHeader ragisterName='Receipt Register' company={companyName} />
+                <PageHeader ragisterName='Receipt Register' company={companyName} />
                 <Register
                     homeHookData={homeHookData}
                     globalData={globalData}
