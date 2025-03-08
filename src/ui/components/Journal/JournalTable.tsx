@@ -35,7 +35,7 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
             curBalance: 0
         }
     ]);
-    const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '';
+    const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '8848 Digital LLP';
     const AccountList = useFetchData("Account", {});
 
     // console.log("entries",entries)
@@ -157,8 +157,10 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
             }
             setShowFilter(false);
             setSelectedIndex(0);
-        };
-        handleSubmit()
+        } else if (e.ctrlKey && e.key === 'a') {
+            handleSubmit()
+
+        }
     }
 
     const handleInputFocus = async (e: React.FocusEvent<HTMLInputElement>, index: number) => {
@@ -205,13 +207,13 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
     }
 
 
-    const handleSubmit = ()=>{
+    const handleSubmit = async () => {
         const Accountdata = entries.flatMap((entry: any) => {
             let result = [];
-        
+
             // Check if any key in the entry is empty (excluding debit/credit "disabled")
             const hasEmptyKey = Object.values(entry).some(value => value === "");
-        
+
             if (!hasEmptyKey) {
                 // Handle debit
                 if (entry.debit !== "disabled") {
@@ -222,7 +224,7 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
                         debit_in_account_currency: parseFloat(entry.debit)
                     });
                 }
-        
+
                 // Handle credit
                 if (entry.credit !== "disabled") {
                     result.push({
@@ -233,12 +235,35 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
                     });
                 }
             }
-        
+
             return result;
         });
-        
-        console.log("Accountdata",Accountdata);
-        
+
+        const journalData = {
+            naming_series: journalSeries || "ACC-JV-.YYYY.-",
+            company: companyName,
+            posting_date: date?.posting_date,
+            accounts: Accountdata
+        };
+
+        try {
+            const addressResponse = await window.electron.postData({ doctype: "Journal Entry", data: journalData });
+            if (addressResponse !== undefined) {
+                toast.success('Journal Form is submitted!', {
+                    autoClose: 2000,
+                    className: 'custom-toast',
+                });
+
+            } else {
+                toast.error('Something went wrong with Journal submission!', {
+                    autoClose: 2000,
+                    className: 'custom-toast',
+                });
+            }
+        } catch (error) {
+            console.error('Error posting Address:', error);
+        }
+
     }
 
     // Calculate total debit and credit amounts
