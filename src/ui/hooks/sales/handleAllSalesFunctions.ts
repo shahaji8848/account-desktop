@@ -159,6 +159,22 @@ export function handleAllSalesFunctions(
     advancePaymentIndex
   );
 
+  const handleAdvancePaymentDelete = (index: any) => {
+    let data = [...advancePaymentData];
+    data = data.filter((_, i) => index !== i);
+    setAdvancePaymentData(data);
+    if (advancePaymentIndex < advancePaymentData.length - 1) {
+      setTimeout(() => {
+        (advancePaymentRef.current[advancePaymentIndex - 1].childNodes[4] as HTMLElement).focus();
+        setAdvancePaymentIndex(advancePaymentIndex - 1);
+      }, 10);
+    } else {
+      setTimeout(() => {
+        (salesDataRef.current.allocate_advances_automatically as HTMLElement).focus();
+      });
+    }
+  };
+
   const handleValueKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const { name, value } = e.target as HTMLInputElement;
 
@@ -172,13 +188,7 @@ export function handleAllSalesFunctions(
       if (e.key === 'Enter' && advancePaymentPopup && (name === 'allocated_amount' || name === 'difference_posting_date')) {
         if (name === 'allocated_amount') {
           if (value === '') {
-            let data = [...advancePaymentData];
-            data = data.filter((_, i) => advancePaymentIndex !== i);
-            setAdvancePaymentData(data);
-            setTimeout(() => {
-              (advancePaymentRef.current[advancePaymentIndex - 1].childNodes[4] as HTMLElement).focus();
-              setAdvancePaymentIndex(advancePaymentIndex - 1);
-            }, 10);
+            handleAdvancePaymentDelete(advancePaymentIndex);
           } else {
             setTimeout(() => {
               (advancePaymentRef.current[advancePaymentIndex].childNodes[4] as HTMLElement).focus();
@@ -187,21 +197,21 @@ export function handleAllSalesFunctions(
           // console.log(advancePaymentRef.current[advancePaymentIndex].childNodes[4])
         }
         if (name === 'difference_posting_date') {
-          // console.log(advancePaymentIndex <= advancePaymentData.length - 1 , advancePaymentData.length - 1, advancePaymentIndex);
-          if (advancePaymentIndex < advancePaymentData.length - 1) {
+          if (advancePaymentIndex <= advancePaymentData.length - 1) {
             setTimeout(() => {
-              (advancePaymentRef.current[advancePaymentIndex + 1].childNodes[3] as HTMLElement).focus();
-              setAdvancePaymentIndex(advancePaymentIndex + 1);
+              (advancePaymentRef.current[advancePaymentIndex].childNodes[5] as HTMLElement).focus();
+              setAdvancePaymentIndex(advancePaymentIndex);
             }, 0);
-          } else {
-            setTimeout(() => {
-              setAdvancePaymentData([...advancePaymentData, { ...advancesDefaultInfo, difference_posting_date: date.posting_date }]);
-            }, 0);
-            setTimeout(() => {
-              (advancePaymentRef.current[advancePaymentIndex + 1].childNodes[3] as HTMLElement).focus();
-              setAdvancePaymentIndex(advancePaymentIndex + 1);
-            }, 10);
           }
+          // else {
+          //   setTimeout(() => {
+          //     setAdvancePaymentData([...advancePaymentData, { ...advancesDefaultInfo, difference_posting_date: date.posting_date }]);
+          //   }, 0);
+          //   setTimeout(() => {
+          //     (advancePaymentRef.current[advancePaymentIndex + 1].childNodes[3] as HTMLElement).focus();
+          //     setAdvancePaymentIndex(advancePaymentIndex + 1);
+          //   }, 10);
+          // }
           // console.log(advancePaymentRef.current[advancePaymentIndex].childNodes[4])
         }
       }
@@ -565,5 +575,6 @@ export function handleAllSalesFunctions(
     handlePartyNamePopup,
     handleGstPopup,
     handleAdvancePaymentsPopup,
+    handleAdvancePaymentDelete,
   };
 }

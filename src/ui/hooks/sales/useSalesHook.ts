@@ -31,7 +31,7 @@ function useSalesHook(globalData: any) {
   const [shippingDetails, setShippingDetails] = useState<any>([]);
   const [shippingTaxData, setShippingTaxData] = useState<any>([]);
   const [paymentData, setPaymentData] = useState<any>([]);
-  const [advancePaymentData, setAdvancePaymentData] = useState<any>([{ ...advancesDefaultInfo, difference_posting_date: date.posting_date }]);
+  const [advancePaymentData, setAdvancePaymentData] = useState<any>();
   const [gstData, setGstData] = useState<any>([]);
   const [termsData, setTermsData] = useState<any>([]);
   const [itemsData, setItemsData] = useState<any>({ ...defaultTableData });
@@ -358,7 +358,7 @@ function useSalesHook(globalData: any) {
       token: token,
     });
 
-    console.log(response);
+    // console.log(response);
 
     if (response.docs?.length > 0) {
       const advancePaymentInfo =
@@ -369,7 +369,7 @@ function useSalesHook(globalData: any) {
           }))) ||
         [];
       // console.log(response.docs[0]?.advances, advancePaymentInfo, 'response advance payments');
-      setAdvancePaymentData(advancePaymentInfo);
+      setTimeout(() => setAdvancePaymentData(advancePaymentInfo), 0);
     }
   };
 
@@ -476,6 +476,8 @@ function useSalesHook(globalData: any) {
     setFilterListName,
     token,
     getAdvancePaymentData,
+    advancePaymentRef,
+    advancePaymentData
   });
 
   const { handleFilter } = useFilterHook({
@@ -521,6 +523,7 @@ function useSalesHook(globalData: any) {
     handlePartyNamePopup,
     handleGstPopup,
     handleAdvancePaymentsPopup,
+    handleAdvancePaymentDelete,
   } = handleAllSalesFunctions(
     setPreviousSalesData,
     setSubmitted,
@@ -668,6 +671,7 @@ function useSalesHook(globalData: any) {
     getAdvancePaymentData,
     advancePaymentRef,
     setAdvancePaymentIndex,
+    handleAdvancePaymentDelete,
   };
 }
 

@@ -57,6 +57,8 @@ export default function useHandleKeyFunctionalities({
   setFilterListName,
   token,
   getAdvancePaymentData,
+  advancePaymentRef,
+  advancePaymentData,
 }: any) {
   const getAddressFilter = (type: any, name: any) => ({
     type: 'Address',
@@ -367,7 +369,7 @@ export default function useHandleKeyFunctionalities({
           html = html.replace(/<br\s*[\/]?>/gi, '\n');
           html = html.replace(/<[^>]+>/gi, '');
 
-          console.log(html, response, 'terms & c')
+          console.log(html, response, 'terms & c');
           setSalesData({
             ...salesData,
             [name]: value.name,
@@ -951,21 +953,21 @@ export default function useHandleKeyFunctionalities({
             ? salesDataRef.current?.only_include_allocated_payments?.focus()
             : salesDataRef.current?.get_advances?.focus();
         }, 0);
-        // handleShowFilter(salesData.update_stock ? 'source_warehouse' : 'currency');
-        // focusNextField(salesDataRef.current.cost_center);
-        // handleShowFilter('cost_center');
         break;
-      }
+      } 
+      // case 'get_advances': {
+      //   if (advancePaymentData.length > 0) {
+      //     (advancePaymentRef.current[0].childNodes[3] as HTMLElement).focus();
+      //   }
+      //   break;
+      // }
       case 'only_include_allocated_payments': {
-        salesData.only_include_allocated_payments && getAdvancePaymentData();
-        // setTimeout(() => {
-        //   salesData.allocate_advances_automatically
-        //     ? salesDataRef.current?.only_include_allocated_payments?.focus()
-        //     : salesDataRef.current?.get_advances?.focus();
-        // }, 0);
-        // handleShowFilter(salesData.update_stock ? 'source_warehouse' : 'currency');
-        // focusNextField(salesDataRef.current.cost_center);
-        // handleShowFilter('cost_center');
+        if (salesData.only_include_allocated_payments) {
+          getAdvancePaymentData();
+        }
+        if (advancePaymentData.length > 0) {
+          (advancePaymentRef.current[0].childNodes[3] as HTMLElement).focus();
+        }
         break;
       }
       case 'is_cash_or_non_trade_discount': {

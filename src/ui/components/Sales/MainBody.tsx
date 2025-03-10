@@ -68,7 +68,8 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
     handleAdvancePaymentsPopup,
     getAdvancePaymentData,
     advancePaymentRef,
-    setAdvancePaymentIndex
+    setAdvancePaymentIndex,
+    handleAdvancePaymentDelete
   } = salesHookData;
 
   const handleFocus = (e: any) => {
@@ -471,6 +472,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         getAdvancePaymentData={getAdvancePaymentData}
         advancePaymentRef={advancePaymentRef}
         setAdvancePaymentIndex={setAdvancePaymentIndex}
+        handleAdvancePaymentDelete={handleAdvancePaymentDelete}
       />
       <TableItemsPopup
         tableItemsPopup={tableItemsPopup}

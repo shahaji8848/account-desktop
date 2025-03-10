@@ -8,6 +8,7 @@ function AdvancePaymentPopup({
   salesDataRef,
   advancePaymentRef,
   setAdvancePaymentIndex,
+  handleAdvancePaymentDelete,
 }: any) {
   return (
     <div
@@ -66,7 +67,12 @@ function AdvancePaymentPopup({
           </div>
         ) : (
           <div className="d-flex w-100 align-items-center py-2 justify-content-start">
-            <button className=" btn btn-primary" ref={(el) => (salesDataRef.current.get_advances = el)} onClick={getAdvancePaymentData}>
+            <button
+              className=" btn btn-primary"
+              onKeyDown={handleValueKeyDown}
+              ref={(el) => (salesDataRef.current.get_advances = el)}
+              onClick={getAdvancePaymentData}
+            >
               Get Advances Received
             </button>
           </div>
@@ -81,7 +87,7 @@ function AdvancePaymentPopup({
                 <p style={{ width: '20%' }}>
                   <b>Reference Name</b>
                 </p>
-                <p style={{ width: '20%' }}>
+                <p style={{ width: '15%' }}>
                   <b>Remarks</b>
                 </p>
                 <p className="text-end" style={{ width: '20%' }}>
@@ -92,6 +98,9 @@ function AdvancePaymentPopup({
                 </p>
                 <p className="text-end" style={{ width: '20%' }}>
                   <b>Difference Posting Date</b>
+                </p>
+                <p className="text-end" style={{ width: '5%' }}>
+                  <b></b>
                 </p>
               </div>
               <div
@@ -111,7 +120,7 @@ function AdvancePaymentPopup({
                     <p style={{ width: '20%' }}>
                       <b>{item.reference_name}</b>
                     </p>
-                    <p style={{ width: '20%' }}>{item.remarks?.slice(0, 24)}...</p>
+                    <p style={{ width: '15%' }}>{item.remarks?.slice(0, 22)}...</p>
                     <p className="text-end" style={{ width: '20%' }}>
                       <b>{item.advance_amount}</b>
                     </p>
@@ -137,6 +146,46 @@ function AdvancePaymentPopup({
                       type="date"
                       onFocus={() => setTimeout(() => setAdvancePaymentIndex(index), 0)}
                     />
+                    <button
+                      style={{
+                        width: '5%',
+                        border: '0',
+                        color: 'red',
+                        background: 'transparent',
+                        cursor: 'pointer', // Ensures it looks clickable
+                        fontSize: 'inherit', // Matches surrounding text
+                        textAlign: 'end',
+                      }}
+                      name="delete_advance_payment"
+                      onKeyDown={(e) => {
+                        if (e.ctrlKey && e.key === 'Enter') {
+                          handleAdvancePaymentDelete(index);
+                        }
+                        if (!e.ctrlKey && e.key === 'Enter') {
+                          if (index < advancePaymentData.length - 1) {
+                            setTimeout(() => {
+                              (salesDataRef.current.allocate_advances_automatically as HTMLElement).focus();
+                            });
+                          } else {
+                            setTimeout(() => {
+                              (advancePaymentRef.current[index + 1].childNodes[3] as HTMLElement).focus();
+                              setAdvancePaymentIndex(index + 1);
+                            }, 0);
+                          }
+                        }
+                      }}
+                    >
+                      Delete
+                    </button>
+                    {/* <label style={{ width: '5%', color: 'red', cursor: 'pointer' }}>
+                      Delete
+                      <input
+                        type="button"
+                        style={{ border: '0', color: 'red', background: 'transparent' }}
+                        placeholder="Delete"
+                        name="delete_advance_payment"
+                      />
+                    </label> */}
                   </div>
                 ))}
               </div>
