@@ -38,6 +38,7 @@ const routesConfig = [
     { path: "/contra-register", component: ContraRegister },
     { path: "/contra-voucher-register", component: ContraVoucherRegister },
     { path: "/payment-reconciliation", component: PaymentReconciliationMaster },
+
 ];
 
 export default routesConfig;

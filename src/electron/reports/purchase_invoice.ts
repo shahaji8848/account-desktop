@@ -32,7 +32,10 @@ export async function PurchaseInvoiceMonthWiseBreakup(kwargs: any) {
   try {
     let response = await fetch(`${baseUrl}/api/method/frappe.desk.reportview.get`, {
       method: "POST",
-      headers,
+      headers:{
+        "Content-Type": "application/json",
+        Authorization: kwargs?.token,
+      },
       body: JSON.stringify(args),
     });
 
@@ -102,7 +105,10 @@ export async function PurchaseInvoiceBreakupReport(kwargs: any) {
   try {
     let response = await fetch(`${baseUrl}/api/resource/Purchase Invoice?${queryParams}`, {
       method: "GET",
-      headers,
+      headers:{
+        "Content-Type": "application/json",
+        Authorization: kwargs?.token,
+      },
     });
 
     let data = await response.json();

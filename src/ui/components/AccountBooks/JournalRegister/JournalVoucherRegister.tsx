@@ -11,6 +11,7 @@ const JournalVoucherRegister = ({ homeHookData, globalData }: any) => {
     const [VoucherRegisterList, setVoucherRegisterList] = useState<any>([]);
     const { voucherRegisterMonthDate } = homeHookData
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '';
+    const token = localStorage.getItem('account_desktop_token');
 
     const fetchVoucherList = async () => {
         try {
@@ -19,7 +20,8 @@ const JournalVoucherRegister = ({ homeHookData, globalData }: any) => {
                     from_date: voucherRegisterMonthDate?.start_date,
                     to_date: voucherRegisterMonthDate?.end_date,
                     company: "8848 Digital LLP",
-                }
+                },
+                token
             });
             setVoucherRegisterList(x);
         } catch (error) {

@@ -10,13 +10,15 @@ import { RootState } from '../../../store/root-reducer'
 const PurchaseRegister = ({ homeHookData, globalData }: any) => {
     const [purchaseRegisterList, setPurchaseRegisterList] = useState([]);
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '';
+    const token = localStorage.getItem('account_desktop_token');
     const fetchPurchaseRegisterList = async () => {
         try {
             const from_date = "2024-04-01";
             const to_date = "2025-03-31";
 
             let x = await window.electron.PurchaseInvoiceMonthWiseBreakup({
-                filters: { from_date, to_date, company: "8848 Digital LLP", isReturn: 0 }
+                filters: { from_date, to_date, company: "8848 Digital LLP", isReturn: 0 },
+                token
             });
             setPurchaseRegisterList(x);
         } catch (error) {

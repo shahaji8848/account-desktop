@@ -10,13 +10,15 @@ import PageHeader from '../../common/PageHeader'
 const SalesRegister = ({ homeHookData, globalData }: any) => {
     const [salesRegisterList, setSalesRegisterList] = useState([]);
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '';
+    const token = localStorage.getItem('account_desktop_token');
     const fetchSalesRegisterList = async () => {
         try {
             const from_date = "2024-04-01";
             const to_date = "2025-03-31";
 
             let x = await window.electron.salesRegister({
-                filters: { from_date, to_date, company: "8848 Digital LLP" }
+                filters: { from_date, to_date, company: "8848 Digital LLP" },
+                token
             });
 
             setSalesRegisterList(x);

@@ -8,11 +8,10 @@ import useReconcile from './useReconcile';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const useHandleKeys = (globalData: any, homeHookData: any) => {
+const useHandleKeys = (isQuitModalOpen: any, setIsQuitModalOpen: any) => {
   const { companyData } = useCompanyData('Company');
   const { partyData } = usePartyData('Customer');
   const { partyTypeData } = usePartyTypeData('Payment Reconciliation Party');
-  const { isQuitModalOpen, setIsQuitModalOpen } = globalData;
   const [currentFilterList, setCurrentFilterList] = useState<any[]>([]);
   const [masterList, setMasterList] = useState<any[]>([]);
   const [showFilter, setShowFilter] = useState(false);
@@ -137,7 +136,7 @@ const useHandleKeys = (globalData: any, homeHookData: any) => {
       setShowFilter(false);
       setSelectedIndex(0);
     } else if (e.key === 'Escape' && showFilter) {
-      // setShowFilter(false);
+      setShowFilter(false);
     } else if (e.key === 'Escape') {
       setIsQuitModalOpen(true);
     }

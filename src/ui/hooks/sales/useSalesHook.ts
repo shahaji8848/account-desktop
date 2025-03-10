@@ -71,6 +71,8 @@ function useSalesHook(globalData: any) {
 
   const companyData = useSelector((state: RootState) => state.companyDataReducer);
 
+  const token = localStorage.getItem('account_desktop_token') || '';
+
   // useEffect(async () => {
   //   let x = await window.electron.getData({
   //     doctype: 'Item',
@@ -84,10 +86,12 @@ function useSalesHook(globalData: any) {
       const taxes = await window.electron.getData({
         doctype: 'Sales Taxes and Charges Template',
         filters: { company: '8848 Digital LLP', name: value },
+        token: token,
       });
       const shippingTaxes = await window.electron.getData({
         doctype: 'Shipping Rule',
         filters: { company: '8848 Digital LLP', name: salesData.shipping_detail || '' },
+        token: token,
       });
       // console.log(shippingTaxes, taxes, 'shipping taxes');
       shippingTaxes?.conditions && setShippingDetails([...shippingTaxes.conditions]);
@@ -111,6 +115,7 @@ function useSalesHook(globalData: any) {
       let response = await window.electron.getData({
         doctype: type,
         filters: { ...filter, company: companyData.company_name || '' },
+        token: token,
       });
 
       // console.log(type, filter, response, 'response');
@@ -149,6 +154,7 @@ function useSalesHook(globalData: any) {
       const response = await window.electron.getData({
         doctype: filterDetails.type,
         filters: { ...filterDetails.filter },
+        token: token,
       });
       if (response) {
         let data: any = [];
@@ -193,10 +199,12 @@ function useSalesHook(globalData: any) {
     let response = await window.electron.getData({
       doctype: 'Item',
       filters: { name: value, company: companyData.company_name || '' },
+      token: token,
     });
     let rate = await window.electron.getData({
       doctype: 'Item Price',
       filters: { item_code: value },
+      token: token,
     });
     // console.log(response, rate);
     // let promotionalDiscount = await window.electron.getData({
@@ -210,15 +218,18 @@ function useSalesHook(globalData: any) {
           item_code: value,
           warehouse: salesData?.source_warehouse ? salesData.source_warehouse : response?.item_defaults[0]?.expense_account || '',
         },
+        token: token,
       });
       let batchNoData = await window.electron.getData({
         doctype: 'Batch',
         filters: { item_name: value },
+        token: token,
       });
 
       let gstRate = await window.electron.getData({
         doctype: 'Item Tax Template',
         filters: { company: companyData.company_name || '' },
+        token: token,
       });
 
       if (serialData?.length > 0) {
@@ -409,6 +420,7 @@ function useSalesHook(globalData: any) {
     setProductData,
     getData,
     setFilterListName,
+    token,
   });
 
   const { handleFilter } = useFilterHook({

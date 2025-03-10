@@ -11,7 +11,7 @@ const ReceiptVoucherRegister = ({ homeHookData, globalData }: any) => {
     const [VoucherRegisterList, setVoucherRegisterList] = useState<any>([]);
     const { voucherRegisterMonthDate } = homeHookData
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '';
-
+    const token = localStorage.getItem('account_desktop_token');
     const fetchVoucherList = async () => {
         try {
             let x = await window.electron.PaymentEntryDetailBreakup({
@@ -20,7 +20,8 @@ const ReceiptVoucherRegister = ({ homeHookData, globalData }: any) => {
                     to_date: voucherRegisterMonthDate?.end_date,
                     company: "8848 Digital LLP",
                     payment_type: 'Receive'
-                }
+                },
+                token
             });
             setVoucherRegisterList(x);
         } catch (error) {

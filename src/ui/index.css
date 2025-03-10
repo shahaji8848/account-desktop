@@ -172,7 +172,7 @@ input:not(:focus) {
   border: 1px solid transparent;
   font-weight: bold;
   /* margin-left: 0.5rem; */
-  padding: 1px 0;
+  /* padding: 1px 0; */
 }
 
 /* input:not(:focus):not([value='']),

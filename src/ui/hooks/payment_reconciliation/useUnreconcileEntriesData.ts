@@ -9,6 +9,7 @@ const useUnreconcileEntriesData = (company?: string, party_type?: string, party?
   const [shouldRefetch, setShouldRefetch] = useState(false);
   const [apiErrorMessage, setApiErrorMessage] = useState<any>('');
   const [apiError, setApiError] = useState<any>();
+  const token = localStorage.getItem('account_desktop_token');
 
   const fetchData = async () => {
     if (!company || !party_type || !party) return; // Ensure all fields are selected
@@ -17,6 +18,7 @@ const useUnreconcileEntriesData = (company?: string, party_type?: string, party?
         company: company,
         party_type: party_type,
         party: party,
+        token,
       });
 
       if (result?.error === true) {

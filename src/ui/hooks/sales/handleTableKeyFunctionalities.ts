@@ -26,7 +26,8 @@ export function handleTableKeyFunctionalities(
   setProductData: any,
   companyData: any,
   fieldName: any,
-  showFilter: any
+  showFilter: any,
+  token: any
 ) {
   const handleDropdown = (name: string, value: string) => {
     // console.log(filterData, filteredItems);
@@ -236,15 +237,18 @@ export function handleTableKeyFunctionalities(
     let response = await window.electron.getData({
       doctype: 'Item',
       filters: { name: data.free_item, company: companyData.company_name || '' },
+      token: token,
     });
     let rate = await window.electron.getData({
       doctype: 'Item Price',
       filters: { item_code: data.free_item },
+      token: token,
     });
     if (response && rate) {
       let tax_info = await window.electron.getData({
         doctype: 'Item Tax Template',
         filters: { input: response?.taxes[0]?.item_tax_template || '' },
+        token: token,
       });
       // console.log(response, rate, tax_info, 'response and rate');
       setProductData([
@@ -270,9 +274,9 @@ export function handleTableKeyFunctionalities(
   };
 
   const getData = async (value: string) => {
-    const itemData = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { item_code: itemsData.item_name } });
+    const itemData = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { item_code: itemsData.item_name }, token: token });
     if (itemData && itemData.length > 0) {
-      const promotionalData = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { name: itemData[0].name } });
+      const promotionalData = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { name: itemData[0].name }, token: token });
       // console.log(itemData, promotionalData, 'Promotional Scheme');
       if (promotionalData && promotionalData.customer[0]?.customer === salesData.party_details.party_name) {
         if (value >= promotionalData.product_discount_slabs[0]?.min_qty) {
