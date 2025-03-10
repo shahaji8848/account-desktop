@@ -614,7 +614,8 @@ export async function postData(kwargs: any) {
     headers: { Authorization: kwargs?.token },
     body: JSON.stringify(kwargs.data),
   });
-  return response;
+  const result = await response.json();
+  return result;
 }
 
 export async function updateData(kwargs: any) {
@@ -630,7 +631,8 @@ export async function updateData(kwargs: any) {
     headers: { Authorization: kwargs?.token },
     body: JSON.stringify(kwargs.data),
   });
-  return response;
+  const result = await response.json();
+  return result;
 }
 
 export async function getGstinInfo(kwargs: any) {
@@ -660,7 +662,7 @@ export async function getAdvancePaymentEntries(args: any) {
 
     const response = await fetch(`https://yatish-testing-v15.frappe.cloud/api/method/run_doc_method`, {
       method: 'POST',
-      headers: headers,
+      headers: { ...headers, Authorization: args.token },
       body: JSON.stringify({
         docs: params,
         method: 'set_advances',

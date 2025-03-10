@@ -325,7 +325,7 @@ export default function useHandleKeyFunctionalities({
       fieldName === name &&
         getCurrencyData()
           .then((resp: any) => {
-            console.log(resp, 'resp')
+            console.log(resp, 'resp');
             setSalesData({
               ...salesData,
               [name]: value,
@@ -356,10 +356,22 @@ export default function useHandleKeyFunctionalities({
         showFilter &&
         getData('Terms and Conditions', { name: value.name }).then((response: any) => {
           // console.log(response, 'terms');
+          let html = response.terms;
+          html = html.replace(/<style([\s\S]*?)<\/style>/gi, '');
+          html = html.replace(/<script([\s\S]*?)<\/script>/gi, '');
+          html = html.replace(/<\/div>/gi, '\n');
+          html = html.replace(/<\/li>/gi, '\n');
+          html = html.replace(/<li>/gi, '  *  ');
+          html = html.replace(/<\/ul>/gi, '\n');
+          html = html.replace(/<\/p>/gi, '\n');
+          html = html.replace(/<br\s*[\/]?>/gi, '\n');
+          html = html.replace(/<[^>]+>/gi, '');
+
+          console.log(html, response, 'terms & c')
           setSalesData({
             ...salesData,
             [name]: value.name,
-            terms_description: response.terms || '',
+            terms_description: html || response.terms || '',
           });
         });
       setIsSelecting(false);

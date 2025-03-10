@@ -73,16 +73,27 @@ export function handleAllSalesFunctions(
   advancePaymentData: any,
   setAdvancePaymentIndex: any,
   advancePaymentIndex: any,
-  advancePaymentRef: any
+  advancePaymentRef: any,
+  token: any
 ) {
   const navigate = useNavigate();
   const handleSubmitData = async (salesInvoiceData: any, method: string = 'POST') => {
     console.log(JSON.stringify(salesInvoiceData), salesInvoiceData, 'submit data');
     try {
-      const x = await window.electron.saveForm({
-        salesInvoiceData,
-        method: method,
-      });
+      const x =
+        method === 'POST'
+          ? await window.electron.postData({
+              doctype: 'Sales Invoice',
+              data: salesInvoiceData,
+              token: token,
+            })
+          : await window.electron.updateData({
+              doctype: 'Sales Invoice',
+              data: salesInvoiceData,
+              name: salesInvoiceName,
+              token: token,
+            });
+      console.log(x);
       if (x !== undefined) {
         toast.success('Form is submitted!', {
           autoClose: 2000,
@@ -349,7 +360,7 @@ export function handleAllSalesFunctions(
             additional_discount_account: salesData.additional_discount_account,
             is_cash_or_non_trade_discount: salesData.is_cash_or_non_trade_discount,
             cost_center: salesData.cost_center || '',
-            advances: advancePaymentData,
+            advances: advancePaymentData.length > 0 && advancePaymentData[0].allocated_amount !== '' ? advancePaymentData : [],
             allocate_advances_automatically: salesData.allocate_advances_automatically,
             only_include_allocated_payments: salesData.only_include_allocated_payments,
             incoterm: salesData.incoterm,

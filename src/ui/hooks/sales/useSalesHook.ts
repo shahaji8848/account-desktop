@@ -21,14 +21,17 @@ import handleTaxFunctionalities from './useTaxHook';
 import { useLocation } from 'react-router-dom';
 import { RootState } from '../../store/root-reducer';
 import { useSelector } from 'react-redux';
+import { getData } from '../../../apis/util';
 
 function useSalesHook(globalData: any) {
+  const { companyPopup, companyDataRef, openCompanyDropdown, date, setDate, dateRef } = globalData;
+
   const [salesData, setSalesData] = useState<SalesData>(salesDefaultdata);
   const [taxData, setTaxData] = useState<TaxData[]>([]);
   const [shippingDetails, setShippingDetails] = useState<any>([]);
   const [shippingTaxData, setShippingTaxData] = useState<any>([]);
   const [paymentData, setPaymentData] = useState<any>([]);
-  const [advancePaymentData, setAdvancePaymentData] = useState<any>([{ ...advancesDefaultInfo }]);
+  const [advancePaymentData, setAdvancePaymentData] = useState<any>([{ ...advancesDefaultInfo, difference_posting_date: date.posting_date }]);
   const [gstData, setGstData] = useState<any>([]);
   const [termsData, setTermsData] = useState<any>([]);
   const [itemsData, setItemsData] = useState<any>({ ...defaultTableData });
@@ -71,11 +74,11 @@ function useSalesHook(globalData: any) {
   const taxInfoPopupRef = useRef<any>(taxDefaultInfoRef);
   const advancePaymentRef = useRef<any[]>([]);
 
-  const { companyPopup, companyDataRef, openCompanyDropdown, date, setDate, dateRef } = globalData;
-
   const companyData = useSelector((state: RootState) => state.companyDataReducer);
 
   const token = localStorage.getItem('account_desktop_token') || '';
+
+  const isAPP = window.electron ? true : false;
 
   // useEffect(async () => {
   //   let x = await window.electron.getData({
@@ -84,6 +87,8 @@ function useSalesHook(globalData: any) {
   //   });
   //   console.log(x, 'items');
   // }, []);
+
+  console.log(window.electron ? 'desktop' : 'web');
 
   const fetchTaxes = async (value: string) => {
     try {
@@ -123,13 +128,19 @@ function useSalesHook(globalData: any) {
   //   // console.log(x1);
   // }, []);
 
-  const getData = async (type: any, filter: any) => {
+  const getResponseData = async (type: any, filter: any) => {
     try {
-      let response = await window.electron.getData({
-        doctype: type,
-        filters: { ...filter, company: companyData.company_name || '' },
-        token: token,
-      });
+      let response = isAPP
+        ? await window.electron.getData({
+            doctype: type,
+            filters: { ...filter, company: companyData.company_name || '' },
+            token: token,
+          })
+        : await getData({
+            doctype: type,
+            filters: { ...filter, company: companyData.company_name || '' },
+            token: token,
+          });
 
       // console.log(type, filter, response, 'response');
 
@@ -179,7 +190,7 @@ function useSalesHook(globalData: any) {
         setFilterData({ ...filterData, [name]: data });
       }
     } else {
-      const result = await getData(filterDetails.type, filterDetails.filter || {});
+      const result = await getResponseData(filterDetails.type, filterDetails.filter || {});
       setFilterData({ ...filterData, [name]: result });
     }
   }
@@ -344,7 +355,10 @@ function useSalesHook(globalData: any) {
       rounded_total: Number(Number(getTotal()).toFixed(2)),
       grand_total: Number(Number(getTotal()).toFixed(2)),
       __islocal: 1,
+      token: token,
     });
+
+    console.log(response);
 
     if (response.docs?.length > 0) {
       const advancePaymentInfo =
@@ -386,7 +400,7 @@ function useSalesHook(globalData: any) {
     getFilterData,
     setPaymentData,
     setTermsData,
-    getData,
+    getResponseData,
     salesDataRef,
     fieldName,
     date,
@@ -458,7 +472,7 @@ function useSalesHook(globalData: any) {
     serialNoData,
     productData,
     setProductData,
-    getData,
+    getResponseData,
     setFilterListName,
     token,
     getAdvancePaymentData,
@@ -576,7 +590,8 @@ function useSalesHook(globalData: any) {
     advancePaymentData,
     setAdvancePaymentIndex,
     advancePaymentIndex,
-    advancePaymentRef
+    advancePaymentRef,
+    token
   );
 
   return {
@@ -652,7 +667,7 @@ function useSalesHook(globalData: any) {
     handleAdvancePaymentsPopup,
     getAdvancePaymentData,
     advancePaymentRef,
-    setAdvancePaymentIndex
+    setAdvancePaymentIndex,
   };
 }
 
