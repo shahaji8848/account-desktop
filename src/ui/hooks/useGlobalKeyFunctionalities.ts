@@ -4,10 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/root-reducer';
 import { companyDataSliceFunc } from '../store/reducers/CompanyDataSlice';
 import { companyPopupSliceData } from '../store/reducers/CompanyPopupSlice';
+import { getData } from '../../apis/util';
 
 export default function useGlobalKeyFunctionalities() {
   const [companyData, setCompanyData] = useState<CompanyData>(companyDefaultData);
   const companyPopup = useSelector((state: RootState) => state.companyPopupReducer.companyPopupToggle);
+
+  const isAPP = window.electron ? true : false;
 
   const dispatch = useDispatch();
 
@@ -160,7 +163,7 @@ export default function useGlobalKeyFunctionalities() {
         }, 0);
         setShowFilter(false);
         dispatch(companyPopupSliceData({ companyPopupToggle: false }));
-        dispatch(companyDataSliceFunc(companyData))
+        dispatch(companyDataSliceFunc(companyData));
       }
     } else {
       if (!showFilter) return;
@@ -185,17 +188,22 @@ export default function useGlobalKeyFunctionalities() {
     setSelectedIndex(index);
   };
 
-  const getData = async (type: any, filter: any) => {
-    let response = await window.electron.getData({
-      doctype: type,
-      filters: { ...filter, company: companyData.company_name || '' },
-    });
+  const getResponseData = async (type: any, filter: any) => {
+    let response = isAPP
+      ? await window.electron.getData({
+          doctype: type,
+          filters: { ...filter, company: companyData.company_name || '' },
+        })
+      : await getData({
+          doctype: type,
+          filters: { ...filter, company: companyData.company_name || '' },
+        });
 
     return response;
   };
 
   async function getFilterData(filterDetails: any, name: any) {
-    const result = await getData(filterDetails.type, filterDetails.filter);
+    const result = await getResponseData(filterDetails.type, filterDetails.filter);
     setFilterData({ ...filterData, [name]: result });
   }
 
@@ -269,6 +277,6 @@ export default function useGlobalKeyFunctionalities() {
     filteredItems,
     openCompanyDropdown,
     isQuitModalOpen,
-    setIsQuitModalOpen
+    setIsQuitModalOpen,
   };
 }

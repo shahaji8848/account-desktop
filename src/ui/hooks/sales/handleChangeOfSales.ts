@@ -13,7 +13,12 @@ export function handleChangeOfSales(
   getFilterData: any,
   setIsSelecting: any,
   setShowFilter: any,
-  handleShowFilter: any
+  handleShowFilter: any,
+  advancePaymentPopup: any,
+  setAdvancePaymentData: any,
+  advancePaymentData: any,
+  setAdvancePaymentIndex: any,
+  advancePaymentIndex: any
 ) {
   const handleInputChange = (value: string, name: string, item_index: number) => {
     const data = [...salesData.table];
@@ -63,7 +68,8 @@ export function handleChangeOfSales(
       'margin_type',
       'batch_no',
       'item_tax_template',
-      'receivable_account'
+      'receivable_account',
+      'incoterm',
     ];
 
     if (dropdown_names.includes(name)) {
@@ -76,13 +82,15 @@ export function handleChangeOfSales(
       }, 0);
     }
 
+    console.log(typeLabel !== 'table', type !== 'dropdown', advancePaymentPopup, advancePaymentData[advancePaymentIndex]);
+
     if (type !== 'dropdown') {
       if (typeLabel !== 'table') {
         if (name === 'sales_no') {
           if (value === '' || /^-?\d+\.?\d*$/.test(value)) {
             setSalesData({ ...salesData, [name]: value });
           }
-        } else if (name.includes('date') && name !== 'update_stock') {
+        } else if (name === 'posting_date' || name === 'due_date') {
           setDate({ ...date, [name]: value });
         } else if (name === 'update_stock') {
           setTimeout(() => {
@@ -93,8 +101,22 @@ export function handleChangeOfSales(
             // console.log(salesData, name, checked);
             setSalesData({ ...salesData, [name]: checked });
           }, 0);
+        } else if (name === 'allocate_advances_automatically') {
+          setTimeout(() => {
+            // console.log(salesData, name, checked);
+            setSalesData({ ...salesData, [name]: checked });
+          }, 0);
+        } else if (name === 'only_include_allocated_payments') {
+          setTimeout(() => {
+            // console.log(salesData, name, checked);
+            setSalesData({ ...salesData, [name]: checked });
+          }, 0);
         } else if (tableItemsPopup) {
           setItemsData({ ...itemsData, [name]: value });
+        } else if (advancePaymentPopup && (name === 'allocated_amount' || name === 'difference_posting_date')) {
+          const data = [...advancePaymentData];
+          data[advancePaymentIndex][name] = value;
+          setAdvancePaymentData(data);
         } else {
           setSalesData({ ...salesData, [name]: value });
         }
@@ -116,13 +138,25 @@ export function handleChangeOfSales(
         !name.includes('billing') &&
         !name.includes('shipping_address') &&
         !name.includes('shipping_gstin') &&
-        name !== 'is_cash_or_non_trade_discount'&&
-        !name.includes('receivable')
+        name !== 'is_cash_or_non_trade_discount' &&
+        !name.includes('receivable') &&
+        name !== 'only_include_allocated_payments' &&
+        name !== 'allocate_advances_automatically'
       ) {
         setSalesData({ ...salesData, [name]: value });
         setFieldName(name);
       } else if (name === 'naming_series') {
         setSalesData({ ...salesData, [name]: value });
+      } else if (name === 'allocate_advances_automatically') {
+        setTimeout(() => {
+          // console.log(salesData, name, checked);
+          setSalesData({ ...salesData, [name]: checked });
+        }, 0);
+      } else if (name === 'only_include_allocated_payments') {
+        setTimeout(() => {
+          // console.log(salesData, name, checked);
+          setSalesData({ ...salesData, [name]: checked });
+        }, 0);
       } else if (name.includes('party') || name.includes('billing') || name.includes('shipping') || name === 'receivable_account') {
         // console.log('value', value, name)
         setFieldName(name);
@@ -130,6 +164,15 @@ export function handleChangeOfSales(
           ...salesData,
           party_details: { ...salesData.party_details, [name]: value },
         });
+        if (name === 'receivable_account') {
+          getFilterData(
+            {
+              type: 'Account',
+              filter: { input: value },
+            },
+            'account_data'
+          );
+        }
       } else if (name.includes('date')) {
         setDate({ ...date, [name]: value });
       } else if (name === 'update_stock') {
@@ -137,6 +180,16 @@ export function handleChangeOfSales(
           setSalesData({ ...salesData, [name]: checked });
         }, 0);
       } else if (name === 'is_cash_or_non_trade_discount') {
+        setTimeout(() => {
+          // console.log(salesData, name, checked);
+          setSalesData({ ...salesData, [name]: checked });
+        }, 0);
+      } else if (name === 'allocate_advances_automatically') {
+        setTimeout(() => {
+          // console.log(salesData, name, checked);
+          setSalesData({ ...salesData, [name]: checked });
+        }, 0);
+      } else if (name === 'only_include_allocated_payments') {
         setTimeout(() => {
           // console.log(salesData, name, checked);
           setSalesData({ ...salesData, [name]: checked });

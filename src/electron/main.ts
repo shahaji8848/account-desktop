@@ -8,8 +8,10 @@ import {
   postData,
   getGstinInfo,
   getCurrencyData,
-  login
-} from "./util.js";
+  login,
+  getAdvancePaymentEntries,
+  getPrintFormatData
+} from "../apis/util.js";
 import { getPreloadPath, getUIPath } from "./pathResolver.js";
 import { ipcMain } from "electron";
 import { salesRegisterMonthWiseSales,salesBreakupReport } from "./reports/sales_register.js";
@@ -61,6 +63,14 @@ app.on('ready', () => {
 
   ipcMain.handle('getData', async (_, kwargs: any) => {
     return await getData(kwargs);
+  });
+  
+  ipcMain.handle('getAdvancePaymentEntries', async (_, kwargs: any) => {
+    return await getAdvancePaymentEntries(kwargs);
+  });
+
+  ipcMain.handle('getPrintFormatData', async (_, kwargs: any) => {
+    return await getPrintFormatData(kwargs);
   });
 
   ipcMain.handle('getGstinInfo', async (_, kwargs: any) => {

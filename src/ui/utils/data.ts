@@ -169,7 +169,12 @@ export const salesDefaultdata = {
   additional_discount_account: '',
   is_cash_or_non_trade_discount: false,
   currency: 'INR',
-  conversion_rate: '',
+  conversion_rate: '1',
+  incoterm: '',
+  named_place: '',
+  advances: [],
+  allocate_advances_automatically: false,
+  only_include_allocated_payments: false,
 };
 
 export const dataRef = {
@@ -203,6 +208,11 @@ export const dataRef = {
   is_cash_or_non_trade_discount: null,
   currency: null,
   conversion_rate: null,
+  incoterm: null,
+  named_place: null,
+  allocate_advances_automatically: null,
+  only_include_allocated_payments: null,
+  get_advances: null,
 };
 
 export const companyDefaultData = {
@@ -217,6 +227,24 @@ export const companyDefaultData = {
   pincode: '',
   gst_category: '',
 };
+
+export const advancesDefaultInfo = {
+  reference_type: '',
+  reference_name: '',
+  remarks: '',
+  advance_amount: '',
+  allocated_amount: '',
+  difference_posting_date: '',
+}
+
+export const advancesDefaultRef = {
+  reference_type: null,
+  reference_name: null,
+  remarks: null,
+  advance_amount: null,
+  allocated_amount: null,
+  difference_posting_date: null,
+}
 
 export const taxDefaultInfo = {
   charge_type: '',
@@ -316,6 +344,8 @@ export interface SalesData {
   terms_and_conditions: string;
   payment_terms: string;
   terms_description: string;
+  allocate_advances_automatically: boolean,
+  only_include_allocated_payments: boolean,
 }
 
 export interface CompanyData {
@@ -353,7 +383,7 @@ export const filterTypes: any = {
   cost_center: { type: 'Cost Center' },
   table: { type: 'Item' },
   item_name: { type: 'Item' },
-  qty: { type: 'GST HSN Code' },
+  // qty: { type: 'GST HSN Code' },
   hsn: { type: 'GST HSN Code' },
   uom: { type: 'UOM' },
   income_account: { type: 'Account' },
@@ -368,6 +398,7 @@ export const filterTypes: any = {
   terms_and_conditions: { type: 'Terms and Conditions' },
   currency: { type: 'Currency' },
   batch_no: { type: 'Batch' },
+  incoterm: { type: 'Incoterm' },
 };
 
 export const filterDefaultData = {
@@ -394,4 +425,5 @@ export const filterDefaultData = {
   apply_discount_on: [],
   currency: [],
   batch_no: [],
+  incoterm: [],
 };
