@@ -1,8 +1,12 @@
 interface BottomNavbarProps {
   handleSubmit?: () => void;
+  handleTermsPopup?: () => void;
+  handlePartyNamePopup?: () => void;
+  handleGstPopup?: () => void;
+  handleAdvancePaymentsPopup?: () => void;
 }
 
-function BottomNavbar({ handleSubmit }: BottomNavbarProps) {
+function BottomNavbar({ handleSubmit, handleTermsPopup, handlePartyNamePopup, handleGstPopup, handleAdvancePaymentsPopup }: BottomNavbarProps) {
   return (
     <div
       className="bottom-nav-bar w-100 d-flex align-items-center justify-content-start position-absolute pb-2 px-2"
@@ -19,7 +23,7 @@ function BottomNavbar({ handleSubmit }: BottomNavbarProps) {
           <p style={{ transform: 'rotate(-90deg)', borderLeft: '0' }}>{'>'}</p>
         </div>
       </div>
-      <div className="tab">
+      <div className="tab" onClick={handlePartyNamePopup}>
         <p>
           <span className="fw-bold" style={{ color: '#589dcc' }}>
             P :
@@ -30,7 +34,7 @@ function BottomNavbar({ handleSubmit }: BottomNavbarProps) {
           <p style={{ transform: 'rotate(-90deg)', borderLeft: '0' }}>{'>'}</p>
         </div>
       </div>
-      <div className="tab">
+      <div className="tab" onClick={handleTermsPopup}>
         <p>
           <span className="fw-bold" style={{ color: '#589dcc' }}>
             T :
@@ -52,7 +56,7 @@ function BottomNavbar({ handleSubmit }: BottomNavbarProps) {
           <p style={{ transform: 'rotate(-90deg)', borderLeft: '0' }}>{'>'}</p>
         </div>
       </div>
-      <div className="tab">
+      <div className="tab" onClick={handleGstPopup}>
         <p>
           <span className="fw-bold" style={{ color: '#589dcc' }}>
             G :
@@ -63,7 +67,17 @@ function BottomNavbar({ handleSubmit }: BottomNavbarProps) {
           <p style={{ transform: 'rotate(-90deg)', borderLeft: '0' }}>{'>'}</p>
         </div>
       </div>
-      <div className="tab"></div>
+      <div className="tab" onClick={handleAdvancePaymentsPopup}>
+        <p>
+          <span className="fw-bold" style={{ color: '#589dcc', textDecoration: 'underline' }}>
+            A
+          </span>{' '}
+          : Advances
+        </p>
+        <div className="disabled">
+          <p style={{ transform: 'rotate(-90deg)', borderLeft: '0' }}>{'>'}</p>
+        </div>
+      </div>
       <div className="tab disabled">
         <p>
           <span className="fw-bold" style={{ color: '#589dcc' }}>
