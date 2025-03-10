@@ -3,16 +3,16 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import styles from "./journal.module.css";
 import QuitConfirmationModal from "../Home/QuitConfirmationModal";
 import ShowFilter from "../common/ShowFilter";
-import { ledgerAccountList, journalEntryType, seriesList, partyTypeList } from "../../utils/journalFormData";
-import useFetchData from "../../hooks/fetchData";
+import { isAdvanceList, journalEntryType, seriesList, partyTypeList, referenceTypeList } from "../../utils/journalFormData";
+import useFetchData from "../../hooks/fetchData"
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/root-reducer";
+import { nanoid } from "nanoid";
+import JournalItemsPopup from "./JournalItemsPopup";
 
 
-
-
-const JournalTable = ({ homeHookData, globalData }: any) => {
+const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
     const { date, setDate } = globalData
     const formRef = useRef<any>(null);
     const entryRefs = useRef<any>(null);
@@ -24,19 +24,40 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
     // State to manage input values for multiple rows
     const [entryType, setEntryType] = useState('');
     const [journalSeries, setJournalSeries] = useState('')
+    const [referenceNumber, setReferenceNumber] = useState('')
+    const [ReferenceDate, setReferenceDate] = useState('')
+    const [userRemark, setUserRemark] = useState('')
     const [entries, setEntries] = useState<any>([
         {
+            id: nanoid(),
             type: "",
             particulars: "",
             party_type: "",
             party: "",
             debit: "",
             credit: "",
-            curBalance: 0
+            curBalance: 0,
+            bank_account: '',
+            cost_center: '',
+            account_currency: '',
+            exchange_rate: 1.0000,
+            reference_type: '',
+            is_advance: '',
+            reference_name: '',
+            user_remark: '',
+            Reference_due_date: ''
         }
     ]);
+
+    const [journalPopupID, setJournalPopupID] = useState<any>([]);
+    const [journalPopup, setJournalPopup] = useState<boolean>(false);
+
+
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '8848 Digital LLP';
-    const AccountList = useFetchData("Account", {});
+    const token = localStorage.getItem('account_desktop_token');
+    const AccountList = useFetchData("Account", {}, token);
+    const BankAccountList = useFetchData("Bank Account", {}, token);
+    const CostCenterList = useFetchData("Cost Center", {}, token);
 
     // console.log("entries",entries)
     useEffect(() => {
@@ -45,35 +66,45 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
         }
     }, []);
     // Handle input changes for different fields
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, index: number, rowType?: any) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, id: any, rowType?: any) => {
         const { name, value } = e.target;
 
         if (rowType === 'entry_row') {
-            const newEntries = [...entries];
-            newEntries[index][name] = value;
+            setEntries((prevEntries: any) =>
+                prevEntries.map((entry: any) =>
+                    entry.id === id ? { ...entry, [name]: value } : entry
+                )
+            );
             // Enable/Disable fields based on type value
             if (name === "type") {
-                if (value.toLowerCase() === "dr") {
-                    newEntries[index].debit = "";
-                    newEntries[index].credit = "disabled";
-                } else if (value.toLowerCase() === "cr") {
-                    newEntries[index].credit = "";
-                    newEntries[index].debit = "disabled";
-                } else {
-                    newEntries[index].debit = "";
-                    newEntries[index].credit = "";
-                }
+                setEntries((prevEntries: any) =>
+                    prevEntries.map((entry: any) =>
+                        entry.id === id
+                            ? {
+                                ...entry,
+                                debit: value.toLowerCase() === "dr" ? "" : "disabled",
+                                credit: value.toLowerCase() === "cr" ? "" : "disabled",
+                            }
+                            : entry
+                    )
+                );
             }
-            setEntries(newEntries);
+
         } else if (name === 'posting_date') {
             setDate({ ...date, [name]: value });
+        } else if (name === 'main_user_remark') {
+            setUserRemark(value)
+        } else if (name === 'main_reference_name') {
+            setReferenceNumber(value)
+        } else if (name === 'main_reference_date') {
+            setReferenceDate(value)
         }
 
     };
 
 
     // Handle key press (Enter to add new row, Escape to close modal)
-    const handleKeyDown = async (e: any, field: any, index: number) => {
+    const handleKeyDown = async (e: any, field: any, id: any, index?: number) => {
         const { value } = e.target;
         const focusableElements = Array.from(
             formRef.current?.querySelectorAll(
@@ -84,26 +115,63 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
         const focusIndex = focusableElements.indexOf(e.currentTarget);
 
         if (e.key === "Escape") {
-            setIsQuitModalOpen(true);
-        } else if (e.key === "Enter" && !showFilter) {
-            const newEntries = [...entries];
+            if (journalPopup) {
+                setJournalPopup(false)
+            } else {
+                setIsQuitModalOpen(true);
 
-            if (field === "debit") {
-                const debitValue = parseFloat(newEntries[index].debit) || 0;
-                newEntries[index].curBalance -= debitValue; // Subtract from balance
-            } else if (field === "credit") {
-                const creditValue = parseFloat(newEntries[index].credit) || 0;
-                newEntries[index].curBalance += creditValue; // Add to balance
             }
+        } else if (e.key === "Enter" && !showFilter) {
+            // const newEntries = [...entries];
 
-            setEntries(newEntries);
+            setEntries((prevEntries: any) =>
+                prevEntries.map((entry: any) => {
+                    if (entry.id === id) {
+                        let updatedEntry = { ...entry };
+
+                        if (field === "debit") {
+                            const debitValue = parseFloat(entry.debit) || 0;
+                            updatedEntry.curBalance -= debitValue; // Subtract from balance
+                        } else if (field === "credit") {
+                            const creditValue = parseFloat(entry.credit) || 0;
+                            updatedEntry.curBalance += creditValue; // Add to balance
+                        }
+
+                        return updatedEntry;
+                    }
+                    return entry;
+                })
+            );
 
             // Add new row when Enter is pressed in Debit or Credit field
             if ((field === "debit" || field === "credit") && value) {
-                setEntries([...newEntries, { type: "", particulars: "", debit: "", credit: "", curBalance: 0 }]);
+                setEntries((prevEntries: any) => [
+                    ...prevEntries,
+                    {
+                        id: nanoid(), // Generate a new unique ID
+                        type: "",
+                        particulars: "",
+                        party_type: "",
+                        party: "",
+                        debit: "",
+                        credit: "",
+                        curBalance: 0,
+                        bank_account: '',
+                        cost_center: '',
+                        account_currency: '',
+                        exchange_rate: 1.0000,
+                        reference_type: '',
+                        is_advance: '',
+                        reference_name: '',
+                        user_remark: '',
+                        Reference_due_date: ''
+                    }
+                ]);
 
                 setTimeout(() => {
+                    // @ts-ignore
                     if (inputRefs.current[index + 1]) {
+                        // @ts-ignore
                         inputRefs.current[index + 1].focus(); // Focus on "type" field of new row
                     }
                 }, 0);
@@ -125,14 +193,31 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
 
         } else if (e.key === 'Enter' && showFilter) {
             e.preventDefault();
-            let newEntries = [...entries];
+            // let newEntries = [...entries];
             if (field === 'particulars') {
-                newEntries[index][field] = currentFilterList[selectedIndex]?.name || '';
+                setEntries((prevEntries: any) => {
+                    return prevEntries.map((entry: any) => {
+                        return entry.id === id
+                            ? { ...entry, [field]: currentFilterList[selectedIndex]?.name || "" }
+                            : entry;
+                    });
+                });
                 //fetching current balance for selected account
                 try {
-                    const accountBalance = await window.electron.getData({ doctype: 'Journal Entry Accounts', filters: { account: currentFilterList[selectedIndex]?.name, company: companyName }, token: 'token 617c5524f5a912e:aa8ae3123dc7d6d' });
+                    const accountBalance = await window.electron.getData({ doctype: 'Journal Entry Accounts', filters: { account: currentFilterList[selectedIndex]?.name, company: companyName }, token });
                     if (accountBalance !== undefined) {
-                        newEntries[index]['curBalance'] = accountBalance?.balance;
+                        console.log("accountBalance", accountBalance)
+                        setEntries((prevEntries: any) =>
+                            prevEntries.map((entry: any) =>
+                                entry.id === id
+                                    ? {
+                                        ...entry,
+                                        curBalance: accountBalance?.balance,
+                                        account_currency: accountBalance?.account_currency
+                                    }
+                                    : entry
+                            )
+                        );
 
                     } else {
                         toast.error('Something went wrong with Party', {
@@ -145,25 +230,75 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
                 }
 
 
-                setEntries(newEntries);
+            }  else if (field === 'reference_type') {
+                setEntries((prevEntries: any) => {
+                    return prevEntries.map((entry: any) => {
+                        return entry.id === id
+                            ? { ...entry, [field]: currentFilterList[selectedIndex]?.name || "" }
+                            : entry;
+                    });
+                });
+                //fetching Reference Name for selected reference type
+                try {
+                    const referenceName = window.electron.getData({
+                      doctype:"Journal Receipt Names" ,filters: { account:"Creditors - 8DL",reference_type:"Purchase Invoice",cost_center:"Main - 8DL" },
+                      token
+                    })
+                    if (referenceName !== undefined) {
+                        console.log("referenceName", referenceName)
+                        setEntries((prevEntries: any) =>
+                            prevEntries.map((entry: any) =>
+                                entry.id === id
+                                    ? {
+                                        ...entry,
+                                        reference_name: ''
+                                    }
+                                    : entry
+                            )
+                        );
+
+                    } else {
+                        toast.error('Something went wrong with Party', {
+                            autoClose: 2000,
+                            className: 'custom-toast',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error posting Bank Account:', error);
+                }
+
+
+                // setEntries(newEntries);
             } else if (field === 'entry_type') {
                 setEntryType(currentFilterList[selectedIndex]?.name || '')
             } else if (field === 'journal_series') {
                 setJournalSeries(currentFilterList[selectedIndex]?.name || '')
-            } else if (field === 'party_type') {
-                newEntries[index][field] = currentFilterList[selectedIndex]?.name || '';
-            } else if (field === 'party') {
-                newEntries[index][field] = currentFilterList[selectedIndex]?.name || '';
+            } else if (field === "party_type" || field === "party" || field === 'bank_account' || field === 'cost_center' || field === 'is_advance') {
+                setEntries((prevEntries: any) =>
+                    prevEntries.map((entry: any) =>
+                        entry.id === id
+                            ? { ...entry, [field]: currentFilterList[selectedIndex]?.name || "" }
+                            : entry
+                    )
+                )
             }
             setShowFilter(false);
             setSelectedIndex(0);
-        } else if (e.ctrlKey && e.key === 'a') {
+        } else if (e.ctrlKey && e.key === 's' && field === 'particulars') {
+            console.log("jjj")
+            setJournalPopupID(id)
+            setJournalPopup(true)
+            setShowFilter(false)
+        }
+        else if (e.ctrlKey && e.key === 'a') {
             handleSubmit()
 
         }
     }
 
-    const handleInputFocus = async (e: React.FocusEvent<HTMLInputElement>, index: number) => {
+
+
+    const handleInputFocus = async (e: React.FocusEvent<HTMLInputElement>, id: any) => {
         const { name: field, value } = e.target;
         setShowFilter(false);
         if (field === 'entry_type') {
@@ -186,7 +321,8 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
         } else if (field === "party") {
             setShowFilter(true);
             try {
-                const fetchedPartyList = await window.electron.getData({ doctype: entries[index]?.party_type });
+                const doctype = entries.find((entry: any) => entry.id === id)?.party_type;
+                const fetchedPartyList = await window.electron.getData({ doctype, filters: {}, token });
                 if (fetchedPartyList !== undefined) {
                     console.log("fetchedPartyList", fetchedPartyList)
                     setCurrentFilterList(fetchedPartyList);
@@ -202,6 +338,22 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
                 console.error('Error posting Bank Account:', error);
             }
 
+        } else if (field === 'bank_account') {
+            setShowFilter(true);
+            setCurrentFilterList(BankAccountList);
+            setSelectedIndex(0)
+        } else if (field === 'cost_center') {
+            setShowFilter(true);
+            setCurrentFilterList(CostCenterList);
+            setSelectedIndex(0)
+        } else if (field === 'is_advance') {
+            setShowFilter(true);
+            setCurrentFilterList(isAdvanceList);
+            setSelectedIndex(0)
+        } else if (field === 'reference_type') {
+            setShowFilter(true);
+            setCurrentFilterList(referenceTypeList);
+            setSelectedIndex(0)
         }
 
     }
@@ -212,29 +364,66 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
             let result = [];
 
             // Check if any key in the entry is empty (excluding debit/credit "disabled")
-            const hasEmptyKey = Object.values(entry).some(value => value === "");
+            // const hasEmptyKey = Object.values(entry).some(value => value === "");
 
-            if (!hasEmptyKey) {
-                // Handle debit
-                if (entry.debit !== "disabled") {
-                    result.push({
-                        account: entry.particulars,
-                        party_type: entry.party_type,
-                        party: entry.party,
-                        debit_in_account_currency: parseFloat(entry.debit)
-                    });
-                }
+            // if (!hasEmptyKey) {
+            //     // Handle debit
+            //     if (entry.debit !== "disabled") {
+            //         result.push({
+            //             account: entry.particulars,
+            //             party_type: entry.party_type,
+            //             party: entry.party,
+            //             debit_in_account_currency: parseFloat(entry.debit)
+            //         });
+            //     }
 
-                // Handle credit
-                if (entry.credit !== "disabled") {
-                    result.push({
-                        account: entry.particulars,
-                        party_type: entry.party_type,
-                        party: entry.party,
-                        credit_in_account_currency: parseFloat(entry.credit)
-                    });
-                }
+            //     // Handle credit
+            //     if (entry.credit !== "disabled") {
+            //         result.push({
+            //             account: entry.particulars,
+            //             party_type: entry.party_type,
+            //             party: entry.party,
+            //             credit_in_account_currency: parseFloat(entry.credit)
+            //         });
+            //     }
+            // }
+
+
+            // Handle debit
+            if (entry.debit !== "disabled") {
+                result.push({
+                    account: entry.particulars,
+                    party_type: entry.party_type,
+                    party: entry.party,
+                    debit_in_account_currency: parseFloat(entry.debit),
+                    cost_center: entry.cost_center,
+                    account_currency: entry.account_currency,
+                    exchange_rate: entry.exchange_rate,
+                    reference_type: entry.reference_type,
+                    is_advance: entry.is_advance,
+                    reference_name: entry.reference_name,
+                    user_remark: entry.user_remark
+                });
             }
+
+            // Handle credit
+            if (entry.credit !== "disabled") {
+                result.push({
+                    account: entry.particulars,
+                    party_type: entry.party_type,
+                    party: entry.party,
+                    credit_in_account_currency: parseFloat(entry.credit),
+                    cost_center: entry.cost_center,
+                    account_currency: entry.account_currency,
+                    exchange_rate: entry.exchange_rate,
+                    reference_type: entry.reference_type,
+                    is_advance: entry.is_advance,
+                    reference_name: entry.reference_name,
+                    user_remark: entry.user_remark
+
+                });
+            }
+
 
             return result;
         });
@@ -242,13 +431,18 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
         const journalData = {
             naming_series: journalSeries || "ACC-JV-.YYYY.-",
             company: companyName,
+            company_gstin: companyGstin,
             posting_date: date?.posting_date,
+            cheque_no: referenceNumber,
+            cheque_date: ReferenceDate,
+            user_remark: userRemark,
             accounts: Accountdata
         };
+        console.log("journalData", JSON.stringify(journalData))
 
         try {
-            const addressResponse = await window.electron.postData({ doctype: "Journal Entry", data: journalData });
-            if (addressResponse !== undefined) {
+            const journalResponse = await window.electron.postData({ doctype: "Journal Entry", data: journalData, token });
+            if (journalResponse !== undefined) {
                 toast.success('Journal Form is submitted!', {
                     autoClose: 2000,
                     className: 'custom-toast',
@@ -269,6 +463,8 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
     // Calculate total debit and credit amounts
     const totalDebit = entries.reduce((sum: any, entry: any) => sum + (parseFloat(entry.debit) || 0), 0);
     const totalCredit = entries.reduce((sum: any, entry: any) => sum + (parseFloat(entry.credit) || 0), 0);
+
+    console.log("entries>>", entries)
 
     return (
         <div
@@ -361,8 +557,8 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
                             ref={(el) => (inputRefs.current[index] = el)}
                             name="type"
                             value={entry.type}
-                            onChange={(e) => handleInputChange(e, index, 'entry_row')}
-                            onKeyDown={(e) => handleKeyDown(e, 'particulars', index)}
+                            onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
+                            onKeyDown={(e) => handleKeyDown(e, 'particulars', entry.id, index)}
 
                         />
                     </div>
@@ -375,9 +571,9 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
                             // style={{ width: '25%' }}
                             name="particulars"
                             value={entry.particulars}
-                            onChange={(e) => handleInputChange(e, index, 'entry_row')}
-                            onKeyDown={(e) => handleKeyDown(e, 'particulars', index)}
-                            onFocus={(e) => handleInputFocus(e, index)}
+                            onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
+                            onKeyDown={(e) => handleKeyDown(e, 'particulars', entry.id)}
+                            onFocus={(e) => handleInputFocus(e, entry.id)}
                         />
                     </div>
 
@@ -389,9 +585,9 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
                             // style={{ width: '25%' }}
                             name="party_type"
                             value={entry.party_type}
-                            onChange={(e) => handleInputChange(e, index, 'entry_row')}
-                            onKeyDown={(e) => handleKeyDown(e, 'party_type', index)}
-                            onFocus={(e) => handleInputFocus(e, index)}
+                            onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
+                            onKeyDown={(e) => handleKeyDown(e, 'party_type', entry.id)}
+                            onFocus={(e) => handleInputFocus(e, entry.id)}
                         />
                     </div>
 
@@ -403,9 +599,9 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
                             // style={{ width: '25%' }}
                             name="party"
                             value={entry.party}
-                            onChange={(e) => handleInputChange(e, index, 'entry_row')}
-                            onKeyDown={(e) => handleKeyDown(e, 'party', index)}
-                            onFocus={(e) => handleInputFocus(e, index)}
+                            onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
+                            onKeyDown={(e) => handleKeyDown(e, 'party', entry.id)}
+                            onFocus={(e) => handleInputFocus(e, entry.id)}
                         />
                     </div>
 
@@ -420,8 +616,8 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
                                     name="debit"
                                     value={entry.debit}
                                     disabled={entry.debit === "disabled"} // Disable if "Cr" was typed
-                                    onChange={(e) => handleInputChange(e, index, 'entry_row')}
-                                    onKeyDown={(e) => handleKeyDown(e, 'debit', index)}
+                                    onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
+                                    onKeyDown={(e) => handleKeyDown(e, 'debit', entry.id)}
                                 />
                             )
                         }
@@ -439,8 +635,8 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
                                     name="credit"
                                     value={entry.credit}
                                     disabled={entry.credit === "disabled"} // Disable if "Dr" was typed
-                                    onChange={(e) => handleInputChange(e, index, 'entry_row')}
-                                    onKeyDown={(e) => handleKeyDown(e, 'credit', index)}
+                                    onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
+                                    onKeyDown={(e) => handleKeyDown(e, 'credit', entry.id)}
                                 />
                             )
                         }
@@ -459,9 +655,49 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
                 </div>
             ))}
 
+
+            {/* reference fields  */}
+            <div className="d-flex align-items-center w-100">
+                <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
+                    <label className="ps-1 pe-3">Reference Number</label>
+                    <p>: </p>
+                </div>
+                <input
+                    name="main_reference_name"
+                    value={referenceNumber}
+                    onChange={(e: any) => handleInputChange(e, 0)}
+                    onKeyDown={(e) => handleKeyDown(e, 'main_reference_name', 0)}
+                    className="ms-2"
+                    style={{ outline: 'none', width: '63%' }}
+                />
+            </div>
+
+            <div className="d-flex align-items-center w-100">
+                <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
+                    <label className="ps-1 pe-3">Reference Date</label>
+                    <p>: </p>
+                </div>
+                <input
+                    name="main_reference_date"
+                    type="date"
+                    value={referenceNumber}
+                    onChange={(e: any) => handleInputChange(e, 0)}
+                    onKeyDown={(e) => handleKeyDown(e, 'main_reference_date', 0)}
+                    className="ms-2"
+                    style={{ outline: 'none', width: '63%' }}
+                />
+            </div>
             {/* Narration Row */}
             <div className={`row border-top py-2 position-absolute ${styles.narrationRow}`}>
                 <div className="col-6 text-muted">Narration:</div>
+                <textarea
+                    name="main_user_remark"
+                    value={userRemark}
+                    onChange={(e: any) => handleInputChange(e, 0)}
+                    onKeyDown={(e) => handleKeyDown(e, 'narration_user_remark', 0)}
+                    className="ms-2"
+                    style={{ outline: 'none', width: '63%', minHeight: '100px', resize: 'none', overflowY: 'auto', whiteSpace: 'pre-wrap' }}
+                />
                 {/* Footer (Total Debit  Amount) */}
                 <div className="col-3 text-center fw-bold">{totalDebit.toFixed(2)}</div>
                 {/* Footer (Total Credit Amount) */}
@@ -476,6 +712,17 @@ const JournalTable = ({ homeHookData, globalData }: any) => {
                     handleItemFocus={(index: number) => setSelectedIndex(index)}
                 />
             )}
+
+            {/* row pop-up form */}
+
+            <JournalItemsPopup
+                journalPopup={journalPopup}
+                entries={entries}
+                journalPopupID={journalPopupID}
+                handleInputChange={handleInputChange}
+                handleKeyDown={handleKeyDown}
+                handleInputFocus={handleInputFocus}
+            />
 
             {/* Quit Confirmation Modal */}
             {isQuitModalOpen && (
