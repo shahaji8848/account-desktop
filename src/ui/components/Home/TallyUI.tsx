@@ -6,7 +6,12 @@ import { useNavigate } from 'react-router-dom';
 import HomeMenuList from './MenuList/HomeMenuList';
 import MoreReportMenuList from './MenuList/MoreReportMenuList';
 import AccountBooksMenuList from './MenuList/AccountBooksMenuList';
+import BankingMenuListShow from './BankingMenuListShow';
 
+const menuItems = [
+  { id: 0, label: 'Bank Reconciliation' },
+  { id: 1, label: 'Payment Reconciliation' },
+];
 const TallyUI = ({
   isModalOpen,
   setIsModalOpen,
@@ -17,6 +22,8 @@ const TallyUI = ({
   selectedIndex,
   globalData,
   homeHookData,
+  setShowBankingMenuList,
+  showBankingMenuList,
 }: any) => {
   const navigate = useNavigate();
   const { moreReportList, accountBooksList, setMoreReportList, setAccountBooksList } = homeHookData;
@@ -73,13 +80,21 @@ const TallyUI = ({
         navigate('/receipt-register');
       } else if (selectedText === 'ConTra Register') {
         navigate('/contra-register');
-      } else if (selectedText === 'BaNking') {
+      } else if (selectedText === 'Bank Reconciliation') {
+        navigate('/bank-reconciliation');
+      } else if (selectedText === 'Payment Reconciliation') {
         navigate('/payment-reconciliation');
+      } else if (selectedText === 'BaNking') {
+        // navigate('/payment-reconciliation');
+        setShowBankingMenuList(true);
+        setSelectedIndex(0); // Ensure the first item is highlighted
       }
-    } else if (e.key === 'd' && !moreReportList && !accountBooksList) {  //menu list button click functionality
+    } else if (e.key === 'd' && !moreReportList && !accountBooksList) {
+      //menu list button click functionality
       setMoreReportList(true);
       setSelectedIndex(0);
-    } else if (e.key === 'v' && !moreReportList && !accountBooksList) {  //menu list button click functionality
+    } else if (e.key === 'v' && !moreReportList && !accountBooksList) {
+      //menu list button click functionality
       navigate('/sales');
     } else if (e.key === 'a' && moreReportList) {
       setAccountBooksList(true);
@@ -103,7 +118,8 @@ const TallyUI = ({
       navigate('/contra-register');
     } else if (e.key === 'Escape' || e.key === 'q') {
       setIsQuitModalOpen(true);
-    } else if (e.key === 'a' && !moreReportList && !accountBooksList) { //only for test purpose
+    } else if (e.key === 'a' && !moreReportList && !accountBooksList) {
+      //only for test purpose
       navigate('/journal');
     }
   };
@@ -111,42 +127,43 @@ const TallyUI = ({
   const handleClick = (index: number) => {
     const menuItems = menuItemsRef.current.filter((item) => item !== null); // Filter out null values
     const selectedText = menuItems[index]?.textContent;
-    console.log(">>", index, selectedIndex)
-    if (selectedText === "Create") {
+    console.log('>>', index, selectedIndex);
+    if (selectedText === 'Create') {
       setIsModalOpen(true);
-    } else if (selectedText === "Vouchers") {
-      navigate('/sales')
-    } else if (selectedText === "Quit") {
+    } else if (selectedText === 'Vouchers') {
+      navigate('/sales');
+    } else if (selectedText === 'Quit') {
       setIsQuitModalOpen(true); // Open the quit confirmation modal
-    } else if (selectedText === "Display More Reports") {
+    } else if (selectedText === 'Display More Reports') {
       setMoreReportList(true);
       setSelectedIndex(0);
-    } else if (selectedText === "Account Books") {
+    } else if (selectedText === 'Account Books') {
       setAccountBooksList(true);
       setMoreReportList(false);
       setSelectedIndex(0);
     } else if (selectedText === 'Sales Register') {
-      navigate('/sales-register')
+      navigate('/sales-register');
     } else if (selectedText === 'CrEdit Note Register') {
-      navigate('/credit-note-register')
+      navigate('/credit-note-register');
     } else if (selectedText === 'Purchase Register') {
-      navigate('/purchase-register')
+      navigate('/purchase-register');
     } else if (selectedText === 'Debit Note Register') {
-      navigate('/debit-note-register')
+      navigate('/debit-note-register');
     } else if (selectedText === 'Journal Register') {
-      navigate('/journal-register')
+      navigate('/journal-register');
     } else if (selectedText === 'PaYment Register') {
-      navigate('/payment-register')
+      navigate('/payment-register');
     } else if (selectedText === 'Receipt Register') {
-      navigate('/receipt-register')
+      navigate('/receipt-register');
     } else if (selectedText === 'ConTra Register') {
-      navigate('/contra-register')
+      navigate('/contra-register');
     }
-  }
+  };
 
   const handleQuitConfirm = () => {
     window.close();
     setIsQuitModalOpen(false);
+    setShowBankingMenuList(false);
   };
 
   return (
@@ -182,29 +199,26 @@ const TallyUI = ({
         </div>
 
         {/* Right Section */}
-        {!moreReportList && !accountBooksList && (
-          <HomeMenuList
+
+        {!showBankingMenuList && !moreReportList && !accountBooksList && (
+          <HomeMenuList menuItemsRef={menuItemsRef} selectedIndex={selectedIndex} handleKeyDown={handleKeyDown} handleClick={handleClick} />
+        )}
+
+        {showBankingMenuList && !moreReportList && !accountBooksList && (
+          <BankingMenuListShow
+            menuItems={menuItems}
             menuItemsRef={menuItemsRef}
             selectedIndex={selectedIndex}
             handleKeyDown={handleKeyDown}
             handleClick={handleClick}
           />
         )}
+
         {moreReportList && !accountBooksList && (
-          <MoreReportMenuList
-            menuItemsRef={menuItemsRef}
-            selectedIndex={selectedIndex}
-            handleKeyDown={handleKeyDown}
-            handleClick={handleClick}
-          />
+          <MoreReportMenuList menuItemsRef={menuItemsRef} selectedIndex={selectedIndex} handleKeyDown={handleKeyDown} handleClick={handleClick} />
         )}
         {accountBooksList && !moreReportList && (
-          <AccountBooksMenuList
-            menuItemsRef={menuItemsRef}
-            selectedIndex={selectedIndex}
-            handleKeyDown={handleKeyDown}
-            handleClick={handleClick}
-          />
+          <AccountBooksMenuList menuItemsRef={menuItemsRef} selectedIndex={selectedIndex} handleKeyDown={handleKeyDown} handleClick={handleClick} />
         )}
       </div>
       {/* pop up */}
