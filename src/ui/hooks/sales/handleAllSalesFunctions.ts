@@ -78,7 +78,7 @@ export function handleAllSalesFunctions(
 ) {
   const navigate = useNavigate();
   const handleSubmitData = async (salesInvoiceData: any, method: string = 'POST') => {
-    console.log(JSON.stringify(salesInvoiceData), salesInvoiceData, 'submit data');
+    // console.log(JSON.stringify(salesInvoiceData), salesInvoiceData, 'submit data');
     try {
       const x =
         method === 'POST'
@@ -93,7 +93,7 @@ export function handleAllSalesFunctions(
               name: salesInvoiceName,
               token: token,
             });
-      console.log(x);
+      // console.log(x);
       if (x !== undefined) {
         toast.success('Form is submitted!', {
           autoClose: 2000,
@@ -543,7 +543,7 @@ export function handleAllSalesFunctions(
   const handleItemClick = (item: string) => {
     setIsSelecting(true);
     setShowFilter(false);
-    console.log(fieldName, item);
+    // console.log(fieldName, item);
     if (tableItemsPopup) {
       handleDropdown(fieldName, item);
     } else if (fieldName === 'charge_type' || fieldName === 'account_head') {

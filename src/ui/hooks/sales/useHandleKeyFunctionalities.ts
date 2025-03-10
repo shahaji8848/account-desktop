@@ -95,6 +95,9 @@ export default function useHandleKeyFunctionalities({
     ) {
       setFilterListName(filterTypes[fieldName].type);
       getFilterData(filterTypes[fieldName], 'account_data');
+    } else if (fieldName === 'contact_person') {
+      setFilterListName(filterTypes[fieldName].type);
+      getFilterData(filterTypes[fieldName], 'contact_person');
     } else if (fieldName === 'receivable_account') {
       setFilterListName(filterTypes[fieldName].type);
       getFilterData(filterTypes[fieldName], 'account_data');
@@ -194,7 +197,7 @@ export default function useHandleKeyFunctionalities({
     // updateSalesData({ [name]: filteredItems[selectedIndex] });
     // console.log(fieldName, name, 'filter info');
     if (name === 'party_name') {
-      focusNextField(salesDataRef.current.receivable_account);
+      focusNextField(salesDataRef.current.contact_person);
       // handleShowFilter('billing_address');
       fieldName === name &&
         setSalesData({
@@ -208,7 +211,22 @@ export default function useHandleKeyFunctionalities({
         setShowFilter(false);
         // setType('dropdown')
       }, 0);
-    } else if (name === 'receivable_account') {
+    } else if (name === 'contact_person') {
+      focusNextField(salesDataRef.current.contact_person);
+      // handleShowFilter('billing_address');
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          party_details: {
+            ...salesData.party_details,
+            [name]: value,
+          },
+        });
+      setTimeout(() => {
+        setShowFilter(false);
+        // setType('dropdown')
+      }, 0);
+    }  else if (name === 'receivable_account') {
       focusNextField(salesDataRef.current.billing_address);
       // handleShowFilter('billing_address');
       fieldName === name &&
@@ -223,7 +241,7 @@ export default function useHandleKeyFunctionalities({
         setShowFilter(false);
         // setType('dropdown')
       }, 0);
-    } else if (name === 'billing_address') {
+    }else if (name === 'billing_address') {
       focusNextField(salesDataRef.current.billing_gstin);
       setTimeout(() => {
         setShowFilter(false);
@@ -292,7 +310,7 @@ export default function useHandleKeyFunctionalities({
       }, 0);
       setIsSelecting(false);
     } else if (name === 'incoterm') {
-      console.log('first', value);
+      // console.log('first', value);
       if (fieldName === name && showFilter) {
         setSalesData({
           ...salesData,
@@ -327,7 +345,7 @@ export default function useHandleKeyFunctionalities({
       fieldName === name &&
         getCurrencyData()
           .then((resp: any) => {
-            console.log(resp, 'resp');
+            // console.log(resp, 'resp');
             setSalesData({
               ...salesData,
               [name]: value,
@@ -369,7 +387,7 @@ export default function useHandleKeyFunctionalities({
           html = html.replace(/<br\s*[\/]?>/gi, '\n');
           html = html.replace(/<[^>]+>/gi, '');
 
-          console.log(html, response, 'terms & c');
+          // console.log(html, response, 'terms & c');
           setSalesData({
             ...salesData,
             [name]: value.name,
@@ -405,7 +423,7 @@ export default function useHandleKeyFunctionalities({
         // setType('dropdown')
       }, 0);
     } else if (name === 'naming_series') {
-      console.log(value);
+      // console.log(value);
       fieldName === name &&
         setSalesData({
           ...salesData,

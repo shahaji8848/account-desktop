@@ -88,7 +88,7 @@ function useSalesHook(globalData: any) {
   //   console.log(x, 'items');
   // }, []);
 
-  console.log(window.electron ? 'desktop' : 'web');
+  // console.log(window.electron ? 'desktop' : 'web');
 
   const fetchTaxes = async (value: string) => {
     try {

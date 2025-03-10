@@ -145,6 +145,7 @@ export const salesDefaultdata = {
     shipping_country: '',
     shipping_pincode: '',
     shipping_gst_category: '',
+    contact_person: '',
   },
   cost_center: '',
   sales_no: '',
@@ -184,6 +185,7 @@ export const dataRef = {
   billing_gstin: null,
   shipping_gstin: null,
   receivable_account: null,
+  contact_person: null,
   cost_center: null,
   sales_no: null,
   naming_series: null,
@@ -226,6 +228,7 @@ export const companyDefaultData = {
   country: '',
   pincode: '',
   gst_category: '',
+  company_contact_person: '',
 };
 
 export const advancesDefaultInfo = {
@@ -235,7 +238,7 @@ export const advancesDefaultInfo = {
   advance_amount: '',
   allocated_amount: '',
   difference_posting_date: '',
-}
+};
 
 export const advancesDefaultRef = {
   reference_type: null,
@@ -244,7 +247,7 @@ export const advancesDefaultRef = {
   advance_amount: null,
   allocated_amount: null,
   difference_posting_date: null,
-}
+};
 
 export const taxDefaultInfo = {
   charge_type: '',
@@ -344,8 +347,8 @@ export interface SalesData {
   terms_and_conditions: string;
   payment_terms: string;
   terms_description: string;
-  allocate_advances_automatically: boolean,
-  only_include_allocated_payments: boolean,
+  allocate_advances_automatically: boolean;
+  only_include_allocated_payments: boolean;
 }
 
 export interface CompanyData {
@@ -359,6 +362,7 @@ export interface CompanyData {
   country: string;
   pincode: string;
   gst_category: string;
+  company_contact_person: string;
 }
 
 export interface TaxData {
@@ -399,6 +403,7 @@ export const filterTypes: any = {
   currency: { type: 'Currency' },
   batch_no: { type: 'Batch' },
   incoterm: { type: 'Incoterm' },
+  contact_person: { type: 'Contact' },
 };
 
 export const filterDefaultData = {
@@ -426,4 +431,5 @@ export const filterDefaultData = {
   currency: [],
   batch_no: [],
   incoterm: [],
+  contact_person: [],
 };

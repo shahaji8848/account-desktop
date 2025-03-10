@@ -69,6 +69,7 @@ export function handleChangeOfSales(
       'batch_no',
       'item_tax_template',
       'receivable_account',
+      'contact_person',
       'incoterm',
     ];
 
@@ -82,7 +83,7 @@ export function handleChangeOfSales(
       }, 0);
     }
 
-    console.log(typeLabel !== 'table', type !== 'dropdown', advancePaymentPopup, advancePaymentData[advancePaymentIndex]);
+    // console.log(typeLabel !== 'table', type !== 'dropdown', advancePaymentPopup, advancePaymentData[advancePaymentIndex]);
 
     if (type !== 'dropdown') {
       if (typeLabel !== 'table') {
@@ -157,7 +158,13 @@ export function handleChangeOfSales(
           // console.log(salesData, name, checked);
           setSalesData({ ...salesData, [name]: checked });
         }, 0);
-      } else if (name.includes('party') || name.includes('billing') || name.includes('shipping') || name === 'receivable_account') {
+      } else if (
+        name.includes('party') ||
+        name.includes('billing') ||
+        name.includes('shipping') ||
+        name === 'receivable_account' ||
+        name === 'contact_person'
+      ) {
         // console.log('value', value, name)
         setFieldName(name);
         setSalesData({
@@ -171,6 +178,15 @@ export function handleChangeOfSales(
               filter: { input: value },
             },
             'account_data'
+          );
+        }
+        if (name === 'contact_person') {
+          getFilterData(
+            {
+              type: 'Contact',
+              filter: { input: value },
+            },
+            'contact_person'
           );
         }
       } else if (name.includes('date')) {
