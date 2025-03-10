@@ -61,7 +61,7 @@ async function getAddressData(doctype: any, filters: any) {
 
 export async function login(kwargs: any) {
   const login_url = 'https://yatish-testing-v15.frappe.cloud/api/method/login';
-  
+
   if (kwargs.email && kwargs.password) {
     try {
       const response = await fetch(login_url, {
@@ -85,19 +85,19 @@ export async function login(kwargs: any) {
         });
 
         const keysData = await keysResponse.json();
-        if (keysData.message.api_secret){
+        if (keysData.message.api_secret) {
           const userDetails = `${baseUrl}/User/${kwargs.email}`;
           const res = await fetch(userDetails, { method: 'GET', headers });
           let response = await res.json()
-          if (response.data.api_key){
-            return {status: "success", token: `token ${keysData.message.api_secret}:${response.data.api_key}`}
+          if (response.data.api_key) {
+            return { status: "success", token: `token ${keysData.message.api_secret}:${response.data.api_key}` }
 
           }
-          else{
+          else {
             return { error: data.message || 'Login failed' };
           }
         }
-        else{
+        else {
           return { error: data.message || 'Login failed' };
         }
       } else {
@@ -423,7 +423,7 @@ export async function getBatch(doctype: any, filters: any) {
   return await fetchData(url);
 }
 
-export async function getCurrencyData(kwargs:any) {
+export async function getCurrencyData(kwargs: any) {
   let endpoint = 'https://yatish-testing-v15.frappe.cloud/api/method/erpnext.setup.utils.get_exchange_rate';
   const response = await fetch(endpoint, {
     method: 'POST',
@@ -441,19 +441,15 @@ export async function getPaymentReconciliationParty(doctype: any, filters: any) 
 
 // to be deleted later 
 export async function getJournalEntryAccountsData(doctype: any, filters: any, token?: any) {
-  console.log("GGGGGGGGGGGGGG")
   if (!filters?.account) {
     return { error: true, msg: "Please select an account" };
   }
-  let h = { Authorization: token }
-  console.log(h)
   const getBalanceUrl = "https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.utils.get_account_balances";
   const getAccountsDetails = await fetch(`${baseUrl}/Account/${encodeURIComponent(filters.account)}?fields=["*"]`, {
     method: 'GET',
     headers: { Authorization: token }
   });
   const accountsData = await getAccountsDetails.json();
-  console.log(accountsData)
   const accountCurrency = accountsData?.data?.account_currency;
   if (!accountCurrency) {
     return { error: true, msg: "Please try again selecting an account" };
