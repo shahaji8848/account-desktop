@@ -1,7 +1,7 @@
-import { JSDOM } from 'jsdom';
+// import { JSDOM } from 'jsdom';
 
 export function isDev(): boolean {
-  return process.env.NODE_ENV === 'development';
+  return true;
 }
 
 const baseUrl = 'https://yatish-testing-v15.frappe.cloud/api/resource';
@@ -81,37 +81,24 @@ export async function login(kwargs: any) {
           usr: kwargs.email,
           pwd: kwargs.password,
         }),
-        credentials: 'include',
       });
 
       const data = await response.json();
-      const cookies = response.headers.get('set-cookie');
-      const sid = cookies || data.message?.sid || null;
-      let header_detials = {
-        'Content-Type': 'application/json',
-        Cookie: `${sid}`,
-      };
+
       if (response.ok && data.message == 'Logged In') {
-        const generateKeysUrl = `https://yatish-testing-v15.frappe.cloud/api/method/frappe.core.doctype.user.user.generate_keys`;
+        const generateKeysUrl = `https://yatish-testing-v15.frappe.cloud/api/method/frappe.core.doctype.user.user.generate_keys?user=${kwargs.email}`;
         const keysResponse = await fetch(generateKeysUrl, {
           method: 'POST',
-          body: JSON.stringify({
-            user: kwargs.email,
-            usr: kwargs.email,
-            pwd: kwargs.password,
-          }),
-          headers: header_detials,
+          headers: headers,
         });
 
         const keysData = await keysResponse.json();
-
         if (keysData.message.api_secret) {
           const userDetails = `${baseUrl}/User/${kwargs.email}`;
-          const res = await fetch(userDetails, { method: 'GET', headers: header_detials });
+          const res = await fetch(userDetails, { method: 'GET', headers });
           let response = await res.json();
-          console.log(response, 'response');
           if (response.data.api_key) {
-            return { status: 'success', token: `token ${response.data.api_key}:${keysData.message.api_secret}` };
+            return { status: 'success', token: `token ${keysData.message.api_secret}:${response.data.api_key}` };
           } else {
             return { error: data.message || 'Login failed' };
           }
@@ -156,8 +143,9 @@ async function getItemData(doctype: string, filters: any, token: any) {
   itemdata['item_name'] = responseItemData?.item_name || null;
   itemdata['name'] = responseItemData?.name || null;
   itemdata['item_group'] = responseItemData?.item_group || null;
-  let description = new JSDOM(responseItemData?.description) || null;
-  itemdata['description'] = description.window.document.body.textContent;
+  // let description = responseItemData?.description || null;
+  // itemdata['description'] = description.window.document.body.textContent;
+  itemdata['description'] = responseItemData?.description || null;
   if (responseItemData?.item_defaults) {
     for (let row of responseItemData.item_defaults) {
       if (row?.company === filters.company) {
@@ -378,10 +366,24 @@ export async function getTermsCondtions(doctype: any, filters: any, token: any) 
   let data = await fetchData(url, token);
 
   // Extract text content using jsdom
-  if (data && data.terms) {
-    const dom = new JSDOM(data.terms);
-    data.terms = dom.window.document.body.textContent;
+  // if (data && data.terms) {
+  //   const dom = data.terms;
+  //   data.terms = dom.window.document.body.textContent;
+  // }
+
+  return data;
+}
+
+export async function getIncotermList(doctype: any, filters: any, token: any) {
+  let url = `${baseUrl}/${doctype}`;
+  const incotermFilter: any[] = [];
+
+  if (filters?.input) {
+    incotermFilter.push(['name', 'like', `%${filters.input}%`]);
+    url = `${baseUrl}/${doctype}?filters=${JSON.stringify(incotermFilter)}`;
   }
+
+  let data = await fetchData(url, token);
 
   return data;
 }
@@ -464,21 +466,20 @@ export async function getPaymentReconciliationParty(doctype: any, filters: any, 
   return await fetchData(url, token);
 }
 
-
-// to be deleted later 
+// to be deleted later
 export async function getJournalEntryAccountsData(doctype: any, filters: any, token?: any) {
   if (!filters?.account) {
-    return { error: true, msg: "Please select an account" };
+    return { error: true, msg: 'Please select an account' };
   }
-  const getBalanceUrl = "https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.utils.get_account_balances";
+  const getBalanceUrl = 'https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.utils.get_account_balances';
   const getAccountsDetails = await fetch(`${baseUrl}/Account/${encodeURIComponent(filters.account)}?fields=["*"]`, {
     method: 'GET',
-    headers: { Authorization: token }
+    headers: { Authorization: token },
   });
   const accountsData = await getAccountsDetails.json();
   const accountCurrency = accountsData?.data?.account_currency;
   if (!accountCurrency) {
-    return { error: true, msg: "Please try again selecting an account" };
+    return { error: true, msg: 'Please try again selecting an account' };
   }
   const args = {
     accounts: [{ value: filters.account, account_currency: accountCurrency }],
@@ -496,19 +497,19 @@ export async function getJournalEntryAccountsData(doctype: any, filters: any, to
   const balance = accountBalanceData?.message?.[0]?.balance || 0;
   const accountType = accountsData?.data?.root_type;
   let type;
-  if (accountType === "Asset" || accountType === "Expenses") {
-    type = balance >= 0 ? "Debit" : "Credit";
-  } else if (accountType === "Liability" || accountType === "Equity" || accountType === "Income") {
-    type = balance >= 0 ? "Credit" : "Debit";
+  if (accountType === 'Asset' || accountType === 'Expenses') {
+    type = balance >= 0 ? 'Debit' : 'Credit';
+  } else if (accountType === 'Liability' || accountType === 'Equity' || accountType === 'Income') {
+    type = balance >= 0 ? 'Credit' : 'Debit';
   } else {
-    return { error: true, msg: "Unknown account type" };
+    return { error: true, msg: 'Unknown account type' };
   }
   return {
     account: filters.account,
     account_currency: accountCurrency,
     balance: Math.abs(balance),
     type: type,
-  }
+  };
 }
 
 export async function getData(kwargs: any) {
@@ -555,7 +556,7 @@ export async function getData(kwargs: any) {
       return await getBatch(doctype, filters, token);
     case 'Payment Reconciliation Party':
       return await getPaymentReconciliationParty(doctype, filters, token);
-    case "Journal Entry Accounts":
+    case 'Journal Entry Accounts':
       return await getJournalEntryAccountsData(doctype, filters, token);
     default:
       return getOtherRecords(doctype, filters, token);
@@ -642,5 +643,37 @@ export async function getGstinInfo(kwargs: any) {
     return response.json();
   } else {
     return { error: 'Invalid Request. Pls Enter GSTIN' };
+  }
+}
+
+export async function getAdvancePaymentEntries(args: any) {
+  try {
+    let params: any = {
+      doctype: 'Sales Invoice',
+      company: args.company,
+      only_include_allocated_payments: args.only_include_allocated_payments,
+      customer: args.customer,
+      rounded_total: args.rounded_total,
+      grand_total: args.grand_total,
+      __islocal: 1,
+    };
+
+    const response = await fetch(`https://yatish-testing-v15.frappe.cloud/api/method/run_doc_method`, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        docs: params,
+        method: 'set_advances',
+      }),
+    });
+
+    if (!response.ok) {
+      return { error: true, message: `Failed to fetch advance payment eEntries: ${response.statusText}` };
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error in getAdvancePaymentEntries:', error);
+    return { error: true, message: 'An unexpected error occurred while fetching advance payment entries.' };
   }
 }

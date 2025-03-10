@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { toast } from 'react-toastify';
-
 import {
+  advancesDefaultInfo,
+  advancesDefaultRef,
   chargeTypeData,
   dataRef,
   defaultTableData,
@@ -28,6 +28,7 @@ function useSalesHook(globalData: any) {
   const [shippingDetails, setShippingDetails] = useState<any>([]);
   const [shippingTaxData, setShippingTaxData] = useState<any>([]);
   const [paymentData, setPaymentData] = useState<any>([]);
+  const [advancePaymentData, setAdvancePaymentData] = useState<any>([{ ...advancesDefaultInfo }]);
   const [gstData, setGstData] = useState<any>([]);
   const [termsData, setTermsData] = useState<any>([]);
   const [itemsData, setItemsData] = useState<any>({ ...defaultTableData });
@@ -48,6 +49,7 @@ function useSalesHook(globalData: any) {
   const [filterListName, setFilterListName] = useState('');
   const [previousSalesData, setPreviousSalesData] = useState({});
   const [taxIndex, setTaxIndex] = useState(-1);
+  const [advancePaymentIndex, setAdvancePaymentIndex] = useState(-1);
 
   const [taxInfoPopup, setTaxInfoPopup] = useState(false);
   const [partyNamePopup, setPartyNamePopup] = useState(false);
@@ -55,6 +57,7 @@ function useSalesHook(globalData: any) {
   const [termsPopup, setTermsPopup] = useState(false);
   const [paymentTermsOpen, setPaymentTermsOpen] = useState(false);
   const [gstTableOpen, setGstTableOpen] = useState(false);
+  const [advancePaymentPopup, setAdvancePaymentPopup] = useState(false);
 
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,6 +69,7 @@ function useSalesHook(globalData: any) {
   const textAreaRef = useRef<HTMLElement | null>(null);
   const taxInfoRef = useRef<any[]>([]);
   const taxInfoPopupRef = useRef<any>(taxDefaultInfoRef);
+  const advancePaymentRef = useRef<any[]>([]);
 
   const { companyPopup, companyDataRef, openCompanyDropdown, date, setDate, dateRef } = globalData;
 
@@ -102,7 +106,16 @@ function useSalesHook(globalData: any) {
   };
 
   // useEffect(async () => {
-  //   let x = await window.electron.getData({doctype:'Item Price',filters:{ item_code: 'Test S & B' }});
+  //   let x = await window.electron.getAdvancePaymentEntries({
+  //     doctype: 'Sales Invoice',
+  //     company: '8848 Digital LLP',
+  //     only_include_allocated_payments: false,
+  //     customer: 'Namiex Chemicals Pvt. Ltd.',
+  //     rounded_total: 1600,
+  //     grand_total: 1600,
+  //     __islocal: 1,
+  //   });
+  //   // let x = await window.electron.getData({doctype:'Incoterm',filters:{}});
   //   console.log(x, 'payment terms');
   //   // let x = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { item_code: 'Product' } });
   //   // console.log(x, 'promotional scheme');
@@ -131,6 +144,7 @@ function useSalesHook(globalData: any) {
         'Account',
         'Warehouse',
         'Shipping Rule',
+        'Incoterm',
       ];
 
       if (dropdown_names.includes(type)) {
@@ -321,6 +335,30 @@ function useSalesHook(globalData: any) {
     return totalAmount.toFixed(2);
   };
 
+  const getAdvancePaymentData = async () => {
+    let response = await window.electron.getAdvancePaymentEntries({
+      doctype: 'Sales Invoice',
+      company: companyData.company_name || '',
+      only_include_allocated_payments: salesData.only_include_allocated_payments,
+      customer: salesData.party_details.party_name || '',
+      rounded_total: Number(Number(getTotal()).toFixed(2)),
+      grand_total: Number(Number(getTotal()).toFixed(2)),
+      __islocal: 1,
+    });
+
+    if (response.docs?.length > 0) {
+      const advancePaymentInfo =
+        (response.docs[0]?.advances?.length > 0 &&
+          response.docs[0].advances.map((item: any) => ({
+            ...item,
+            difference_posting_date: date.posting_date,
+          }))) ||
+        [];
+      // console.log(response.docs[0]?.advances, advancePaymentInfo, 'response advance payments');
+      setAdvancePaymentData(advancePaymentInfo);
+    }
+  };
+
   const { handleTaxValueChange, handleTaxKeyDown, handleDropdownSelection } = handleTaxFunctionalities(
     setShowFilter,
     setType,
@@ -350,7 +388,9 @@ function useSalesHook(globalData: any) {
     setTermsData,
     getData,
     salesDataRef,
-    fieldName
+    fieldName,
+    date,
+    setDate
   );
 
   const {
@@ -421,6 +461,7 @@ function useSalesHook(globalData: any) {
     getData,
     setFilterListName,
     token,
+    getAdvancePaymentData,
   });
 
   const { handleFilter } = useFilterHook({
@@ -454,71 +495,89 @@ function useSalesHook(globalData: any) {
     handleFilter();
   }, [salesData, fieldName, filterData, isSelecting, itemsData, companyData, taxInfo]);
 
-  const { handleValueChange, handleAllKeyFunctions, handleValueKeyDown, handleItemClick, handleItemFocus, handleFilterClose, checkHandleSubmit } =
-    handleAllSalesFunctions(
-      setPreviousSalesData,
-      setSubmitted,
-      setSalesInvoiceName,
-      setDate,
-      setSalesData,
-      setActiveIndex,
-      salesDataRef,
-      salesData,
-      activeIndex,
-      setFieldName,
-      setType,
-      tableItemsPopup,
-      date,
-      setItemsData,
-      itemsData,
-      getFilterData,
-      setIsSelecting,
-      type,
-      setShowFilter,
-      handleIfNotDropdown,
-      handleTableIfNotDropdown,
-      handleTableKeyEnter,
-      tableBodyRef,
-      handleShowFilter,
-      setTableItemsPopup,
-      tablePopupRef,
-      showFilter,
-      setSelectedIndex,
-      handleKeyEnter,
-      filteredItems,
-      taxInfoPopup,
-      setTaxInfoPopup,
-      setPartyNamePopup,
-      setIsModalOpen,
-      setShowCustomerForm,
-      companyData,
-      taxData,
-      previousSalesData,
-      salesInvoiceName,
-      handleSubmitFindDifferences,
-      dateRef,
-      openCompanyDropdown,
-      fetchTaxes,
-      taxInfo,
-      globalData,
-      setTaxInfo,
-      setTaxData,
-      partyNamePopup,
-      shippingTaxData,
-      setTermsPopup,
-      termsPopup,
-      paymentData,
-      setPaymentTermsOpen,
-      paymentTermsOpen,
-      gstTableOpen,
-      setGstTableOpen,
-      gstData,
-      productData,
-      handlePartyNameAndCostCenter,
-      fieldName,
-      handleDropdown,
-      handleDropdownSelection
-    );
+  const {
+    handleValueChange,
+    handleAllKeyFunctions,
+    handleValueKeyDown,
+    handleItemClick,
+    handleItemFocus,
+    handleFilterClose,
+    checkHandleSubmit,
+    handleTermsPopup,
+    handlePartyNamePopup,
+    handleGstPopup,
+    handleAdvancePaymentsPopup,
+  } = handleAllSalesFunctions(
+    setPreviousSalesData,
+    setSubmitted,
+    setSalesInvoiceName,
+    setDate,
+    setSalesData,
+    setActiveIndex,
+    salesDataRef,
+    salesData,
+    activeIndex,
+    setFieldName,
+    setType,
+    tableItemsPopup,
+    date,
+    setItemsData,
+    itemsData,
+    getFilterData,
+    setIsSelecting,
+    type,
+    setShowFilter,
+    handleIfNotDropdown,
+    handleTableIfNotDropdown,
+    handleTableKeyEnter,
+    tableBodyRef,
+    handleShowFilter,
+    setTableItemsPopup,
+    tablePopupRef,
+    showFilter,
+    setSelectedIndex,
+    handleKeyEnter,
+    filteredItems,
+    taxInfoPopup,
+    setTaxInfoPopup,
+    setPartyNamePopup,
+    setIsModalOpen,
+    setShowCustomerForm,
+    companyData,
+    taxData,
+    previousSalesData,
+    salesInvoiceName,
+    handleSubmitFindDifferences,
+    dateRef,
+    openCompanyDropdown,
+    fetchTaxes,
+    taxInfo,
+    globalData,
+    setTaxInfo,
+    setTaxData,
+    partyNamePopup,
+    shippingTaxData,
+    setTermsPopup,
+    termsPopup,
+    paymentData,
+    setPaymentTermsOpen,
+    paymentTermsOpen,
+    gstTableOpen,
+    setGstTableOpen,
+    gstData,
+    productData,
+    handlePartyNameAndCostCenter,
+    fieldName,
+    handleDropdown,
+    handleDropdownSelection,
+    advancePaymentPopup,
+    setAdvancePaymentPopup,
+    setAdvancePaymentData,
+    advancePaymentData,
+    setAdvancePaymentIndex,
+    advancePaymentIndex,
+    advancePaymentRef
+  );
 
   return {
     salesData,
@@ -585,6 +644,15 @@ function useSalesHook(globalData: any) {
     setShowFilter,
     setType,
     filterListName,
+    handleTermsPopup,
+    handlePartyNamePopup,
+    handleGstPopup,
+    advancePaymentPopup,
+    advancePaymentData,
+    handleAdvancePaymentsPopup,
+    getAdvancePaymentData,
+    advancePaymentRef,
+    setAdvancePaymentIndex
   };
 }
 

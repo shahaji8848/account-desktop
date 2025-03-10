@@ -31,7 +31,9 @@ const handleTaxFunctionalities = (
   setTermsData: any,
   getData: any,
   salesDataRef: any,
-  fieldName: any
+  fieldName: any,
+  date: any,
+  setDate: any
 ) => {
   const dispatch = useDispatch();
 
@@ -182,7 +184,14 @@ const handleTaxFunctionalities = (
     }
   };
 
-  const handleDropdownSelection = (name: any, value:any) => {
+  function calculateNewDueDate(dueDate: string, creditDays: number): string {
+    const date = new Date(dueDate);
+    const tomorrow = new Date(date);
+    tomorrow.setDate(date.getDate() + creditDays);
+    return tomorrow.toISOString().split('T')[0] || '25-2-2025';
+  }
+
+  const handleDropdownSelection = (name: any, value: any) => {
     const data = [...taxInfo];
 
     if ((name === 'charge_type' && !taxInfoPopup && !showFilter) || filteredItems[selectedIndex] === '') {
@@ -190,7 +199,19 @@ const handleTaxFunctionalities = (
       setTaxInfo(newData);
 
       getData('Payment Terms Template', { name: salesData.payment_terms }).then((response: any) => {
-        // console.log(response, 'payment');
+        console.log(response, 'payment');
+        const paymentInfo =
+          response?.terms?.length > 0 &&
+          response.terms.map((item: any) => {
+            return { ...item, due_date: calculateNewDueDate(date.due_date, item.credit_days) };
+          });
+        // console.log(paymentInfo);
+        if (paymentInfo.length > 0) {
+          const maxDueDate = paymentInfo.reduce((max: any, task: any) => (new Date(task.due_date) > new Date(max.due_date) ? task : max));
+
+          // console.log('Latest Due Date:', maxDueDate.due_date);
+          setDate({ ...date, due_date: maxDueDate.due_date });
+        }
         setPaymentData(response);
       });
       // setType('');
@@ -253,7 +274,7 @@ const handleTaxFunctionalities = (
     taxInfoRef,
     taxInfoPopupRef,
     taxInfoPopup,
-    handleDropdownSelection
+    handleDropdownSelection,
   };
 };
 

@@ -134,7 +134,7 @@ const useFilterHook = ({
           chargeTypeData;
       }
 
-      if (fieldName === 'naming_series' || fieldName === 'shipping_detail') {
+      if (fieldName === 'naming_series' || fieldName === 'shipping_detail' || fieldName === 'incoterm') {
         filtered = filterData[fieldName]?.filter((item: any) => item?.toLowerCase().includes((salesData[fieldName] as string)?.toLowerCase() || ''));
       }
 

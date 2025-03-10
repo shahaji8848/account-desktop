@@ -33,20 +33,16 @@ export function handleTableKeyFunctionalities(
     // console.log(filterData, filteredItems);
     if (name === 'item_name') {
       focusNextField(tablePopupRef.current.hsn);
+      fieldName === name && showFilter && getItemsData(value);
       setTimeout(() => {
         setShowFilter(false);
         setType('dropdown');
       }, 0);
       // handleShowFilter('hsn');
-      fieldName === name && showFilter && getItemsData(value);
       setFieldName('hsn');
     } else if (name === 'hsn') {
       focusNextField(tablePopupRef.current.uom);
       // handleShowFilter('uom');
-      setTimeout(() => {
-        setShowFilter(false);
-        setType('dropdown');
-      }, 0);
       setFieldName('uom');
       fieldName === name &&
         showFilter &&
@@ -54,6 +50,10 @@ export function handleTableKeyFunctionalities(
           ...itemsData,
           [name]: value,
         });
+      setTimeout(() => {
+        setShowFilter(false);
+        setType('dropdown');
+      }, 0);
     } else if (name === 'uom') {
       focusNextField(tablePopupRef.current.description);
       // handleShowFilter('income_account');
@@ -94,15 +94,21 @@ export function handleTableKeyFunctionalities(
           [name]: value,
         });
     } else if (name === 'margin_type') {
-      focusNextField(tablePopupRef.current.margin_rate_or_amount);
-      // handleShowFilter('margin_rate_or_amount');
-      setFieldName('margin_rate_or_amount');
       fieldName === name &&
         showFilter &&
         setItemsData({
           ...itemsData,
           [name]: value,
         });
+      if (fieldName !== name && !showFilter) {
+        focusNextField(tablePopupRef.current.margin_rate_or_amount);
+        // handleShowFilter('margin_rate_or_amount');
+        setFieldName('margin_rate_or_amount');
+      } else {
+        focusNextField(tablePopupRef.current.discount_percentage);
+        // handleShowFilter('discount_percentage');
+        setFieldName('discount_percentage');
+      }
       setTimeout(() => {
         setShowFilter(false);
         setType('');
@@ -330,7 +336,7 @@ export function handleTableKeyFunctionalities(
       case 'rate': {
         const data = { ...itemsData };
         data[name] = value;
-        if (data['qty'] !== '' && data['rate_with_margin'] === '') {
+        if (data['qty'] !== '' && value !== '' && value !== '0') {
           data['amt'] = Number(value) * Number(data['qty']);
         }
         setFieldName('margin_type');
@@ -341,16 +347,18 @@ export function handleTableKeyFunctionalities(
       }
       case 'margin_rate_or_amount': {
         const data = { ...itemsData };
-        data[name] = value;
-        if (data['qty'] !== '') {
-          if (data['margin_type'] === 'Percentage') {
-            data['rate'] = Number(Number(data['original_rate']) + (Number(data['original_rate']) * Number(value)) / 100).toFixed(2);
-            data['rate_with_margin'] = (Number(data['original_rate']) * Number(value)) / 100;
-            data['amt'] = Number(data['rate']) * Number(data['qty']);
-          } else {
-            data['rate'] = Number(Number(data['original_rate']) + Number(value)).toFixed(2);
-            data['rate_with_margin'] = Number(value);
-            data['amt'] = Number(data['rate']) * Number(data['qty']);
+        if (value !== '') {
+          data[name] = value;
+          if (data['qty'] !== '') {
+            if (data['margin_type'] === 'Percentage') {
+              data['rate'] = Number(Number(data['original_rate']) + (Number(data['original_rate']) * Number(value)) / 100).toFixed(2);
+              data['rate_with_margin'] = (Number(data['original_rate']) * Number(value)) / 100;
+              data['amt'] = Number(data['rate']) * Number(data['qty']);
+            } else {
+              data['rate'] = Number(Number(data['original_rate']) + Number(value)).toFixed(2);
+              data['rate_with_margin'] = Number(value);
+              data['amt'] = Number(data['rate']) * Number(data['qty']);
+            }
           }
         }
         setFieldName('discount_percentage');
@@ -362,8 +370,11 @@ export function handleTableKeyFunctionalities(
       case 'discount_percentage': {
         let data = { ...itemsData };
         data[name] = value;
-        if (data['qty'] !== '') {
+        if (data['qty'] !== '' && value !== '0') {
           data = calculateDiscountAmt(data, value);
+        }
+        if (value === '0') {
+          data['discount_amount'] = 0;
         }
         setFieldName('item_tax_template');
         setItemsData({ ...data });

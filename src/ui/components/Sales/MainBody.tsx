@@ -8,6 +8,7 @@ import PartyNamePopup from './PartyNamePopup';
 import TermsPopup from './TermsPopup';
 import PaymentDataTablePopup from './PaymentDataTablePopup';
 import GstDataTablePopup from './GstDataTablePopup';
+import AdvancePaymentPopup from './AdvancePaymentPopup';
 // import CompanyPopup from "../common/CompanyPopup";
 
 function MainBody({ salesDataRef, ...salesHookData }: any) {
@@ -58,6 +59,16 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
     setFieldName,
     setType,
     filterListName,
+    handleTermsPopup,
+    handlePartyNamePopup,
+    handleGstPopup,
+    setDate,
+    advancePaymentPopup,
+    advancePaymentData,
+    handleAdvancePaymentsPopup,
+    getAdvancePaymentData,
+    advancePaymentRef,
+    setAdvancePaymentIndex
   } = salesHookData;
 
   const handleFocus = (e: any) => {
@@ -319,6 +330,43 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
               )}
             </div>
           </div>
+          <div className="d-flex w-100 pt-0 align-items-center justify-content-between">
+            <div className="d-flex align-items-center" style={{ width: '35.4%' }}>
+              <div className="d-flex align-items-center justify-content-between" style={{ width: '42.5%' }}>
+                <label className="ps-1 pe-3">Incoterm</label>
+                <p>: </p>
+              </div>
+              <input
+                name="incoterm"
+                value={salesData.incoterm}
+                onChange={(e: any) => handleValueChange(e)}
+                onKeyDown={handleValueKeyDown}
+                ref={(el) => (salesDataRef.current.incoterm = el)}
+                className="ms-2"
+                style={{ outline: 'none' }}
+                onFocus={handleFocus}
+              />
+            </div>
+            {salesData.incoterm !== '' && (
+              <div className="d-flex align-items-center" style={{ width: '33%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
+                  <label className="ps-1 pe-3">Named Place</label>
+                  <p>: </p>
+                </div>
+                <input
+                  name="named_place"
+                  type="text"
+                  value={salesData.named_place}
+                  onChange={handleValueChange}
+                  onKeyDown={handleValueKeyDown}
+                  ref={(el) => (salesDataRef.current.named_place = el)}
+                  className="ms-2"
+                  style={{ outline: 'none' }}
+                  // onFocus={handleFocus}
+                />
+              </div>
+            )}
+          </div>
           <div className="d-flex w-100 pt-0 pb-1 align-items-center justify-content-between">
             <div className="d-flex align-items-center" style={{ width: '35.4%' }}>
               <div className="d-flex align-items-center justify-content-between" style={{ width: '42.5%' }}>
@@ -402,6 +450,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         salesData={salesData}
         tableData={salesData.table}
         paymentTermsOpen={paymentTermsOpen}
+        setDate={setDate}
       />
       <GstDataTablePopup gstTableOpen={gstTableOpen} salesData={salesData} gstData={gstData} />
       <PartyNamePopup
@@ -411,6 +460,17 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         handleValueKeyDown={handleValueKeyDown}
         salesDataRef={salesDataRef}
         handleFocus={handleFocus}
+      />
+      <AdvancePaymentPopup
+        advancePaymentPopup={advancePaymentPopup}
+        advancePaymentData={advancePaymentData}
+        salesData={salesData}
+        handleValueChange={handleValueChange}
+        handleValueKeyDown={handleValueKeyDown}
+        salesDataRef={salesDataRef}
+        getAdvancePaymentData={getAdvancePaymentData}
+        advancePaymentRef={advancePaymentRef}
+        setAdvancePaymentIndex={setAdvancePaymentIndex}
       />
       <TableItemsPopup
         tableItemsPopup={tableItemsPopup}
@@ -439,7 +499,13 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         handleFocus={handleFocus}
         salesDataRef={salesDataRef}
       />
-      <BottomNavbar handleSubmit={checkHandleSubmit} />
+      <BottomNavbar
+        handleSubmit={checkHandleSubmit}
+        handleTermsPopup={handleTermsPopup}
+        handlePartyNamePopup={handlePartyNamePopup}
+        handleGstPopup={handleGstPopup}
+        handleAdvancePaymentsPopup={handleAdvancePaymentsPopup}
+      />
     </div>
   );
 }
