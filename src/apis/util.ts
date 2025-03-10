@@ -278,6 +278,24 @@ async function getUomData(doctype: any, filters: any, token: any) {
   return await fetchData(url, token);
 }
 
+async function getPrintFormat(doctype: any, filters: any, token: any) {
+  const printformatapiFilters: any[] = [];
+
+  if (filters?.input) {
+    printformatapiFilters.push(['name', 'like', `%${filters.input}%`]);
+  }
+  if (filters?.doctype) {
+    printformatapiFilters.push(['doc_type', '=', filters.doctype]);
+  }
+  const queryParams = new URLSearchParams();
+  if (printformatapiFilters.length > 0) {
+    queryParams.append('filters', JSON.stringify(printformatapiFilters));
+  }
+
+  const url = `${baseUrl}/${doctype}?${queryParams.toString()}`;
+  return await fetchData(url, token);
+}
+
 async function getGstHsnData(doctype: any, filters: any, token: any) {
   const hsnFilter: any[] = [];
 
@@ -374,20 +392,20 @@ export async function getTermsCondtions(doctype: any, filters: any, token: any) 
   return data;
 }
 
-export async function getIncotermList(doctype: any, filters: any, token: any) {
-  let url = `${baseUrl}/${doctype}`;
-  const incotermFilter: any[] = [];
+export async function getIncotermData(doctype: any, filters: any, token: any) {
+  const incotermapiFilters: any[] = [];
 
   if (filters?.input) {
-    incotermFilter.push(['name', 'like', `%${filters.input}%`]);
-    url = `${baseUrl}/${doctype}?filters=${JSON.stringify(incotermFilter)}`;
+    incotermapiFilters.push(['name', 'like', `%${filters.input}%`]);
+  }
+  const queryParams = new URLSearchParams();
+  if (incotermapiFilters.length > 0) {
+    queryParams.append('filters', JSON.stringify(incotermapiFilters));
   }
 
-  let data = await fetchData(url, token);
-
-  return data;
+  const url = `${baseUrl}/${doctype}?${queryParams.toString()}`;
+  return await fetchData(url, token);
 }
-
 export async function getCurrency(doctype: any, filters: any, token: any) {
   let url = `${baseUrl}/${doctype}`;
   const curencyFilter = [];
@@ -550,14 +568,14 @@ export async function getData(kwargs: any) {
       return await getBatch(doctype, filters, token);
     case 'Promotional Scheme':
       return await getPromotionalSchemes(doctype, filters, token);
-    case 'Serial No':
-      return await getSerialNo(doctype, filters, token);
-    case 'Batch':
-      return await getBatch(doctype, filters, token);
     case 'Payment Reconciliation Party':
       return await getPaymentReconciliationParty(doctype, filters, token);
     case 'Journal Entry Accounts':
       return await getJournalEntryAccountsData(doctype, filters, token);
+    case 'Incoterm':
+      return await getIncotermData(doctype, filters, token);
+    case 'Print Format':
+      return await getPrintFormat(doctype, filters, token);
     default:
       return getOtherRecords(doctype, filters, token);
   }
@@ -677,5 +695,32 @@ export async function getAdvancePaymentEntries(args: any) {
   } catch (error) {
     console.error('Error in getAdvancePaymentEntries:', error);
     return { error: true, message: 'An unexpected error occurred while fetching advance payment entries.' };
+  }
+}
+
+export async function getPrintFormatData(args: any) {
+  try {
+    let api_url = 'https://yatish-testing-v15.frappe.cloud/api/method/frappe.utils.print_format.download_pdf';
+    let params = new URLSearchParams({
+      doctype: args.doctype,
+      name: args.name,
+      format: args.format,
+    });
+
+    const response = await fetch(`${api_url}?${params.toString()}`, {
+      method: 'GET',
+      headers: headers,
+    });
+
+    if (!response.ok) {
+      return { error: true, message: `Error: ${response.statusText}` };
+    }
+    // const htmlContent = response.data;
+    // const htmlPath = path.resolve(__dirname, 'Sales_Invoice_Return.html');
+    // fs.writeFileSync(htmlPath, htmlContent);
+    return await response;
+  } catch (error) {
+    console.error('Error in getPrintFormatData:', error);
+    return { error: true, message: `Error: ${error}` };
   }
 }
