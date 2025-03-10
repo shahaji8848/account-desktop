@@ -103,6 +103,8 @@ const TallyUI = ({
       navigate('/contra-register');
     } else if (e.key === 'Escape' || e.key === 'q') {
       setIsQuitModalOpen(true);
+    } else if (e.key === 'a' && !moreReportList && !accountBooksList) { //only for test purpose
+      navigate('/journal');
     }
   };
 

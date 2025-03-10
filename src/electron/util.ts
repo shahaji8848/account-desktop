@@ -464,9 +464,55 @@ export async function getPaymentReconciliationParty(doctype: any, filters: any, 
   return await fetchData(url, token);
 }
 
+
+// to be deleted later 
+export async function getJournalEntryAccountsData(doctype: any, filters: any, token?: any) {
+  if (!filters?.account) {
+    return { error: true, msg: "Please select an account" };
+  }
+  const getBalanceUrl = "https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.utils.get_account_balances";
+  const getAccountsDetails = await fetch(`${baseUrl}/Account/${encodeURIComponent(filters.account)}?fields=["*"]`, {
+    method: 'GET',
+    headers: { Authorization: token }
+  });
+  const accountsData = await getAccountsDetails.json();
+  const accountCurrency = accountsData?.data?.account_currency;
+  if (!accountCurrency) {
+    return { error: true, msg: "Please try again selecting an account" };
+  }
+  const args = {
+    accounts: [{ value: filters.account, account_currency: accountCurrency }],
+    company: filters?.company,
+  };
+  const response = await fetch(getBalanceUrl, {
+    method: 'POST',
+    headers: {
+      Authorization: token,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(args),
+  });
+  const accountBalanceData = await response.json();
+  const balance = accountBalanceData?.message?.[0]?.balance || 0;
+  const accountType = accountsData?.data?.root_type;
+  let type;
+  if (accountType === "Asset" || accountType === "Expenses") {
+    type = balance >= 0 ? "Debit" : "Credit";
+  } else if (accountType === "Liability" || accountType === "Equity" || accountType === "Income") {
+    type = balance >= 0 ? "Credit" : "Debit";
+  } else {
+    return { error: true, msg: "Unknown account type" };
+  }
+  return {
+    account: filters.account,
+    account_currency: accountCurrency,
+    balance: Math.abs(balance),
+    type: type,
+  }
+}
+
 export async function getData(kwargs: any) {
   const { doctype, filters, token } = kwargs;
-  console.log(doctype, filters, token);
 
   switch (doctype) {
     case 'Address':
@@ -509,6 +555,8 @@ export async function getData(kwargs: any) {
       return await getBatch(doctype, filters, token);
     case 'Payment Reconciliation Party':
       return await getPaymentReconciliationParty(doctype, filters, token);
+    case "Journal Entry Accounts":
+      return await getJournalEntryAccountsData(doctype, filters, token);
     default:
       return getOtherRecords(doctype, filters, token);
   }

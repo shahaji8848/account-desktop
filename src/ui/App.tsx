@@ -10,6 +10,7 @@ import Login from './components/Login/Login';
 import routesConfig from './routesConfig';
 import SalesMaster from './components/Sales/SalesMaster';
 import Home from './components/Home/Home';
+import JournalMaster from './components/Journal/JournalMaster';
 
 function App() {
   const { handleGlobalKeyFunctions, companyPopup, ...globalData } = useGlobalKeyFunctionalities();
@@ -59,6 +60,16 @@ function App() {
                     openCompanyDropdown={globalData.openCompanyDropdown}
                     salesHookData={salesHookData}
                     handleAllKeyFunctions={handleAllKeyFunctions}
+                    globalData={globalData}
+                  />
+                }
+              />
+              <Route
+                path="/journal"
+                element={
+                  <JournalMaster
+                    salesHookData={salesHookData}
+                    homeHookData={homeHookData}
                     globalData={globalData}
                   />
                 }
