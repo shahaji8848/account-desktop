@@ -28,13 +28,14 @@ const useHandlekeyHooks = ({
     const [masterList, setMasterList] = useState<any[]>([]);
     const [currentField, setCurrentField] = useState('');
 
-    const taxWithHoldingList = useFetchData("Tax Withholding Category");
-    const bankList = useFetchData("Bank");
-    const accountTypeList = useFetchData("Bank Account Type");
-    const currencyList = useFetchData("Currency");
+    const token = localStorage.getItem('account_desktop_token');
+    const taxWithHoldingList = useFetchData("Tax Withholding Category", {}, token);
+    const bankList = useFetchData("Bank", {}, token);
+    const accountTypeList = useFetchData("Bank Account Type", {}, token);
+    const currencyList = useFetchData("Currency", {}, token);
 
-    const fetchGSTInfo = async (gstinNumber: any) => {
-        const x = await window.electron.getGstinInfo({ gstin: gstinNumber || '' });
+    const fetchGSTInfo = async (gstinNumber: any, token: any) => {
+        const x = await window.electron.getGstinInfo({ gstin: gstinNumber || '', token });
         return x;
     };
 
@@ -89,7 +90,7 @@ const useHandlekeyHooks = ({
 
 
             if (field === "address_gstin" && type === 'address') {
-                const gstData = await fetchGSTInfo(addressFormData?.address_gstin || '');
+                const gstData = await fetchGSTInfo(addressFormData?.address_gstin, token);
 
                 if (gstData.message && Object.keys(gstData.message)?.length > 0) {
 

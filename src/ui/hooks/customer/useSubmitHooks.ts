@@ -42,6 +42,8 @@ const useSubmitHooks = ({ setIsAdressFormOpen, setIsBankFormOpen, rows, setRows 
         bank_account_no: '',
     });
 
+    const token = localStorage.getItem('account_desktop_token');
+
     //customer submit with full form submitt
 
     const handleCustomerFormSubmit = async () => {
@@ -87,7 +89,7 @@ const useSubmitHooks = ({ setIsAdressFormOpen, setIsBankFormOpen, rows, setRows 
         }
 
         try {
-            const x = await window.electron.postData({ doctype: "Customer", data: customerPayload });
+            const x = await window.electron.postData({ doctype: "Customer", data: customerPayload, token });
             if (x !== undefined) {
                 toast.success('Customer Form is submitted!', {
                     autoClose: 2000,
@@ -111,7 +113,7 @@ const useSubmitHooks = ({ setIsAdressFormOpen, setIsBankFormOpen, rows, setRows 
                 if (updatedStoredAddressList?.length > 0) {
                     for (const address of updatedStoredAddressList) {
                         try {
-                            const addressResponse = await window.electron.postData({ doctype: "Address", data: address });
+                            const addressResponse = await window.electron.postData({ doctype: "Address", data: address, token });
                             if (addressResponse !== undefined) {
                                 toast.success('Address Form is submitted!', {
                                     autoClose: 2000,
@@ -153,7 +155,7 @@ const useSubmitHooks = ({ setIsAdressFormOpen, setIsBankFormOpen, rows, setRows 
                 if (updatedStoredBankList?.length > 0) {
                     for (const bank of updatedStoredBankList) {
                         try {
-                            const bankResponse = await window.electron.postData({ doctype: "Bank Account", data: bank });
+                            const bankResponse = await window.electron.postData({ doctype: "Bank Account", data: bank, token });
                             if (bankResponse !== undefined) {
                                 toast.success('Bank Form is submitted!', {
                                     autoClose: 2000,

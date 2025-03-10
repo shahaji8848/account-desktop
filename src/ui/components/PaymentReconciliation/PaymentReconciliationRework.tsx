@@ -6,6 +6,8 @@ import QuitConfirmationModal from '../Home/QuitConfirmationModal';
 import useHandleKeys from '../../hooks/payment_reconciliation/useHandleKeys';
 
 export default function PaymentReconciliationRework({ homeHookData, globalData }: any) {
+  const { isQuitModalOpen, setIsQuitModalOpen } = globalData;
+
   const {
     formRef,
     receivablePayableAccount,
@@ -44,12 +46,10 @@ export default function PaymentReconciliationRework({ homeHookData, globalData }
     currentFilterList,
     selectedIndex,
     setSelectedIndex,
-    isQuitModalOpen,
-    setIsQuitModalOpen,
     setHideAllocationTable,
     handleAllocation,
     handleReconcile,
-  } = useHandleKeys(homeHookData, globalData);
+  } = useHandleKeys(isQuitModalOpen, setIsQuitModalOpen);
 
   return (
     <div className="container-fluid px-3 py-2 bg-light" style={{ width: '1200px' }}>
