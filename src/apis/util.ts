@@ -529,7 +529,48 @@ export async function getJournalEntryAccountsData(doctype: any, filters: any, to
     type: type,
   };
 }
+export async function getJournalEntryReceiptName(doctype: any, filters: any, token: any) {
+  const journalEntryApiFilters: any[] = [];
 
+  if (filters.reference_type === "Sales Invoice") {
+    journalEntryApiFilters.push(["account", "=", filters.account]);
+    journalEntryApiFilters.push(["party", "=", filters.party]);
+  } 
+  else if (filters.reference_type === "Asset") {
+    journalEntryApiFilters.push(["docstatus", "=", 1]);
+  } 
+  else if (filters.reference_type === "Purchase Invoice") {
+    journalEntryApiFilters.push(
+      [ "docstatus", "=", 1],
+      [ "outstanding_amount", "!=", 0],
+      [ "cost_center", "IN",["",filters.cost_center]],
+      [ "credit_to", "=", filters.account]
+    );
+  }
+
+  const baseUrl = `https://yatish-testing-v15.frappe.cloud/api/resource/${filters.reference_type}?filters=${JSON.stringify(journalEntryApiFilters)}&limit_page_length=None`;
+
+  
+  try {
+    const response = await fetch(baseUrl, {
+      method: "GET",
+      headers: {
+        Authorization: token,
+        "Content-Type": "application/json",
+      },
+    });
+
+   
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error in getJournalEntryReceiptName:", error);
+    return null;
+  }
+}
 export async function getData(kwargs: any) {
   const { doctype, filters, token } = kwargs;
 
@@ -576,6 +617,9 @@ export async function getData(kwargs: any) {
       return await getIncotermData(doctype, filters, token);
     case 'Print Format':
       return await getPrintFormat(doctype, filters, token);
+     case "Journal Receipt Names":
+          console.log("FGGGGGGG")
+          return await getJournalEntryReceiptName(doctype, filters, token);
     default:
       return getOtherRecords(doctype, filters, token);
   }
