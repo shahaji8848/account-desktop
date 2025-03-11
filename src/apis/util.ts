@@ -50,7 +50,6 @@ async function fetchData(url: string, token: any) {
     Authorization: token,
   };
   const response = await fetch(url, { method: 'GET', headers: header_details });
-
   if (!response.ok) {
     throw new Error(`Failed to fetch data: ${response.status} - ${response.statusText}`);
   }
@@ -110,7 +109,6 @@ export async function login(kwargs: any) {
           const userDetails = `${baseUrl}/User/${kwargs.email}`;
           const res = await fetch(userDetails, { method: 'GET', headers: header_detials });
           let response = await res.json();
-          console.log(response, 'response');
           if (response.data.api_key) {
             return { status: 'success', token: `token ${response.data.api_key}:${keysData.message.api_secret}` };
           } else {
@@ -498,14 +496,7 @@ export async function getCurrencyData(kwargs: any) {
     headers: { Authorization: kwargs?.token, 'Content-Type': 'application/json' },
     body: JSON.stringify(kwargs.data),
   });
-  console.log(
-    {
-      method: 'POST',
-      headers: { Authorization: kwargs?.token },
-      body: { transaction_date: '2025-03-07', from_currency: 'AUD', to_currency: 'INR', args: 'for_selling' },
-    },
-    'currency data'
-  );
+ 
   return response.json();
 }
 
@@ -625,6 +616,130 @@ export async function getSupplierData(doctype: string, filters: any, token: stri
   }
   return fetchData(contactUrl, token);
 }
+
+export async function getPaymentEntryPartyDetails(doctype: string, filters: any, token: string) {
+  let paymentEntryUrl = 'https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.doctype.payment_entry.payment_entry.get_party_details'
+  if (!filters.party_type || !filters.party || !filters.company ){
+    return {"error":true , "msg":"Party Details Missing"}
+  }
+  else {
+    paymentEntryUrl +=`?company=${encodeURIComponent(filters.company)}&party_type=${encodeURIComponent(filters.party_type)}&party=${encodeURIComponent(filters.party)}&date=${encodeURIComponent(new Date().toISOString().split('T')[0])}` ;
+  }
+  const response = await fetch(paymentEntryUrl, {
+    method: "GET",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json",
+    },
+  });
+ return await response.json()
+}
+
+export async function getPaymentEntryRefDocuments(
+  doctype: string,
+  filters: any,
+  token: string
+) {
+ 
+  const paymentEntryRefDocUrl =
+    "https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.doctype.payment_entry.payment_entry.get_outstanding_reference_documents";
+
+  if (
+    !filters.party_type ||
+    !filters.party ||
+    !filters.company ||
+    !filters.party_account ||
+    !filters.payment_type
+  ) {
+    return { error: true, msg: "Party Details Missing" };
+  }
+
+  let args: any = {
+    posting_date: new Date().toISOString().split("T")[0],
+    company: filters.company,
+    party_type: filters.party_type,
+    payment_type: filters.payment_type,
+    party: filters.party,
+    party_account: filters.party_account,
+    outstanding_amt_greater_than: 0,
+  };
+
+  if (["Sales Order", "Sales Invoice"].includes(filters.ref_type)) {
+    if (filters.ref_type === "Sales Order") {
+      args["get_orders_to_be_billed"] = 1;
+    }
+
+    try {
+      const response = await fetch(paymentEntryRefDocUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({ args }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch reconciliation entries: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error:any) {
+      return { error: true, message: error.message };
+    }
+  }
+
+  if (["Journal Entry", "Dunning"].includes(filters.ref_type)) {
+    let apiFilters: any[] = [
+      ["docstatus", "=", 1],
+      ["company", "=", filters.company],
+    ];
+    let apiEndpoint = filters.ref_type === "Journal Entry" ? "Journal Entry" : "Dunning";
+
+    try {
+      const response = await fetch(
+        `${baseUrl}/${apiEndpoint}?limit_page_length=None&filters=${encodeURIComponent(
+          JSON.stringify(apiFilters)
+        )}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        return data
+      }
+    } catch (error) {
+      return { error: true, message: `Error fetching ${filters.ref_type}: ${error}` };
+    }
+  }
+
+
+  try {
+    const response = await fetch(paymentEntryRefDocUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      body: JSON.stringify({ args }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch reconciliation entries: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error:any) {
+    return { error: true, message: error.message };
+  }
+}
+
 export async function getData(kwargs: any) {
   const { doctype, filters, token } = kwargs;
 
@@ -679,6 +794,10 @@ export async function getData(kwargs: any) {
         return await getSupplierData(doctype, filters, token)
     case "Contact":
       return getContactData(doctype, filters, token)
+    case "Payment Entry Party Details":
+      return getPaymentEntryPartyDetails(doctype, filters, token)
+    case "Payment Entry Reference Documents":
+      return getPaymentEntryRefDocuments(doctype, filters, token)
     default:
       return getOtherRecords(doctype, filters, token);
   }
