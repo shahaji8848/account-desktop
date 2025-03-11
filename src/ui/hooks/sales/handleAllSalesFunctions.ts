@@ -74,7 +74,8 @@ export function handleAllSalesFunctions(
   setAdvancePaymentIndex: any,
   advancePaymentIndex: any,
   advancePaymentRef: any,
-  token: any
+  token: any,
+  setPaymentData: any
 ) {
   const navigate = useNavigate();
   const handleSubmitData = async (salesInvoiceData: any, method: string = 'POST') => {
@@ -93,7 +94,7 @@ export function handleAllSalesFunctions(
               name: salesInvoiceName,
               token: token,
             });
-      // console.log(x);
+      console.log(x);
       if (x !== undefined) {
         toast.success('Form is submitted!', {
           autoClose: 2000,
@@ -124,6 +125,16 @@ export function handleAllSalesFunctions(
           setPreviousSalesData(salesData);
           setSubmitted(true);
           setSalesInvoiceName(x.data.name);
+          // console.log(paymentData?.terms === undefined, paymentData);
+          paymentData?.terms === undefined &&
+            setPaymentData({
+              terms: [
+                {
+                  credit_days: 0,
+                  invoice_portion: 100,
+                },
+              ],
+            });
         }
       } else {
         toast.error('Something went wrong. Please Re-enter all the data!', {

@@ -595,7 +595,8 @@ function useSalesHook(globalData: any) {
     setAdvancePaymentIndex,
     advancePaymentIndex,
     advancePaymentRef,
-    token
+    token,
+    setPaymentData
   );
 
   return {
