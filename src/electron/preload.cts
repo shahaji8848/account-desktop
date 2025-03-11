@@ -42,6 +42,21 @@ electron.contextBridge.exposeInMainWorld('electron', {
   ReconcileAmount: (args: any) => {
     return ipcInvoke('ReconcileAmount', args);
   },
+  getAccountBalance: (args: any) => {
+    return ipcInvoke('getAccountBalance', args);
+  },
+  getErpTransaction: (args: any) => {
+    return ipcInvoke('getErpTransaction', args);
+  },
+  getBankTransaction: (args: any) => {
+    return ipcInvoke('getBankTransaction', args);
+  },
+  getReconcileBankTransaction: (args: any) => {
+    return ipcInvoke('getReconcileBankTransaction', args);
+  },
+  getAllocateEntries: (args: any) => {
+    return ipcInvoke('getAllocateEntries', args);
+  },
   JournalEntryBreakupReport: (args: any) => {
     return ipcInvoke('JournalEntryBreakupReport', args);
   },
