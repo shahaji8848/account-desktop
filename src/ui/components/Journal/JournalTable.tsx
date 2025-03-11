@@ -230,7 +230,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                 }
 
 
-            }  else if (field === 'reference_type') {
+            } else if (field === 'reference_type') {
                 setEntries((prevEntries: any) => {
                     return prevEntries.map((entry: any) => {
                         return entry.id === id
@@ -238,11 +238,19 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                             : entry;
                     });
                 });
+                
+                const selectedRowData = entries.find((entry: any) => entry.id === id);
+
                 //fetching Reference Name for selected reference type
                 try {
                     const referenceName = window.electron.getData({
-                      doctype:"Journal Receipt Names" ,filters: { account:"Creditors - 8DL",reference_type:"Purchase Invoice",cost_center:"Main - 8DL" },
-                      token
+                        doctype: "Journal Receipt Names",
+                        filters: {
+                            account: selectedRowData?.particulars,
+                            reference_type: currentFilterList[selectedIndex]?.name,
+                            cost_center: selectedRowData?.cost_center
+                        },
+                        token
                     })
                     if (referenceName !== undefined) {
                         console.log("referenceName", referenceName)
