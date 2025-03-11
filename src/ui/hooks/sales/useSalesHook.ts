@@ -175,13 +175,14 @@ function useSalesHook(globalData: any) {
   };
 
   async function getFilterData(filterDetails: any, name: any) {
-    if (name === 'batch_no') {
+    if (name === 'batch_no' || name === 'contact_person') {
       const response = await window.electron.getData({
         doctype: filterDetails.type,
         filters: { ...filterDetails.filter },
         token: token,
       });
       if (response) {
+        console.log(response, filterDetails,'resp')
         let data: any = [];
 
         response.map((item: any) => {

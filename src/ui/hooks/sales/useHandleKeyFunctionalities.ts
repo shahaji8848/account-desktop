@@ -97,7 +97,11 @@ export default function useHandleKeyFunctionalities({
       getFilterData(filterTypes[fieldName], 'account_data');
     } else if (fieldName === 'contact_person') {
       setFilterListName(filterTypes[fieldName].type);
-      getFilterData(filterTypes[fieldName], 'contact_person');
+      console.log('hello');
+      getFilterData(
+        { type: filterTypes[fieldName].type, filter: { type: 'Customer', type_name: salesData.party_details.party_name } },
+        'contact_person'
+      );
     } else if (fieldName === 'receivable_account') {
       setFilterListName(filterTypes[fieldName].type);
       getFilterData(filterTypes[fieldName], 'account_data');
@@ -212,7 +216,7 @@ export default function useHandleKeyFunctionalities({
         // setType('dropdown')
       }, 0);
     } else if (name === 'contact_person') {
-      focusNextField(salesDataRef.current.contact_person);
+      focusNextField(salesDataRef.current.receivable_account);
       // handleShowFilter('billing_address');
       fieldName === name &&
         setSalesData({
@@ -226,7 +230,7 @@ export default function useHandleKeyFunctionalities({
         setShowFilter(false);
         // setType('dropdown')
       }, 0);
-    }  else if (name === 'receivable_account') {
+    } else if (name === 'receivable_account') {
       focusNextField(salesDataRef.current.billing_address);
       // handleShowFilter('billing_address');
       fieldName === name &&
@@ -241,7 +245,7 @@ export default function useHandleKeyFunctionalities({
         setShowFilter(false);
         // setType('dropdown')
       }, 0);
-    }else if (name === 'billing_address') {
+    } else if (name === 'billing_address') {
       focusNextField(salesDataRef.current.billing_gstin);
       setTimeout(() => {
         setShowFilter(false);
@@ -686,7 +690,8 @@ export default function useHandleKeyFunctionalities({
         name === 'currency' ||
         name === 'item_name' ||
         name === 'receivable_account' ||
-        name === 'incoterm'
+        name === 'incoterm' ||
+        name === 'contact_person'
       ) {
         handlePartyNameAndCostCenter(name, filteredItems[selectedIndex]);
       } else if (name === 'rate') {
@@ -972,7 +977,7 @@ export default function useHandleKeyFunctionalities({
             : salesDataRef.current?.get_advances?.focus();
         }, 0);
         break;
-      } 
+      }
       // case 'get_advances': {
       //   if (advancePaymentData.length > 0) {
       //     (advancePaymentRef.current[0].childNodes[3] as HTMLElement).focus();

@@ -47,7 +47,8 @@ const useFilterHook = ({
         );
       }
 
-      if (fieldName === 'party_name') {
+      if (fieldName === 'party_name' || fieldName === 'contact_person') {
+        console.log(filterData[fieldName]);
         filtered = filterData[fieldName]?.filter((item: any) =>
           item?.toLowerCase().includes((salesData.party_details[fieldName] as string)?.toLowerCase() || '')
         );

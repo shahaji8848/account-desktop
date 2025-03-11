@@ -39,7 +39,7 @@ export default function useGlobalKeyFunctionalities() {
     company_gstin: null,
     company_contact_person: null,
   });
-  
+
   const token = localStorage.getItem('account_desktop_token') || '';
 
   const openCompanyDropdown = () => {
@@ -102,7 +102,7 @@ export default function useGlobalKeyFunctionalities() {
 
     if (['company_name', 'company_address', 'company_contact_person'].includes(name)) {
       // if (name.includes('company')) {
-        setCompanyData({ ...companyData, [name]: value });
+      setCompanyData({ ...companyData, [name]: value });
       // } else {
       //   setDate({ ...date, [name]: value });
       // }
@@ -210,12 +210,12 @@ export default function useGlobalKeyFunctionalities() {
       ? await window.electron.getData({
           doctype: type,
           filters: { ...filter, company: companyData.company_name || '' },
-          token: token
+          token: token,
         })
       : await getData({
           doctype: type,
           filters: { ...filter, company: companyData.company_name || '' },
-          token: token
+          token: token,
         });
 
     return response;
@@ -234,6 +234,9 @@ export default function useGlobalKeyFunctionalities() {
   useEffect(() => {
     if (fieldName === 'company_address') {
       getFilterData(getAddressFilter('Company', companyData.company_name), 'company_address');
+    }
+    if (fieldName === 'company_contact_person') {
+      getFilterData({ type: 'Contact', filter: { type: 'Company', type_name: companyData.company_name } }, 'company_contact_person');
     }
   }, [fieldName]);
 

@@ -142,7 +142,8 @@ export function handleChangeOfSales(
         name !== 'is_cash_or_non_trade_discount' &&
         !name.includes('receivable') &&
         name !== 'only_include_allocated_payments' &&
-        name !== 'allocate_advances_automatically'
+        name !== 'allocate_advances_automatically' &&
+        name !== 'contact_person'
       ) {
         setSalesData({ ...salesData, [name]: value });
         setFieldName(name);
@@ -180,15 +181,15 @@ export function handleChangeOfSales(
             'account_data'
           );
         }
-        if (name === 'contact_person') {
-          getFilterData(
-            {
-              type: 'Contact',
-              filter: { input: value },
-            },
-            'contact_person'
-          );
-        }
+        // if (name === 'contact_person') {
+        //   getFilterData(
+        //     {
+        //       type: 'Contact',
+        //       filter: { input: value },
+        //     },
+        //     'contact_person'
+        //   );
+        // }
       } else if (name.includes('date')) {
         setDate({ ...date, [name]: value });
       } else if (name === 'update_stock') {
