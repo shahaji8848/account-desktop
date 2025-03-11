@@ -37,9 +37,10 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
             party: "",
             amount: "",
             curBalance: 0,
+            party_account_currency:'',
+            party_account:'',
             bank_account: '',
             cost_center: '',
-            account_currency: '',
             exchange_rate: 1.0000,
             reference_number: '',
             reference_date: ''
@@ -141,7 +142,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                             curBalance: 0,
                             bank_account: '',
                             cost_center: '',
-                            account_currency: '',
+                            party_account_currency: '',
                             exchange_rate: 1.0000,
                             reference_number: '',
                             reference_date: ''
@@ -178,74 +179,74 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
             e.preventDefault();
             // let newEntries = [...entries];
             if (field === 'particulars') {
-                setEntries((prevEntries: any) => {
-                    return prevEntries.map((entry: any) => {
-                        return entry.id === id
-                            ? { ...entry, [field]: currentFilterList[selectedIndex]?.name || "" }
-                            : entry;
-                    });
-                });
-                //fetching current balance for selected account
-                try {
-                    const accountBalance = await window.electron.getData({ doctype: 'Journal Entry Accounts', filters: { account: currentFilterList[selectedIndex]?.name, company: companyName }, token });
-                    if (accountBalance !== undefined) {
-                        setEntries((prevEntries: any) =>
-                            prevEntries.map((entry: any) =>
-                                entry.id === id
-                                    ? {
-                                        ...entry,
-                                        curBalance: accountBalance?.balance,
-                                        account_currency: accountBalance?.account_currency
-                                    }
-                                    : entry
-                            )
-                        );
+                // setEntries((prevEntries: any) => {
+                //     return prevEntries.map((entry: any) => {
+                //         return entry.id === id
+                //             ? { ...entry, [field]: currentFilterList[selectedIndex]?.name || "" }
+                //             : entry;
+                //     });
+                // });
+                // //fetching current balance for selected account
+                // try {
+                //     const accountBalance = await window.electron.getData({ doctype: 'Journal Entry Accounts', filters: { account: currentFilterList[selectedIndex]?.name, company: companyName }, token });
+                //     if (accountBalance !== undefined) {
+                //         setEntries((prevEntries: any) =>
+                //             prevEntries.map((entry: any) =>
+                //                 entry.id === id
+                //                     ? {
+                //                         ...entry,
+                //                         curBalance: accountBalance?.balance,
+                //                         account_currency: accountBalance?.account_currency
+                //                     }
+                //                     : entry
+                //             )
+                //         );
 
-                    } else {
-                        toast.error('Something went wrong with Party', {
-                            autoClose: 2000,
-                            className: 'custom-toast',
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error posting Bank Account:', error);
-                }
+                //     } else {
+                //         toast.error('Something went wrong with Party', {
+                //             autoClose: 2000,
+                //             className: 'custom-toast',
+                //         });
+                //     }
+                // } catch (error) {
+                //     console.error('Error posting Bank Account:', error);
+                // }
 
 
             } else if (field === 'reference_type') {
-                setEntries((prevEntries: any) => {
-                    return prevEntries.map((entry: any) => {
-                        return entry.id === id
-                            ? { ...entry, [field]: currentFilterList[selectedIndex]?.name || "" }
-                            : entry;
-                    });
-                });
+                // setEntries((prevEntries: any) => {
+                //     return prevEntries.map((entry: any) => {
+                //         return entry.id === id
+                //             ? { ...entry, [field]: currentFilterList[selectedIndex]?.name || "" }
+                //             : entry;
+                //     });
+                // });
 
-                const selectedRowData = entries.find((entry: any) => entry.id === id);
+                // const selectedRowData = entries.find((entry: any) => entry.id === id);
 
-                //fetching Reference Name for selected reference type
-                try {
-                    const referenceName = await window.electron.getData({
-                        doctype: "Journal Receipt Names",
-                        filters: {
-                            account: selectedRowData?.particulars,
-                            reference_type: currentFilterList[selectedIndex]?.name,
-                            cost_center: selectedRowData?.cost_center
-                        },
-                        token
-                    })
-                    if (referenceName) {
-                        setReferenceNameLsit(referenceName?.data || [])
+                // //fetching Reference Name for selected reference type
+                // try {
+                //     const referenceName = await window.electron.getData({
+                //         doctype: "Journal Receipt Names",
+                //         filters: {
+                //             account: selectedRowData?.particulars,
+                //             reference_type: currentFilterList[selectedIndex]?.name,
+                //             cost_center: selectedRowData?.cost_center
+                //         },
+                //         token
+                //     })
+                //     if (referenceName) {
+                //         setReferenceNameLsit(referenceName?.data || [])
 
-                    } else {
-                        toast.error('Something went wrong with Party', {
-                            autoClose: 2000,
-                            className: 'custom-toast',
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error posting Bank Account:', error);
-                }
+                //     } else {
+                //         toast.error('Something went wrong with Party', {
+                //             autoClose: 2000,
+                //             className: 'custom-toast',
+                //         });
+                //     }
+                // } catch (error) {
+                //     console.error('Error posting Bank Account:', error);
+                // }
 
 
                 // setEntries(newEntries);
@@ -273,13 +274,27 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     }
                     console.log("filters", filters)
                     try {
-                        const partyData = await window.electron.getData({
+                        const partyDataResponse = await window.electron.getData({
                             doctype: "Payment Entry Party Details",
                             filters,
                             token
                         })
-                        if (partyData) {
-                            console.log("partyData", partyData)
+                        if (partyDataResponse?.message) {
+                            console.log("partyData", partyDataResponse.message)
+                            const partyData  = partyDataResponse.message
+                            
+                            setEntries((prevEntries: any) =>
+                                prevEntries.map((entry: any) =>
+                                    entry.id === id
+                                        ? {
+                                            ...entry,
+                                            curBalance: partyData?.party_balance,
+                                            party_account_currency: partyData?.party_account_currency,
+                                            party_account:partyData?.party_account
+                                        }
+                                        : entry
+                                )
+                            );
 
                         } else {
                             toast.error('Something went wrong with Party', {
@@ -379,54 +394,54 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
 
     const handleSubmit = async () => {
         const Accountdata = entries.flatMap((entry: any) => {
-            let result = [];
+            // let result = [];
 
             // Check if any key in the entry is empty 
             const requiredKeys = ["particulars", "party_type", "party"];
             const hasEmptyKey = requiredKeys.some((key) => entry[key] === "");
 
-            if (!hasEmptyKey) {
-                // Handle debit
-                if (entry.debit !== "disabled") {
-                    result.push({
-                        account: entry.particulars,
-                        party_type: entry.party_type,
-                        party: entry.party,
-                        debit_in_account_currency: parseFloat(entry.debit),
-                        cost_center: entry.cost_center,
-                        account_currency: entry.account_currency,
-                        exchange_rate: entry.exchange_rate,
-                        reference_type: entry.reference_type,
-                        is_advance: entry.is_advance,
-                        reference_name: entry.reference_name,
-                        user_remark: entry.user_remark
-                    });
-                }
+            // if (!hasEmptyKey) {
+            //     // Handle debit
+            //     if (entry.debit !== "disabled") {
+            //         result.push({
+            //             account: entry.particulars,
+            //             party_type: entry.party_type,
+            //             party: entry.party,
+            //             debit_in_account_currency: parseFloat(entry.debit),
+            //             cost_center: entry.cost_center,
+            //             account_currency: entry.account_currency,
+            //             exchange_rate: entry.exchange_rate,
+            //             reference_type: entry.reference_type,
+            //             is_advance: entry.is_advance,
+            //             reference_name: entry.reference_name,
+            //             user_remark: entry.user_remark
+            //         });
+            //     }
 
-                // Handle credit
-                if (entry.credit !== "disabled") {
-                    result.push({
-                        account: entry.particulars,
-                        party_type: entry.party_type,
-                        party: entry.party,
-                        credit_in_account_currency: parseFloat(entry.credit),
-                        cost_center: entry.cost_center,
-                        account_currency: entry.account_currency,
-                        exchange_rate: entry.exchange_rate,
-                        reference_type: entry.reference_type,
-                        is_advance: entry.is_advance,
-                        reference_name: entry.reference_name,
-                        user_remark: entry.user_remark
+            //     // Handle credit
+            //     if (entry.credit !== "disabled") {
+            //         result.push({
+            //             account: entry.particulars,
+            //             party_type: entry.party_type,
+            //             party: entry.party,
+            //             credit_in_account_currency: parseFloat(entry.credit),
+            //             cost_center: entry.cost_center,
+            //             account_currency: entry.account_currency,
+            //             exchange_rate: entry.exchange_rate,
+            //             reference_type: entry.reference_type,
+            //             is_advance: entry.is_advance,
+            //             reference_name: entry.reference_name,
+            //             user_remark: entry.user_remark
 
-                    });
-                }
-            }
-
-
+            //         });
+            //     }
+            // }
 
 
 
-            return result;
+
+
+            // return result;
         });
 
         const journalData = {
