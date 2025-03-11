@@ -54,3 +54,8 @@ export const referenceTypeList = [
     { name: "Asset" },
     { name: "Purchase Invoice" },
 ];
+
+export const accountTypeList = [
+    { name: "Cr" },
+    { name: "Dr" },
+];

@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import styles from "./journal.module.css";
 import QuitConfirmationModal from "../Home/QuitConfirmationModal";
 import ShowFilter from "../common/ShowFilter";
-import { isAdvanceList, journalEntryType, seriesList, partyTypeList, referenceTypeList } from "../../utils/journalFormData";
+import { isAdvanceList, journalEntryType, seriesList, partyTypeList, referenceTypeList, accountTypeList } from "../../utils/journalFormData";
 import useFetchData from "../../hooks/fetchData"
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -25,7 +25,10 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
     const [entryType, setEntryType] = useState('');
     const [journalSeries, setJournalSeries] = useState('')
     const [referenceNumber, setReferenceNumber] = useState('')
-    const [ReferenceDate, setReferenceDate] = useState('')
+    const [ReferenceDate, setReferenceDate] = useState<any>(() => {
+        const today = new Date();
+        return today.toISOString().split("T")[0];
+    });
     const [userRemark, setUserRemark] = useState('')
     const [entries, setEntries] = useState<any>([
         {
@@ -48,7 +51,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
             Reference_due_date: ''
         }
     ]);
-
+    const [referenceNameLsit, setReferenceNameLsit] = useState<any>([])
     const [journalPopupID, setJournalPopupID] = useState<any>([]);
     const [journalPopup, setJournalPopup] = useState<boolean>(false);
 
@@ -59,12 +62,12 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
     const BankAccountList = useFetchData("Bank Account", {}, token);
     const CostCenterList = useFetchData("Cost Center", {}, token);
 
-    // console.log("entries",entries)
     useEffect(() => {
         if (entryRefs.current) {
             entryRefs.current.focus();
         }
     }, []);
+
     // Handle input changes for different fields
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, id: any, rowType?: any) => {
         const { name, value } = e.target;
@@ -76,19 +79,19 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                 )
             );
             // Enable/Disable fields based on type value
-            if (name === "type") {
-                setEntries((prevEntries: any) =>
-                    prevEntries.map((entry: any) =>
-                        entry.id === id
-                            ? {
-                                ...entry,
-                                debit: value.toLowerCase() === "dr" ? "" : "disabled",
-                                credit: value.toLowerCase() === "cr" ? "" : "disabled",
-                            }
-                            : entry
-                    )
-                );
-            }
+            // if (name === "type") {
+            //     setEntries((prevEntries: any) =>
+            //         prevEntries.map((entry: any) =>
+            //             entry.id === id
+            //                 ? {
+            //                     ...entry,
+            //                     debit: value.toLowerCase() === "dr" ? "" : "disabled",
+            //                     credit: value.toLowerCase() === "cr" ? "" : "disabled",
+            //                 }
+            //                 : entry
+            //         )
+            //     );
+            // }
 
         } else if (name === 'posting_date') {
             setDate({ ...date, [name]: value });
@@ -145,36 +148,71 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
 
             // Add new row when Enter is pressed in Debit or Credit field
             if ((field === "debit" || field === "credit") && value) {
-                setEntries((prevEntries: any) => [
-                    ...prevEntries,
-                    {
-                        id: nanoid(), // Generate a new unique ID
-                        type: "",
-                        particulars: "",
-                        party_type: "",
-                        party: "",
-                        debit: "",
-                        credit: "",
-                        curBalance: 0,
-                        bank_account: '',
-                        cost_center: '',
-                        account_currency: '',
-                        exchange_rate: 1.0000,
-                        reference_type: '',
-                        is_advance: '',
-                        reference_name: '',
-                        user_remark: '',
-                        Reference_due_date: ''
-                    }
-                ]);
+                // setEntries((prevEntries: any) => [
+                //     ...prevEntries,
+                //     {
+                //         id: nanoid(), // Generate a new unique ID
+                //         type: "",
+                //         particulars: "",
+                //         party_type: "",
+                //         party: "",
+                //         debit: "",
+                //         credit: "",
+                //         curBalance: 0,
+                //         bank_account: '',
+                //         cost_center: '',
+                //         account_currency: '',
+                //         exchange_rate: 1.0000,
+                //         reference_type: '',
+                //         is_advance: '',
+                //         reference_name: '',
+                //         user_remark: '',
+                //         Reference_due_date: ''
+                //     }
+                // ]);
 
-                setTimeout(() => {
-                    // @ts-ignore
-                    if (inputRefs.current[index + 1]) {
-                        // @ts-ignore
-                        inputRefs.current[index + 1].focus(); // Focus on "type" field of new row
-                    }
-                }, 0);
+                // setTimeout(() => {
+                //     // @ts-ignore
+                //     if (inputRefs.current[index + 1]) {
+                //         // @ts-ignore
+                //         inputRefs.current[index + 1].focus(); // Focus on "type" field of new row
+                //     }
+                // }, 0);
+
+                setEntries((prevEntries: any) => {
+                    const newEntries = [
+                        ...prevEntries,
+                        {
+                            id: nanoid(), // Generate a new unique ID
+                            type: "",
+                            particulars: "",
+                            party_type: "",
+                            party: "",
+                            debit: "",
+                            credit: "",
+                            curBalance: 0,
+                            bank_account: '',
+                            cost_center: '',
+                            account_currency: '',
+                            exchange_rate: 1.0000,
+                            reference_type: '',
+                            is_advance: '',
+                            reference_name: '',
+                            user_remark: '',
+                            Reference_due_date: ''
+                        }
+                    ];
+            
+                    // Delay focus to ensure state update is completed
+                    setTimeout(() => {
+                        const nextIndex = newEntries.length - 1; // Get the latest row index
+                        if (inputRefs.current[nextIndex]) {
+                            inputRefs.current[nextIndex].focus(); // Focus on "type" field of new row
+                        }
+                    }, 50);
+            
+                    return newEntries;
+                });
 
             }
 
@@ -206,7 +244,6 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                 try {
                     const accountBalance = await window.electron.getData({ doctype: 'Journal Entry Accounts', filters: { account: currentFilterList[selectedIndex]?.name, company: companyName }, token });
                     if (accountBalance !== undefined) {
-                        console.log("accountBalance", accountBalance)
                         setEntries((prevEntries: any) =>
                             prevEntries.map((entry: any) =>
                                 entry.id === id
@@ -238,12 +275,12 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                             : entry;
                     });
                 });
-                
+
                 const selectedRowData = entries.find((entry: any) => entry.id === id);
 
                 //fetching Reference Name for selected reference type
                 try {
-                    const referenceName = window.electron.getData({
+                    const referenceName = await window.electron.getData({
                         doctype: "Journal Receipt Names",
                         filters: {
                             account: selectedRowData?.particulars,
@@ -252,18 +289,8 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                         },
                         token
                     })
-                    if (referenceName !== undefined) {
-                        console.log("referenceName", referenceName)
-                        setEntries((prevEntries: any) =>
-                            prevEntries.map((entry: any) =>
-                                entry.id === id
-                                    ? {
-                                        ...entry,
-                                        reference_name: ''
-                                    }
-                                    : entry
-                            )
-                        );
+                    if (referenceName) {
+                        setReferenceNameLsit(referenceName?.data || [])
 
                     } else {
                         toast.error('Something went wrong with Party', {
@@ -281,19 +308,41 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                 setEntryType(currentFilterList[selectedIndex]?.name || '')
             } else if (field === 'journal_series') {
                 setJournalSeries(currentFilterList[selectedIndex]?.name || '')
-            } else if (field === "party_type" || field === "party" || field === 'bank_account' || field === 'cost_center' || field === 'is_advance') {
-                setEntries((prevEntries: any) =>
-                    prevEntries.map((entry: any) =>
-                        entry.id === id
-                            ? { ...entry, [field]: currentFilterList[selectedIndex]?.name || "" }
-                            : entry
+            } else if (field === "type" || field === "party_type" || field === "party" || field === 'bank_account' || field === 'cost_center' || field === 'is_advance' || field === 'reference_name') {
+                if (field === 'reference_name') {
+                    setEntries((prevEntries: any) =>
+                        prevEntries.map((entry: any) =>
+                            entry.id === id
+                                ? { ...entry, [field]: referenceNameLsit[selectedIndex]?.name || "" }
+                                : entry
+                        )
                     )
-                )
+                } else if (field === 'type') {
+                    setEntries((prevEntries: any) =>
+                        prevEntries.map((entry: any) =>
+                            entry.id === id
+                                ? {
+                                    ...entry,
+                                    [field]: currentFilterList[selectedIndex]?.name || "",
+                                    debit: currentFilterList[selectedIndex]?.name.toLowerCase() === "dr" ? "" : "disabled",
+                                    credit: currentFilterList[selectedIndex]?.name.toLowerCase() === "cr" ? "" : "disabled",
+                                }
+                                : entry
+                        )
+                    )
+                } else {
+                    setEntries((prevEntries: any) =>
+                        prevEntries.map((entry: any) =>
+                            entry.id === id
+                                ? { ...entry, [field]: currentFilterList[selectedIndex]?.name || "" }
+                                : entry
+                        )
+                    )
+                }
             }
             setShowFilter(false);
             setSelectedIndex(0);
         } else if (e.ctrlKey && e.key === 's' && field === 'particulars') {
-            console.log("jjj")
             setJournalPopupID(id)
             setJournalPopup(true)
             setShowFilter(false)
@@ -317,6 +366,11 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
             setShowFilter(true);
             setCurrentFilterList(seriesList);
             setSelectedIndex(0)
+        } else if (field === 'type') {
+            setShowFilter(true);
+            setCurrentFilterList(accountTypeList);
+            setSelectedIndex(0)
+
         } else if (field === 'particulars') {
             setShowFilter(true);
             setCurrentFilterList(AccountList);
@@ -332,7 +386,6 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                 const doctype = entries.find((entry: any) => entry.id === id)?.party_type;
                 const fetchedPartyList = await window.electron.getData({ doctype, filters: {}, token });
                 if (fetchedPartyList !== undefined) {
-                    console.log("fetchedPartyList", fetchedPartyList)
                     setCurrentFilterList(fetchedPartyList);
                     setSelectedIndex(0)
 
@@ -362,6 +415,10 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
             setShowFilter(true);
             setCurrentFilterList(referenceTypeList);
             setSelectedIndex(0)
+        } else if (field === 'reference_name') {
+            setShowFilter(true);
+            setCurrentFilterList(referenceNameLsit);
+            setSelectedIndex(0)
         }
 
     }
@@ -371,66 +428,49 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
         const Accountdata = entries.flatMap((entry: any) => {
             let result = [];
 
-            // Check if any key in the entry is empty (excluding debit/credit "disabled")
-            // const hasEmptyKey = Object.values(entry).some(value => value === "");
+            // Check if any key in the entry is empty 
+            const requiredKeys = ["particulars", "party_type", "party"];
+            const hasEmptyKey = requiredKeys.some((key) => entry[key] === "");
 
-            // if (!hasEmptyKey) {
-            //     // Handle debit
-            //     if (entry.debit !== "disabled") {
-            //         result.push({
-            //             account: entry.particulars,
-            //             party_type: entry.party_type,
-            //             party: entry.party,
-            //             debit_in_account_currency: parseFloat(entry.debit)
-            //         });
-            //     }
+            if (!hasEmptyKey) {
+                // Handle debit
+                if (entry.debit !== "disabled") {
+                    result.push({
+                        account: entry.particulars,
+                        party_type: entry.party_type,
+                        party: entry.party,
+                        debit_in_account_currency: parseFloat(entry.debit),
+                        cost_center: entry.cost_center,
+                        account_currency: entry.account_currency,
+                        exchange_rate: entry.exchange_rate,
+                        reference_type: entry.reference_type,
+                        is_advance: entry.is_advance,
+                        reference_name: entry.reference_name,
+                        user_remark: entry.user_remark
+                    });
+                }
 
-            //     // Handle credit
-            //     if (entry.credit !== "disabled") {
-            //         result.push({
-            //             account: entry.particulars,
-            //             party_type: entry.party_type,
-            //             party: entry.party,
-            //             credit_in_account_currency: parseFloat(entry.credit)
-            //         });
-            //     }
-            // }
+                // Handle credit
+                if (entry.credit !== "disabled") {
+                    result.push({
+                        account: entry.particulars,
+                        party_type: entry.party_type,
+                        party: entry.party,
+                        credit_in_account_currency: parseFloat(entry.credit),
+                        cost_center: entry.cost_center,
+                        account_currency: entry.account_currency,
+                        exchange_rate: entry.exchange_rate,
+                        reference_type: entry.reference_type,
+                        is_advance: entry.is_advance,
+                        reference_name: entry.reference_name,
+                        user_remark: entry.user_remark
 
-
-            // Handle debit
-            if (entry.debit !== "disabled") {
-                result.push({
-                    account: entry.particulars,
-                    party_type: entry.party_type,
-                    party: entry.party,
-                    debit_in_account_currency: parseFloat(entry.debit),
-                    cost_center: entry.cost_center,
-                    account_currency: entry.account_currency,
-                    exchange_rate: entry.exchange_rate,
-                    reference_type: entry.reference_type,
-                    is_advance: entry.is_advance,
-                    reference_name: entry.reference_name,
-                    user_remark: entry.user_remark
-                });
+                    });
+                }
             }
 
-            // Handle credit
-            if (entry.credit !== "disabled") {
-                result.push({
-                    account: entry.particulars,
-                    party_type: entry.party_type,
-                    party: entry.party,
-                    credit_in_account_currency: parseFloat(entry.credit),
-                    cost_center: entry.cost_center,
-                    account_currency: entry.account_currency,
-                    exchange_rate: entry.exchange_rate,
-                    reference_type: entry.reference_type,
-                    is_advance: entry.is_advance,
-                    reference_name: entry.reference_name,
-                    user_remark: entry.user_remark
 
-                });
-            }
+
 
 
             return result;
@@ -446,8 +486,8 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
             user_remark: userRemark,
             accounts: Accountdata
         };
-        console.log("journalData", JSON.stringify(journalData))
 
+        console.log("journalData",JSON.stringify(journalData))
         try {
             const journalResponse = await window.electron.postData({ doctype: "Journal Entry", data: journalData, token });
             if (journalResponse !== undefined) {
@@ -471,8 +511,6 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
     // Calculate total debit and credit amounts
     const totalDebit = entries.reduce((sum: any, entry: any) => sum + (parseFloat(entry.debit) || 0), 0);
     const totalCredit = entries.reduce((sum: any, entry: any) => sum + (parseFloat(entry.credit) || 0), 0);
-
-    console.log("entries>>", entries)
 
     return (
         <div
@@ -523,10 +561,9 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                 </div>
 
                 {/* date field  */}
-                <div className="col-4 d-flex align-items-center" style={{ width: '33%' }}>
-                    <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
-                        <label className="ps-1 pe-3">Posting Date *</label>
-                        <p>: </p>
+                <div className="col-4 offset-3 d-flex align-items-center" style={{ width: '33%' }}>
+                    <div className="d-flex align-items-center justify-content-between" style={{ width: '30%' }}>
+                        <label className="ps-1 pe-3">Posting Date * :</label>
                     </div>
                     <input
                         name="posting_date"
@@ -548,25 +585,26 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
             >
                 <div className="col-1">{' '}</div>
                 <div className="col-3">Particulars</div>
-                <div className="col-2">Party Type</div>
-                <div className="col-2">Party</div>
-                <div className="col-2 text-center">Debit</div>
-                <div className="col-2 text-end">Credit</div>
+                <div className="col-3">Party Type</div>
+                <div className="col-3">Party</div>
+                <div className="col-1 text-center">Debit</div>
+                <div className="col-1 text-end">Credit</div>
             </div>
 
             {/* Dynamic Entry Rows */}
             {entries.map((entry: any, index: any) => (
-                <div key={index} className={`row py-2 align-items-center ${styles.entryRow}`}>
+                <div key={index} className={`row align-items-center ${styles.entryRow}`}>
                     {/* Left Icon Input */}
                     <div className={`col-1 d-flex align-items-center ${styles.voucherRowActive}`}>
                         <input
                             type="text"
-                            className={`form-control ${styles.voucherRowActive}`}
+                            className={`form-control p-0 ${styles.voucherRowActive}`}
                             ref={(el) => (inputRefs.current[index] = el)}
                             name="type"
                             value={entry.type}
                             onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
-                            onKeyDown={(e) => handleKeyDown(e, 'particulars', entry.id, index)}
+                            onKeyDown={(e) => handleKeyDown(e, 'type', entry.id, index)}
+                            onFocus={(e) => handleInputFocus(e, entry.id)}
 
                         />
                     </div>
@@ -575,7 +613,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     <div className={`col-3 ${styles.voucherRowActive}`}>
                         <input
                             type="text"
-                            className={`form-control ${styles.voucherRowActive}`}
+                            className={`form-control p-0 ${styles.voucherRowActive}`}
                             // style={{ width: '25%' }}
                             name="particulars"
                             value={entry.particulars}
@@ -586,10 +624,10 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     </div>
 
                     {/* Party type */}
-                    <div className={`col-2 ${styles.voucherRowActive}`}>
+                    <div className={`col-3 ${styles.voucherRowActive}`}>
                         <input
                             type="text"
-                            className={`form-control ${styles.voucherRowActive}`}
+                            className={`form-control p-0 ${styles.voucherRowActive}`}
                             // style={{ width: '25%' }}
                             name="party_type"
                             value={entry.party_type}
@@ -600,10 +638,10 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     </div>
 
                     {/* Party */}
-                    <div className={`col-2 ${styles.voucherRowActive}`}>
+                    <div className={`col-3 ${styles.voucherRowActive}`}>
                         <input
                             type="text"
-                            className={`form-control ${styles.voucherRowActive}`}
+                            className={`form-control p-0 ${styles.voucherRowActive}`}
                             // style={{ width: '25%' }}
                             name="party"
                             value={entry.party}
@@ -614,12 +652,12 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     </div>
 
                     {/* Debit Amount */}
-                    <div className={`col-2 d-flex justify-content-center fw-bold ${styles.voucherRowActive}`} style={{ height: '32px' }}>
+                    <div className={`col-1 d-flex justify-content-center fw-bold ${styles.voucherRowActive}`} style={{ height: '20px' }}>
                         {entry.debit === "disabled" ? <span style={{ visibility: 'hidden' }}>debit</span>
                             : (
                                 <input
                                     type="text"
-                                    className={`form-control text-center ${styles.voucherRowActive}`}
+                                    className={`form-control text-center p-0 ${styles.voucherRowActive}`}
                                     // style={{ width: '20%' }}
                                     name="debit"
                                     value={entry.debit}
@@ -633,12 +671,12 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     </div>
 
                     {/* Credit Amount */}
-                    <div className={`col-2 d-flex justify-content-center ${styles.voucherRowActive}`} style={{ height: '32px' }}>
+                    <div className={`col-1 d-flex justify-content-center ${styles.voucherRowActive}`} style={{ height: '20px' }}>
                         {entry.credit === "disabled" ? <span style={{ visibility: 'hidden' }}>credit</span>
                             : (
                                 <input
                                     type="text"
-                                    className={`form-control text-center ${styles.voucherRowActive}`}
+                                    className={`form-control text-center p-0 ${styles.voucherRowActive}`}
                                     // style={{ width: '20%' }}
                                     name="credit"
                                     value={entry.credit}
@@ -655,7 +693,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     {/* Cur Balance Row */}
                     <div className="col-3">
                         <div className={`text-muted text-center ${entry.curBalance < 0 ? styles.negativeBalance : styles.curBal}`}>
-                            Cur Bal: <i>{Math.abs(entry.curBalance)?.toFixed(2)}</i>
+                            <p>  Cur Bal: <i>{Math.abs(entry.curBalance)?.toFixed(2)}</i></p>
                         </div>
                     </div>
 
@@ -664,52 +702,63 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
             ))}
 
 
-            {/* reference fields  */}
-            <div className="d-flex align-items-center w-100">
-                <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
-                    <label className="ps-1 pe-3">Reference Number</label>
-                    <p>: </p>
-                </div>
-                <input
-                    name="main_reference_name"
-                    value={referenceNumber}
-                    onChange={(e: any) => handleInputChange(e, 0)}
-                    onKeyDown={(e) => handleKeyDown(e, 'main_reference_name', 0)}
-                    className="ms-2"
-                    style={{ outline: 'none', width: '63%' }}
-                />
-            </div>
 
-            <div className="d-flex align-items-center w-100">
-                <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
-                    <label className="ps-1 pe-3">Reference Date</label>
-                    <p>: </p>
-                </div>
-                <input
-                    name="main_reference_date"
-                    type="date"
-                    value={referenceNumber}
-                    onChange={(e: any) => handleInputChange(e, 0)}
-                    onKeyDown={(e) => handleKeyDown(e, 'main_reference_date', 0)}
-                    className="ms-2"
-                    style={{ outline: 'none', width: '63%' }}
-                />
-            </div>
             {/* Narration Row */}
             <div className={`row border-top py-2 position-absolute ${styles.narrationRow}`}>
-                <div className="col-6 text-muted">Narration:</div>
-                <textarea
-                    name="main_user_remark"
-                    value={userRemark}
-                    onChange={(e: any) => handleInputChange(e, 0)}
-                    onKeyDown={(e) => handleKeyDown(e, 'narration_user_remark', 0)}
-                    className="ms-2"
-                    style={{ outline: 'none', width: '63%', minHeight: '100px', resize: 'none', overflowY: 'auto', whiteSpace: 'pre-wrap' }}
-                />
-                {/* Footer (Total Debit  Amount) */}
-                <div className="col-3 text-center fw-bold">{totalDebit.toFixed(2)}</div>
-                {/* Footer (Total Credit Amount) */}
-                <div className="col-3 text-center fw-bold">{totalCredit.toFixed(2)}</div>
+                <div className="col-6">
+                    {/* reference fields  */}
+                    <div className="d-flex align-items-center" style={{ width: '50%' }}>
+                        <div className="d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
+                            <label className="ps-1 pe-3">Reference Number</label>
+                            <p>: </p>
+                        </div>
+                        <input
+                            name="main_reference_name"
+                            value={referenceNumber}
+                            onChange={(e: any) => handleInputChange(e, 0)}
+                            onKeyDown={(e) => handleKeyDown(e, 'main_reference_name', 0)}
+                            className="ms-2"
+                            style={{ outline: 'none', width: '63%' }}
+                        />
+                    </div>
+
+                    <div className="d-flex align-items-center" style={{ width: '50%' }}>
+                        <div className="d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
+                            <label className="ps-1 pe-3">Reference Date</label>
+                            <p>: </p>
+                        </div>
+                        <input
+                            name="main_reference_date"
+                            type="date"
+                            value={ReferenceDate}
+                            onChange={(e: any) => handleInputChange(e, 0)}
+                            onKeyDown={(e) => handleKeyDown(e, 'main_reference_date', 0)}
+                            className="ms-2"
+                            style={{ outline: 'none', width: '63%' }}
+                        />
+                    </div>
+
+                    <div className="">
+                        <p className="ps-1">Narration:</p>
+                        <textarea
+                            name="main_user_remark"
+                            value={userRemark}
+                            onChange={(e: any) => handleInputChange(e, 0)}
+                            onKeyDown={(e) => handleKeyDown(e, 'narration_user_remark', 0)}
+                            className="ms-2"
+                            style={{ outline: 'none', width: '80%', minHeight: '100px', resize: 'none', overflowY: 'auto', whiteSpace: 'pre-wrap' }}
+                        />
+                    </div>
+                </div>
+
+                <div className="col-2 offset-4 d-flex justify-content-between">
+                    {/* Footer (Total Debit  Amount) */}
+                    <div className="col-3 text-center fw-bold">{totalDebit.toFixed(2)}</div>
+                    {/* Footer (Total Credit Amount) */}
+                    <div className="col-3 text-center fw-bold">{totalCredit.toFixed(2)}</div>
+                </div>
+
+
             </div>
 
             {/* Filter Dropdown */}
