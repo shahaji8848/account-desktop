@@ -67,6 +67,7 @@ async function getAddressData(doctype: any, filters: any, token: any) {
   return await fetchData(url, token);
 }
 
+
 export async function login(kwargs: any) {
   const login_url = 'https://yatish-testing-v15.frappe.cloud/api/method/login';
 
@@ -81,24 +82,37 @@ export async function login(kwargs: any) {
           usr: kwargs.email,
           pwd: kwargs.password,
         }),
+        credentials: 'include',
       });
 
       const data = await response.json();
-
+      const cookies = response.headers.get('set-cookie');
+      const sid = cookies || data.message?.sid || null;
+      let header_detials = {
+        'Content-Type': 'application/json',
+        Cookie: `${sid}`,
+      };
       if (response.ok && data.message == 'Logged In') {
-        const generateKeysUrl = `https://yatish-testing-v15.frappe.cloud/api/method/frappe.core.doctype.user.user.generate_keys?user=${kwargs.email}`;
+        const generateKeysUrl = `https://yatish-testing-v15.frappe.cloud/api/method/frappe.core.doctype.user.user.generate_keys`;
         const keysResponse = await fetch(generateKeysUrl, {
           method: 'POST',
-          headers: headers,
+          body: JSON.stringify({
+            user: kwargs.email,
+            usr: kwargs.email,
+            pwd: kwargs.password,
+          }),
+          headers: header_detials,
         });
 
         const keysData = await keysResponse.json();
+
         if (keysData.message.api_secret) {
           const userDetails = `${baseUrl}/User/${kwargs.email}`;
-          const res = await fetch(userDetails, { method: 'GET', headers });
+          const res = await fetch(userDetails, { method: 'GET', headers: header_detials });
           let response = await res.json();
+          console.log(response, 'response');
           if (response.data.api_key) {
-            return { status: 'success', token: `token ${keysData.message.api_secret}:${response.data.api_key}` };
+            return { status: 'success', token: `token ${response.data.api_key}:${keysData.message.api_secret}` };
           } else {
             return { error: data.message || 'Login failed' };
           }
@@ -571,6 +585,28 @@ export async function getJournalEntryReceiptName(doctype: any, filters: any, tok
     return null;
   }
 }
+export async function getContactData(doctype:any , filters:any , token:any) {
+  let contactUrl = baseUrl+`/${doctype}`
+  const contactapiFilters:any =[];
+  if (filters?.type) contactapiFilters.push(['Dynamic Link', 'link_doctype', '=', filters.type]);
+  if (filters?.type_name) contactapiFilters.push(['Dynamic Link', 'link_name', '=', filters.type_name]);
+  if (contactapiFilters.length >0){
+     contactUrl = contactUrl+`?filters=${encodeURIComponent(JSON.stringify(contactapiFilters))}`
+  }
+  return await fetchData(contactUrl , token)
+}
+export async function getSupplierData(doctype: string, filters: any, token: string) {
+  let contactUrl = `${baseUrl}/${doctype}`;
+  if (filters?.name) {
+    contactUrl += `/${filters.name}`;
+  } else {
+    const supplierapiFilters = filters?.is_transporter ? [['is_transporter', '=', 1]] : [];
+    if (supplierapiFilters.length) {
+      contactUrl += `?filters=${encodeURIComponent(JSON.stringify(supplierapiFilters))}`;
+    }
+  }
+  return fetchData(contactUrl, token);
+}
 export async function getData(kwargs: any) {
   const { doctype, filters, token } = kwargs;
 
@@ -618,8 +654,11 @@ export async function getData(kwargs: any) {
     case 'Print Format':
       return await getPrintFormat(doctype, filters, token);
      case "Journal Receipt Names":
-          console.log("FGGGGGGG")
           return await getJournalEntryReceiptName(doctype, filters, token);
+    case "Supplier":
+        return await getSupplierData(doctype, filters, token)
+    case "Contact":
+      return getContactData(doctype, filters, token)
     default:
       return getOtherRecords(doctype, filters, token);
   }
