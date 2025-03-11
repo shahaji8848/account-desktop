@@ -56,6 +56,9 @@ export default function useHandleKeyFunctionalities({
   showFilter,
   setFilterListName,
   token,
+  getAdvancePaymentData,
+  advancePaymentRef,
+  advancePaymentData,
 }: any) {
   const getAddressFilter = (type: any, name: any) => ({
     type: 'Address',
@@ -283,10 +286,30 @@ export default function useHandleKeyFunctionalities({
           [name]: value,
         });
       setTimeout(() => {
-        salesDataRef.current?.currency?.focus();
+        salesDataRef.current?.incoterm?.focus();
         setShowFilter(false);
         // setType('dropdown')
       }, 0);
+      setIsSelecting(false);
+    } else if (name === 'incoterm') {
+      console.log('first', value);
+      if (fieldName === name && showFilter) {
+        setSalesData({
+          ...salesData,
+          [name]: value,
+        });
+        setTimeout(() => {
+          salesDataRef.current?.named_place?.focus();
+          setShowFilter(false);
+          setType('');
+        }, 0);
+      } else {
+        setTimeout(() => {
+          salesDataRef.current?.currency?.focus();
+          setShowFilter(false);
+          setType('dropdown');
+        }, 0);
+      }
       setIsSelecting(false);
     } else if (name === 'additional_discount_account') {
       fieldName === name &&
@@ -304,7 +327,7 @@ export default function useHandleKeyFunctionalities({
       fieldName === name &&
         getCurrencyData()
           .then((resp: any) => {
-            console.log(resp, 'resp')
+            console.log(resp, 'resp');
             setSalesData({
               ...salesData,
               [name]: value,
@@ -332,12 +355,25 @@ export default function useHandleKeyFunctionalities({
       }, 0);
       // console.log(value.name);
       fieldName === name &&
+        showFilter &&
         getData('Terms and Conditions', { name: value.name }).then((response: any) => {
           // console.log(response, 'terms');
+          let html = response.terms;
+          html = html.replace(/<style([\s\S]*?)<\/style>/gi, '');
+          html = html.replace(/<script([\s\S]*?)<\/script>/gi, '');
+          html = html.replace(/<\/div>/gi, '\n');
+          html = html.replace(/<\/li>/gi, '\n');
+          html = html.replace(/<li>/gi, '  *  ');
+          html = html.replace(/<\/ul>/gi, '\n');
+          html = html.replace(/<\/p>/gi, '\n');
+          html = html.replace(/<br\s*[\/]?>/gi, '\n');
+          html = html.replace(/<[^>]+>/gi, '');
+
+          console.log(html, response, 'terms & c');
           setSalesData({
             ...salesData,
             [name]: value.name,
-            terms_description: response.terms || '',
+            terms_description: html || response.terms || '',
           });
         });
       setIsSelecting(false);
@@ -631,7 +667,8 @@ export default function useHandleKeyFunctionalities({
         name === 'additional_discount_account' ||
         name === 'currency' ||
         name === 'item_name' ||
-        name === 'receivable_account'
+        name === 'receivable_account' ||
+        name === 'incoterm'
       ) {
         handlePartyNameAndCostCenter(name, filteredItems[selectedIndex]);
       } else if (name === 'rate') {
@@ -671,6 +708,77 @@ export default function useHandleKeyFunctionalities({
     showFilter,
     token
   );
+  const getPromotionalItemData = async (data: any) => {
+    // console.log(data);
+    let response = await window.electron.getData({
+      doctype: 'Item',
+      filters: { name: data.free_item, company: companyData.company_name || '' },
+    });
+    let rate = await window.electron.getData({
+      doctype: 'Item Price',
+      filters: { item_code: data.free_item },
+    });
+    if (response && rate) {
+      let tax_info = await window.electron.getData({
+        doctype: 'Item Tax Template',
+        filters: { input: response?.taxes[0]?.item_tax_template || '' },
+      });
+      // console.log(response, rate, tax_info, 'response and rate');
+      setProductData([
+        {
+          item_name: data.free_item,
+          item_code: data.free_item,
+          hsn: response?.gst_hsn_code || '0101',
+          uom: response?.stock_uom || response.uoms[0]?.name || 'Nos',
+          description: response.description || '',
+          rate: data.free_item_rate,
+          qty: data.free_qty,
+          amt: '',
+          income_account: response?.item_defaults[0]?.income_account || '',
+          warehouse: salesData?.source_warehouse ? salesData.source_warehouse : response?.item_defaults[0]?.expense_account || '',
+          item_tax_template: response?.taxes[0]?.item_tax_template || '',
+          expense_account: response?.item_defaults[0]?.expense_account || '',
+          cost_center: response?.item_defaults[0]?.buying_cost_center || '',
+          gst_rate: tax_info[0]?.gst_rate,
+          original_rate: data.free_item_rate,
+        },
+      ]);
+    }
+  };
+
+  const getPromotionalData = async (value: string) => {
+    const itemData = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { item_code: itemsData.item_name } });
+    if (itemData && itemData.length > 0) {
+      const promotionalData = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { name: itemData[0].name } });
+      // console.log(itemData, promotionalData, 'Promotional Scheme');
+      if (promotionalData && promotionalData.customer[0]?.customer === salesData.party_details.party_name) {
+        if (value >= promotionalData.product_discount_slabs[0]?.min_qty) {
+          getPromotionalItemData(promotionalData.product_discount_slabs[0]);
+        }
+        if (value >= promotionalData.price_discount_slabs[0]?.min_qty) {
+          return promotionalData.price_discount_slabs[0]?.discount_percentage;
+        }
+      }
+      return 0;
+    }
+    return 0;
+  };
+
+  const calculateDiscountAmt = (data: any, value: any) => {
+    let amount = 0;
+    if (data['rate_with_margin'] !== '') {
+      amount = Number(data['original_rate']) + Number(data['rate_with_margin']);
+      data['rate'] = Number(amount - (amount * Number(value)) / 100).toFixed(2);
+      data['amt'] = Number(data['qty']) * Number(data['rate']);
+      data['discount_amount'] = (amount * Number(value)) / 100;
+    } else {
+      amount = Number(data['original_rate']);
+      data['rate'] = Number(amount - (amount * Number(value)) / 100).toFixed(2);
+      data['amt'] = Number(data['qty']) * Number(data['rate']);
+      data['discount_amount'] = (amount * Number(value)) / 100;
+    }
+    return data;
+  };
 
   const handleIfNotDropdown = (name: string, value: string) => {
     switch (name) {
@@ -789,6 +897,12 @@ export default function useHandleKeyFunctionalities({
         if (data[activeIndex]['rate'] !== '') {
           data[activeIndex]['amt'] = Number(value) * Number(data[activeIndex]['rate']);
         }
+        getPromotionalData(value).then((discount: any) => {
+          data[activeIndex]['discount_percentage'] = discount;
+          data[activeIndex] = calculateDiscountAmt(data[activeIndex], discount);
+          // setItemsData({ ...data });
+          // console.log(data[activeIndex])
+        });
         setSalesData({ ...salesData, table: data });
         (tableBodyRef.current[activeIndex].childNodes[1].childNodes[1] as HTMLElement).focus();
         break;
@@ -805,6 +919,14 @@ export default function useHandleKeyFunctionalities({
         }, 0);
         break;
       }
+      case 'named_place': {
+        focusNextField(salesDataRef.current.currency);
+        setTimeout(() => {
+          setShowFilter(false);
+          setType('dropdown');
+        }, 0);
+        break;
+      }
       case 'shipping_gstin': {
         focusNextField(salesDataRef.current.cost_center);
         setPartyNamePopup(false);
@@ -817,11 +939,35 @@ export default function useHandleKeyFunctionalities({
       }
       case 'update_stock': {
         setTimeout(() => {
-          salesData.update_stock ? salesDataRef.current?.source_warehouse?.focus() : salesDataRef.current?.currency?.focus();
+          salesData.update_stock ? salesDataRef.current?.source_warehouse?.focus() : salesDataRef.current?.incoterm?.focus();
         }, 0);
         // handleShowFilter(salesData.update_stock ? 'source_warehouse' : 'currency');
         // focusNextField(salesDataRef.current.cost_center);
         // handleShowFilter('cost_center');
+        break;
+      }
+      case 'allocate_advances_automatically': {
+        salesData.allocate_advances_automatically && getAdvancePaymentData();
+        setTimeout(() => {
+          salesData.allocate_advances_automatically
+            ? salesDataRef.current?.only_include_allocated_payments?.focus()
+            : salesDataRef.current?.get_advances?.focus();
+        }, 0);
+        break;
+      } 
+      // case 'get_advances': {
+      //   if (advancePaymentData.length > 0) {
+      //     (advancePaymentRef.current[0].childNodes[3] as HTMLElement).focus();
+      //   }
+      //   break;
+      // }
+      case 'only_include_allocated_payments': {
+        if (salesData.only_include_allocated_payments) {
+          getAdvancePaymentData();
+        }
+        if (advancePaymentData.length > 0) {
+          (advancePaymentRef.current[0].childNodes[3] as HTMLElement).focus();
+        }
         break;
       }
       case 'is_cash_or_non_trade_discount': {
