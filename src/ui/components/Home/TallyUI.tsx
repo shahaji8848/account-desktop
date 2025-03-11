@@ -121,6 +121,9 @@ const TallyUI = ({
     } else if (e.key === 'a' && !moreReportList && !accountBooksList) {
       //only for test purpose
       navigate('/journal');
+    } else if (e.key === 'k' && !moreReportList && !accountBooksList) {
+      //only for test purpose
+      navigate('/receipt');
     }
   };
 
