@@ -11,8 +11,7 @@ import useReconcile from '../../hooks/payment_reconciliation/useReconcile';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import QuitConfirmationModal from '../Home/QuitConfirmationModal';
-import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md';
-import './bank-reconciliation.css';
+
 export default function BankReconciliationRework({ homeHookData, globalData }: any) {
   const { companyData } = useCompanyData('Company');
   const { partyData } = usePartyData('Customer');
@@ -31,7 +30,6 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     company: '',
     party_type: '',
     party: '',
-
   });
 
   // Fetching data only when all values are available
@@ -70,7 +68,6 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
   const [selectedPayments, setSelectedPayments] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [hideAllocationTable, setHideAllocationTable] = useState<boolean>(false);
-  const [showDateFilters, setShowDateFilters] = useState(true);
 
   useEffect(() => {
     if (allocationListData?.length > 0) {
@@ -345,7 +342,6 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
   return (
     <div className="container-fluid px-3 py-2 bg-light" style={{ width: '1200px' }}>
       <h2 className="mb-3">Bank Reconciliation</h2>
-
       <div className="row mb-4" ref={formRef} tabIndex={0}>
         <div className="col-md-6">
           <div className="row">
@@ -363,7 +359,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
               />
             </div>
             <div className="col-12 mt-3">
-              <label className="form-label">Bank Account:</label>
+              <label className="form-label">Party Type:</label>
               <input
                 type="text"
                 className="form-control"
@@ -374,146 +370,47 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                 value={initalPaymentReconcileCompanyData.party_type}
               />
             </div>
-            <div className="col-12 mt-3">
-              <label className="form-label">From Date</label>
-              <input
-                type="date"
-                className="form-control"
-                name="from_date"
-                onKeyDown={(e) => handleKeyDown(e, 'from_date')}
-                onChange={(e) => handleInputChange(e, 'from_date')}
-              />
-            </div>
-            <div className="col-12 mt-3">
-              <label className="form-label">Opening Balance</label>
-              <input
-                type="text"
-                className="form-control"
-                name="opening_balance"
-                onKeyDown={(e) => handleKeyDown(e, 'opening_balance')}
-                onFocus={handleInputFocus}
-                onChange={(e) => handleInputChange(e, 'opening_balance')}
-              // value={initalPaymentReconcileCompanyData.opening_balance}
-              />
-            </div>
           </div>
         </div>
         <div className="col-md-6">
           <div className="row">
             <div className="col-12">
-              <label className="form-label">Closing Balance as per Bank Statement:</label>
+              <label className="form-label">Party:</label>
               <input
                 type="text"
                 className="form-control"
-                name="bankClosingBalance"
-                readOnly
-                value=""  // Will be auto-filled later
-                onKeyDown={(e) => handleKeyDown(e, '', '')}
+                name="party"
+                onKeyDown={(e) => handleKeyDown(e, 'party', 'party')}
+                onFocus={handleInputFocus}
+                onChange={(e) => handleInputChange(e, 'party')}
+                value={initalPaymentReconcileCompanyData.party}
               />
             </div>
             <div className="col-12 mt-3">
-              <label className="form-label">Closing Balance as per ERP:</label>
+              <label className="form-label">Receivable/Payable Account:</label>
               <input
                 type="text"
-                className="form-control"
-                name="erpClosingBalance"
-                readOnly
-                value=""  // Will be auto-filled later
+                name="Receivable/Payable Account"
                 onKeyDown={(e) => handleKeyDown(e, '', '')}
-              />
-            </div>
-            <div className="col-12 mt-3">
-              <label className="form-label">To Date:</label>
-              <input
-                type="date"
+                value={receivablePayableAccount}
                 className="form-control"
-                name="to_date"
-                onKeyDown={(e) => handleKeyDown(e, 'to_date')}
-                onChange={(e) => handleInputChange(e, 'to_date')}
               />
             </div>
-            <div className="col-12 mt-3">
-              <label className="form-label">Difference Amount:</label>
+            <div className="col-md-12 mt-3">
+              <label className="form-label">Default Advance Account:</label>
               <input
                 type="text"
-                className="form-control"
-                name="differenceAmount"
-                readOnly
-                value=""  // Will be auto-filled later
+                name="Default Advance Account"
                 onKeyDown={(e) => handleKeyDown(e, '', '')}
+                className="form-control"
+                value={defaultAdvanceAccount}
               />
             </div>
           </div>
         </div>
-        {/* Add Filters Section */}
-        <div className="col-12 mb-2 mt-4">
-          <div 
-            className="d-flex align-items-center mb-2" 
-            style={{ cursor: 'pointer' }}
-            onClick={() => setShowDateFilters(!showDateFilters)}
-          >
-            <h6 className="mb-0">Filters</h6>
-            <span className={`ms-2 icon-wrapper ${showDateFilters ? 'rotated' : ''}`}>
-              <MdKeyboardArrowDown size={30} />
-            </span>
-          </div>
-          <div className={`filter-content ${showDateFilters ? 'show' : ''}`}>
-            <div className="row">
-              <div className="col-md-6">
-                <div className="mb-3">
-                  <label className="form-label">From Statement Date</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    name="from_statement_date"
-                    defaultValue="2024-04-01"
-                    onKeyDown={(e) => handleKeyDown(e, 'from_statement_date')}
-                    onChange={(e) => handleInputChange(e, 'from_statement_date')}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">From ERP Date</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    name="from_erp_date"
-                    defaultValue="2024-04-01"
-                    onKeyDown={(e) => handleKeyDown(e, 'from_erp_date')}
-                    onChange={(e) => handleInputChange(e, 'from_erp_date')}
-                  />
-                </div>
-              </div>
-              <div className="col-md-6">
-                <div className="mb-3">
-                  <label className="form-label">To Statement Date</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    name="to_statement_date"
-                    defaultValue="2025-03-07"
-                    onKeyDown={(e) => handleKeyDown(e, 'to_statement_date')}
-                    onChange={(e) => handleInputChange(e, 'to_statement_date')}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">To ERP Date</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    name="to_erp_date"
-                    defaultValue="2025-03-07"
-                    onKeyDown={(e) => handleKeyDown(e, 'to_erp_date')}
-                    onChange={(e) => handleInputChange(e, 'to_erp_date')}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Unreconcile Entries */}
-        <div className="col-12 mt-5">
-          <h2 className="mb-2">Unreconciled Entries</h2>
+        <div className="col-12">
+          <h2 className="mb-3">Unreconciled Entries</h2>
         </div>
         {/* Unreconcile table */}
         <div className="col-md-6 mt-3">
