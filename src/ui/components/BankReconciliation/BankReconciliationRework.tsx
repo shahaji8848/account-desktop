@@ -2,9 +2,6 @@
 import type React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import ShowFilter from '../common/ShowFilter';
-import useCompanyData from '../../hooks/payment_reconciliation/useCompanyData';
-import usePartyData from '../../hooks/payment_reconciliation/usePartyData';
-import usePartyTypeData from '../../hooks/payment_reconciliation/usePartyTypeData';
 import useUnreconcileEntriesData from '../../hooks/payment_reconciliation/useUnreconcileEntriesData';
 import useAllocateList from '../../hooks/payment_reconciliation/useAllocateList';
 import useReconcile from '../../hooks/payment_reconciliation/useReconcile';
@@ -13,10 +10,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import QuitConfirmationModal from '../Home/QuitConfirmationModal';
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md';
 import './bank-reconciliation.css';
+import useFetchData from '../../hooks/fetchData';
 export default function BankReconciliationRework({ homeHookData, globalData }: any) {
-  const { companyData } = useCompanyData('Company');
-  const { partyData } = usePartyData('Customer');
-  const { partyTypeData } = usePartyTypeData('Payment Reconciliation Party');
+  const token = localStorage.getItem('account_desktop_token');
+  const companyData = useFetchData('Company', {}, token);
+  const bankData = useFetchData('Bank Account', {}, token);
+  // console.log('Bank@@@ company hook called', companyData);
   const { isQuitModalOpen, setIsQuitModalOpen } = globalData;
   const [currentFilterList, setCurrentFilterList] = useState<any[]>([]);
   const [masterList, setMasterList] = useState<any[]>([]);
@@ -29,9 +28,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
 
   const [initalPaymentReconcileCompanyData, setInitalPaymentReconcileCompanyData] = useState({
     company: '',
-    party_type: '',
-    party: '',
-
+    bank_account: '',
   });
 
   // Fetching data only when all values are available
@@ -46,31 +43,25 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     apiErrorMessage,
     apiError,
     data,
-  }: any = useUnreconcileEntriesData(
-    initalPaymentReconcileCompanyData?.company,
-    initalPaymentReconcileCompanyData?.party_type,
-    initalPaymentReconcileCompanyData?.party
-  );
-
-  // console.log('Fetched reconciliation data : in component@@', receivablePayableAccount, defaultAdvanceAccount, invoiceData, paymnentData);
+  }: any = useUnreconcileEntriesData(initalPaymentReconcileCompanyData?.company, initalPaymentReconcileCompanyData?.bank_account);
   const company = initalPaymentReconcileCompanyData?.company;
-  const partyType = initalPaymentReconcileCompanyData?.party_type;
-  const party = initalPaymentReconcileCompanyData?.party;
+  const bankAccount = initalPaymentReconcileCompanyData?.bank_account;
 
-  const [invoiceFilter, setInvoiceFilter] = useState('');
-  const [paymentFilter, setPaymentFilter] = useState('');
-  const [filteredInvoices, setFilteredInvoices] = useState(invoiceData);
-  const [filteredPayments, setFilteredPayments] = useState(paymnentData);
   const { allocationListData, fetchAllocationList } = useAllocateList();
-  console.log('Fetched reconciliation data : from hook', allocationListData);
   const { reconcileData, fetchReconcile } = useReconcile();
-  console.log('Fetched reconciliation data : reconcile from hook', reconcileData);
 
   const [selectedInvoices, setSelectedInvoices] = useState<any[]>([]);
   const [selectedPayments, setSelectedPayments] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [hideAllocationTable, setHideAllocationTable] = useState<boolean>(false);
   const [showDateFilters, setShowDateFilters] = useState(true);
+
+  const [fromDate, setFromDate] = useState<any>('');
+  const [toDate, setToDate] = useState<any>('');
+  const [fromStatementDate, setFromStatementDate] = useState<any>('');
+  const [toStatementDate, setToStatementDate] = useState<any>('');
+  const [fromErpDate, setFromErpDate] = useState<any>('');
+  const [toErpDate, setToErpDate] = useState<any>('');
 
   useEffect(() => {
     if (allocationListData?.length > 0) {
@@ -132,13 +123,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
       if (field === 'party') {
         refreshData();
       }
-      // if (field === 'party' && apiError) {
-      //   toast.warning(apiErrorMessage, {
-      //     position: 'top-right',
-      //     autoClose: 3000, // Closes after 3 seconds
-      //     className: 'custom-toast', // Custom class
-      //   });
-      // }
+
       setInitalPaymentReconcileCompanyData((prevData) => ({
         ...prevData,
         [currentField]: currentFilterList[selectedIndex]?.name || currentFilterList[selectedIndex],
@@ -155,7 +140,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
   const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name: field } = e.target;
     setShowFilter(false);
-    if (field === 'company' || field === 'party_type' || field === 'party') {
+    if (field === 'company' || field === 'bank_account') {
       setShowFilter(true);
       setCurrentField(field);
 
@@ -168,16 +153,11 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
         dataList = companyData;
         setCurrentFilterList(companyData);
         setMasterList(companyData);
-      } else if (field === 'party_type') {
-        selectedValue = initalPaymentReconcileCompanyData.party_type;
-        dataList = partyTypeData;
-        setCurrentFilterList(partyTypeData);
-        setMasterList(partyTypeData);
-      } else if (field === 'party') {
-        selectedValue = initalPaymentReconcileCompanyData.party;
-        dataList = partyData;
-        setCurrentFilterList(partyData);
-        setMasterList(partyData);
+      } else if (field === 'bank_account') {
+        selectedValue = initalPaymentReconcileCompanyData.bank_account;
+        dataList = bankData;
+        setCurrentFilterList(bankData);
+        setMasterList(bankData);
       }
 
       // Find the index of the selected value
@@ -265,7 +245,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
   };
 
   const handleAllocation = async () => {
-    if (!company || !partyType || !party || selectedInvoices.length === 0 || selectedPayments.length === 0) {
+    if (!company || !bankAccount || selectedInvoices.length === 0 || selectedPayments.length === 0) {
       // setErrorMessage('Please select at least one invoice and one payment to reconcile');
       toast.error('Please select at least one invoice and one payment to reconcile', {
         position: 'top-right',
@@ -276,7 +256,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     }
 
     // Call the fetch function when the button is clicked
-    const data = await fetchAllocationList(company, partyType, party, selectedInvoices, selectedPayments);
+    const data = await fetchAllocationList(company, bankAccount, '', selectedInvoices, selectedPayments);
     console.log('Allocation data fetched on button click:', data);
 
     if (data?.allocation && data?.allocation.length > 0) {
@@ -292,10 +272,10 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
   };
 
   const handleReconcile = async () => {
-    if (!company || !partyType || !party || selectedInvoices.length === 0 || selectedPayments.length === 0) {
+    if (!company || !bankAccount || selectedInvoices.length === 0 || selectedPayments.length === 0) {
       return;
     }
-    const data = await fetchReconcile(company, partyType, party, selectedInvoices, selectedPayments);
+    const data = await fetchReconcile(company, bankAccount, '', selectedInvoices, selectedPayments);
     console.log('reconcile data fetched on button click:', data?.docs, data?.invoices, data?.payments);
     // Step 1: Parse the first level
     const firstParse = JSON.parse(data._server_messages);
@@ -342,6 +322,51 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     }
   }, [isQuitModalOpen]);
 
+  // Update token if it changes in localStorage
+  useEffect(() => {
+    window.electron
+      .getAccountBalance({
+        till_date: '2025-02-28',
+        company: '8848 Digital LLP',
+        bank_account: '8848 Digital - HDFC Bank',
+        token,
+      })
+      .then((data: any) => {
+        console.log('Bank@@@ account  balance fn called ', data);
+      });
+    window.electron
+      .getData({
+        doctype: 'Bank Account',
+        token,
+      })
+      .then((data: any) => {
+        console.log('Bank@@@ account api ii', data);
+      });
+
+    window.electron
+      .getErpTransaction({
+        company: '8848 Digital LLP',
+        bank_account: '8848 Digital - HDFC Bank',
+        from_statement_date: '2024-01-01',
+        to_statement_date: '2025-01-01',
+        token,
+      })
+      .then((data: any) => {
+        console.log('Bank@@@ erp Transation api ii', data);
+      });
+    window.electron
+      .getBankTransaction({
+        company: '8848 Digital LLP',
+        bank_account: '8848 Digital - HDFC Bank',
+        from_statement_date: '2024-01-01',
+        to_statement_date: '2025-01-01',
+        token,
+      })
+      .then((data: any) => {
+        console.log('Bank@@@ bank Transation api ii', data);
+      });
+  }, []);
+
   return (
     <div className="container-fluid px-3 py-2 bg-light" style={{ width: '1200px' }}>
       <h2 className="mb-3">Bank Reconciliation</h2>
@@ -367,11 +392,11 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
               <input
                 type="text"
                 className="form-control"
-                name="party_type"
-                onKeyDown={(e) => handleKeyDown(e, 'party_type', 'Payment Reconciliation Party')}
+                name="bank_account"
+                onKeyDown={(e) => handleKeyDown(e, 'bank_account', 'Bank Account')}
                 onFocus={handleInputFocus}
-                onChange={(e) => handleInputChange(e, 'Payment Reconciliation Party')}
-                value={initalPaymentReconcileCompanyData.party_type}
+                onChange={(e) => handleInputChange(e, 'Bank Account')}
+                value={initalPaymentReconcileCompanyData.bank_account}
               />
             </div>
             <div className="col-12 mt-3">
@@ -393,7 +418,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                 onKeyDown={(e) => handleKeyDown(e, 'opening_balance')}
                 onFocus={handleInputFocus}
                 onChange={(e) => handleInputChange(e, 'opening_balance')}
-              // value={initalPaymentReconcileCompanyData.opening_balance}
+                // value={initalPaymentReconcileCompanyData.opening_balance}
               />
             </div>
           </div>
@@ -407,7 +432,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                 className="form-control"
                 name="bankClosingBalance"
                 readOnly
-                value=""  // Will be auto-filled later
+                value="" // Will be auto-filled later
                 onKeyDown={(e) => handleKeyDown(e, '', '')}
               />
             </div>
@@ -418,7 +443,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                 className="form-control"
                 name="erpClosingBalance"
                 readOnly
-                value=""  // Will be auto-filled later
+                value="" // Will be auto-filled later
                 onKeyDown={(e) => handleKeyDown(e, '', '')}
               />
             </div>
@@ -439,7 +464,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                 className="form-control"
                 name="differenceAmount"
                 readOnly
-                value=""  // Will be auto-filled later
+                value="" // Will be auto-filled later
                 onKeyDown={(e) => handleKeyDown(e, '', '')}
               />
             </div>
@@ -447,11 +472,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
         </div>
         {/* Add Filters Section */}
         <div className="col-12 mb-2 mt-4">
-          <div 
-            className="d-flex align-items-center mb-2" 
-            style={{ cursor: 'pointer' }}
-            onClick={() => setShowDateFilters(!showDateFilters)}
-          >
+          <div className="d-flex align-items-center mb-2" style={{ cursor: 'pointer' }} onClick={() => setShowDateFilters(!showDateFilters)}>
             <h6 className="mb-0">Filters</h6>
             <span className={`ms-2 icon-wrapper ${showDateFilters ? 'rotated' : ''}`}>
               <MdKeyboardArrowDown size={30} />

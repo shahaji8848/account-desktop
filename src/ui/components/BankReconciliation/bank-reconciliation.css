@@ -1,20 +1,20 @@
 .filter-content {
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-    max-height: 0;
-  }
-  
-  .filter-content.show {
-    max-height: 500px;
-    transition: max-height 0.3s ease-in;
-  }
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+  max-height: 0;
+}
 
-  .icon-wrapper {
-    display: inline-flex;
-    transition: transform 0.3s ease;
-    transform: rotate(0deg);
-  }
-  
-  .icon-wrapper.rotated {
-    transform: rotate(180deg);
-  }
+.filter-content.show {
+  max-height: 500px;
+  transition: max-height 0.3s ease-in;
+}
+
+.icon-wrapper {
+  display: inline-flex;
+  transition: transform 0.3s ease;
+  transform: rotate(0deg);
+}
+
+.icon-wrapper.rotated {
+  transform: rotate(180deg);
+}

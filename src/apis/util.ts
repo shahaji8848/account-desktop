@@ -292,6 +292,24 @@ async function getUomData(doctype: any, filters: any, token: any) {
   return await fetchData(url, token);
 }
 
+async function getBankAccount(doctype: any, filters: any, token: any) {
+  const apiFilters: any[] = [];
+  if (filters?.company) {
+    apiFilters.push(['company', '=', filters.company]);
+  }
+  if (filters?.input) {
+    apiFilters.push(['name', 'like', `%${filters.input}%`]);
+  }
+
+  const queryParams = new URLSearchParams();
+  if (apiFilters.length > 0) {
+    queryParams.append('filters', JSON.stringify(apiFilters));
+  }
+
+  const url = `${baseUrl}/${doctype}?${queryParams.toString()}`;
+  return await fetchData(url, token);
+}
+
 async function getPrintFormat(doctype: any, filters: any, token: any) {
   const printformatapiFilters: any[] = [];
 
@@ -627,6 +645,8 @@ export async function getData(kwargs: any) {
       return await getItemTaxTemplate(doctype, filters, token);
     case 'UOM':
       return await getUomData(doctype, filters, token);
+    case 'Bank Account':
+      return await getBankAccount(doctype, filters, token);
     case 'GST HSN Code':
       return await getGstHsnData(doctype, filters, token);
     case 'Shipping Rule':
