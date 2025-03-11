@@ -268,6 +268,34 @@ export const defaultDateRef = {
   due_date: null,
 };
 
+export const tranporterDefaultData = {
+  transporter: '',
+  transporter_name: '',
+  gst_transporter_id: '',
+  mode_of_transport: '',
+  driver: '',
+  driver_name: '',
+  lr_no: '',
+  vehicle_no: '',
+  lr_date: '',
+  distance: '',
+  gst_vehicle_type: '',
+};
+
+export const tranporterDefaultRef = {
+  transporter: null,
+  transporter_name: null,
+  gst_transporter_id: null,
+  mode_of_transport: null,
+  driver: null,
+  driver_name: null,
+  lr_no: null,
+  vehicle_no: null,
+  lr_date: null,
+  distance: null,
+  gst_vehicle_type: null,
+};
+
 export const defaultTableData = {
   item_name: '',
   qty: '',
@@ -381,6 +409,10 @@ export const additionalDiscountOnData = ['', 'Net Total', 'Grand Total'];
 
 export const marginTypeData = ['', 'Percentage', 'Amount'];
 
+export const modeOfTransportData = ['', 'Road', 'Air', 'Rail', 'Ship'];
+
+export const GSTVehicleTypeData = ['', 'Regular', 'Over Dimensional Cargo (ODC)'];
+
 export const filterTypes: any = {
   company_name: { type: 'Company' },
   party_name: { type: 'Customer' },
@@ -404,6 +436,8 @@ export const filterTypes: any = {
   batch_no: { type: 'Batch' },
   incoterm: { type: 'Incoterm' },
   contact_person: { type: 'Contact' },
+  transporter: { type: 'Supplier' },
+  driver: { type: 'Driver' },
 };
 
 export const filterDefaultData = {
@@ -432,4 +466,8 @@ export const filterDefaultData = {
   batch_no: [],
   incoterm: [],
   contact_person: [],
+  transporter: [],
+  driver: [],
+  mode_of_transport: [],
+  gst_vehicle_type: [],
 };

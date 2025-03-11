@@ -9,6 +9,7 @@ import TermsPopup from './TermsPopup';
 import PaymentDataTablePopup from './PaymentDataTablePopup';
 import GstDataTablePopup from './GstDataTablePopup';
 import AdvancePaymentPopup from './AdvancePaymentPopup';
+import TransporterPopup from './TransporterPopup';
 // import CompanyPopup from "../common/CompanyPopup";
 
 function MainBody({ salesDataRef, ...salesHookData }: any) {
@@ -69,7 +70,11 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
     getAdvancePaymentData,
     advancePaymentRef,
     setAdvancePaymentIndex,
-    handleAdvancePaymentDelete
+    handleAdvancePaymentDelete,
+    handleTransporterPopup,
+    transporterPopup,
+    transporterData,
+    transporterRef,
   } = salesHookData;
 
   const handleFocus = (e: any) => {
@@ -462,6 +467,14 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         salesDataRef={salesDataRef}
         handleFocus={handleFocus}
       />
+      <TransporterPopup
+        transporterPopup={transporterPopup}
+        transporterData={transporterData}
+        handleValueChange={handleValueChange}
+        handleValueKeyDown={handleValueKeyDown}
+        transporterRef={transporterRef}
+        handleFocus={handleFocus}
+      />
       <AdvancePaymentPopup
         advancePaymentPopup={advancePaymentPopup}
         advancePaymentData={advancePaymentData}
@@ -507,6 +520,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         handlePartyNamePopup={handlePartyNamePopup}
         handleGstPopup={handleGstPopup}
         handleAdvancePaymentsPopup={handleAdvancePaymentsPopup}
+        handleTransporterPopup={handleTransporterPopup}
       />
     </div>
   );

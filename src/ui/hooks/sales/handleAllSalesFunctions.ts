@@ -75,11 +75,16 @@ export function handleAllSalesFunctions(
   advancePaymentIndex: any,
   advancePaymentRef: any,
   token: any,
-  setPaymentData: any
+  setPaymentData: any,
+  setTransporterPopup: any,
+  transporterPopup: any,
+  transporterRef: any,
+  setTransporterData: any,
+  transporterData: any
 ) {
   const navigate = useNavigate();
   const handleSubmitData = async (salesInvoiceData: any, method: string = 'POST') => {
-    // console.log(JSON.stringify(salesInvoiceData), salesInvoiceData, 'submit data');
+    console.log(JSON.stringify(salesInvoiceData), salesInvoiceData, 'submit data');
     try {
       const x =
         method === 'POST'
@@ -167,7 +172,10 @@ export function handleAllSalesFunctions(
     setAdvancePaymentData,
     advancePaymentData,
     setAdvancePaymentIndex,
-    advancePaymentIndex
+    advancePaymentIndex,
+    transporterPopup,
+    setTransporterData,
+    transporterData
   );
 
   const handleAdvancePaymentDelete = (index: any) => {
@@ -189,7 +197,7 @@ export function handleAllSalesFunctions(
   const handleValueKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const { name, value } = e.target as HTMLInputElement;
 
-    // console.log(type)
+    // console.log(type);
 
     if (type !== 'dropdown') {
       if (e.key === 'Enter' && name !== 'update_stock' && !tableItemsPopup) {
@@ -254,6 +262,7 @@ export function handleAllSalesFunctions(
         }, 0);
       }
     } else {
+      // console.log(e);
       if (e.ctrlKey && name === 'item_name' && e.key === 'Enter' && !tableItemsPopup) {
         setTableItemsPopup(true);
         if (salesData.table.length > 0) {
@@ -273,11 +282,10 @@ export function handleAllSalesFunctions(
         e.preventDefault();
         setSelectedIndex((prev: any) => (prev > 0 ? prev - 1 : prev));
       } else if (e.key === 'Enter' && !e.ctrlKey && !tableItemsPopup && !taxInfoPopup && !advancePaymentPopup) {
+        // console.log('hello')
         handleKeyEnter(name, value);
       } else if (e.key === 'Enter' && !e.ctrlKey && tableItemsPopup) {
         handleTableKeyEnter(name);
-      } else if (e.key === 'Enter' && !e.ctrlKey && advancePaymentPopup) {
-        // advance payment
       } else if (e.key === 'Escape') {
         setShowFilter(false);
         setPartyNamePopup(false);
@@ -388,6 +396,7 @@ export function handleAllSalesFunctions(
             only_include_allocated_payments: salesData.only_include_allocated_payments,
             incoterm: salesData.incoterm,
             named_place: salesData.named_place,
+            ...transporterData
           };
           if (Object.keys(previousSalesData).length > 0) {
             if (previousSalesData === salesData) {
@@ -463,6 +472,15 @@ export function handleAllSalesFunctions(
     }, 0);
   };
 
+  const handleTransporterPopup = () => {
+    setTransporterPopup(true);
+    setTimeout(() => {
+      setSelectedIndex(0);
+      (transporterRef.current.transporter as HTMLElement).focus();
+      setType('dropdown');
+    }, 0);
+  };
+
   const handleAdvancePaymentsPopup = () => {
     if (salesData.table?.length > 0) {
       setAdvancePaymentPopup(true);
@@ -491,7 +509,8 @@ export function handleAllSalesFunctions(
       !termsPopup &&
       !paymentTermsOpen &&
       !gstTableOpen &&
-      !advancePaymentPopup
+      !advancePaymentPopup &&
+      !transporterPopup
     ) {
       navigate('/');
     }
@@ -509,6 +528,10 @@ export function handleAllSalesFunctions(
       event.preventDefault(); // Prevent the default "Select All" behavior
       // setTermsPopup(true);
       handleAdvancePaymentsPopup();
+    }
+    if (event.altKey && event.key === 't') {
+      event.preventDefault();
+      handleTransporterPopup();
     }
     if (event.ctrlKey && event.key === 'p') {
       event.preventDefault(); // Prevent the default "Select All" behavior
@@ -528,6 +551,9 @@ export function handleAllSalesFunctions(
     }
     if (advancePaymentPopup && event.key === 'Escape') {
       setAdvancePaymentPopup(false);
+    }
+    if (transporterPopup && event.key === 'Escape') {
+      setTransporterPopup(false);
     }
     if (event.key === 'F2') {
       event.preventDefault(); // Prevent the default "Select All" behavior
@@ -589,5 +615,6 @@ export function handleAllSalesFunctions(
     handleGstPopup,
     handleAdvancePaymentsPopup,
     handleAdvancePaymentDelete,
+    handleTransporterPopup,
   };
 }

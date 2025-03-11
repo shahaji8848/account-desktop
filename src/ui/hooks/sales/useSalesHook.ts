@@ -12,6 +12,8 @@ import {
   salesDefaultdata,
   TaxData,
   taxDefaultInfoRef,
+  tranporterDefaultData,
+  tranporterDefaultRef,
 } from '../../utils/data';
 
 import useHandleKeyFunctionalities from './useHandleKeyFunctionalities';
@@ -38,6 +40,7 @@ function useSalesHook(globalData: any) {
   const [productData, setProductData] = useState<any>([]);
   const [taxInfo, setTaxInfo] = useState<any>([]);
   const [serialNoData, setSerialNoData] = useState<any>([]);
+  const [transporterData, setTransporterData] = useState<any>({ ...tranporterDefaultData, lr_date: new Date().toISOString().split('T')[0] });
 
   const [showFilter, setShowFilter] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -61,6 +64,7 @@ function useSalesHook(globalData: any) {
   const [paymentTermsOpen, setPaymentTermsOpen] = useState(false);
   const [gstTableOpen, setGstTableOpen] = useState(false);
   const [advancePaymentPopup, setAdvancePaymentPopup] = useState(false);
+  const [transporterPopup, setTransporterPopup] = useState(false);
 
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -72,6 +76,7 @@ function useSalesHook(globalData: any) {
   const textAreaRef = useRef<HTMLElement | null>(null);
   const taxInfoRef = useRef<any[]>([]);
   const taxInfoPopupRef = useRef<any>(taxDefaultInfoRef);
+  const transporterRef = useRef<any>(tranporterDefaultRef);
   const advancePaymentRef = useRef<any[]>([]);
 
   const companyData = useSelector((state: RootState) => state.companyDataReducer);
@@ -156,6 +161,7 @@ function useSalesHook(globalData: any) {
         'Warehouse',
         'Shipping Rule',
         'Incoterm',
+        'Driver',
       ];
 
       if (dropdown_names.includes(type)) {
@@ -182,7 +188,7 @@ function useSalesHook(globalData: any) {
         token: token,
       });
       if (response) {
-        console.log(response, filterDetails,'resp')
+        console.log(response, filterDetails, 'resp');
         let data: any = [];
 
         response.map((item: any) => {
@@ -478,7 +484,12 @@ function useSalesHook(globalData: any) {
     token,
     getAdvancePaymentData,
     advancePaymentRef,
-    advancePaymentData
+    advancePaymentData,
+    transporterPopup,
+    transporterData,
+    transporterRef,
+    setTransporterData,
+    setTransporterPopup,
   });
 
   const { handleFilter } = useFilterHook({
@@ -496,6 +507,7 @@ function useSalesHook(globalData: any) {
     setFilteredItems,
     setSelectedIndex,
     fieldName,
+    transporterData,
   });
 
   // useEffect to focus on the first input field
@@ -510,7 +522,7 @@ function useSalesHook(globalData: any) {
   // UseEffect to filter items based on user input
   useEffect(() => {
     handleFilter();
-  }, [salesData, fieldName, filterData, isSelecting, itemsData, companyData, taxInfo]);
+  }, [salesData, fieldName, filterData, isSelecting, itemsData, companyData, taxInfo, transporterData]);
 
   const {
     handleValueChange,
@@ -525,6 +537,7 @@ function useSalesHook(globalData: any) {
     handleGstPopup,
     handleAdvancePaymentsPopup,
     handleAdvancePaymentDelete,
+    handleTransporterPopup,
   } = handleAllSalesFunctions(
     setPreviousSalesData,
     setSubmitted,
@@ -596,7 +609,12 @@ function useSalesHook(globalData: any) {
     advancePaymentIndex,
     advancePaymentRef,
     token,
-    setPaymentData
+    setPaymentData,
+    setTransporterPopup,
+    transporterPopup,
+    transporterRef,
+    setTransporterData,
+    transporterData
   );
 
   return {
@@ -674,6 +692,10 @@ function useSalesHook(globalData: any) {
     advancePaymentRef,
     setAdvancePaymentIndex,
     handleAdvancePaymentDelete,
+    transporterPopup,
+    transporterData,
+    transporterRef,
+    handleTransporterPopup,
   };
 }
 
