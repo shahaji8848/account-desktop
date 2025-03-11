@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 function useHomePageHooks() {
   const [showCustomerForm, setShowCustomerForm] = useState(false);
@@ -11,23 +11,21 @@ function useHomePageHooks() {
   const [moreReportList, setMoreReportList] = useState(false);
   const [accountBooksList, setAccountBooksList] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [showBankingMenuList, setShowBankingMenuList] = useState<Boolean>(false);
+  const [showTallyUi, setShowTallyUi] = useState<Boolean>(true);
 
   const [voucherRegisterMonthDate, setVoucherRegisterMonthDate] = useState({
-    start_date:'',
-    end_date:''
+    start_date: '',
+    end_date: '',
   });
-  
 
   const dataRef: any = '';
-  const openCompanyDropdown: any = ''
+  const openCompanyDropdown: any = '';
 
-  const handlekeyfunctions = (
-    event: React.KeyboardEvent<HTMLInputElement>
-  ) => {
-    if (event.key === "Escape") {
+  const handlekeyfunctions = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
       setIsModalOpen(false);
-      setSelectedIndex(0)
-
+      setSelectedIndex(0);
     }
   };
   return {
@@ -55,8 +53,11 @@ function useHomePageHooks() {
     showCreditNoteRegister,
     setShowCreditNoteRegister,
     showCreditNoteVoucherRegister,
-    setShowCreditNoteVoucherRegister
-
+    setShowCreditNoteVoucherRegister,
+    setShowBankingMenuList,
+    showBankingMenuList,
+    setShowTallyUi,
+    showTallyUi,
   };
 }
 

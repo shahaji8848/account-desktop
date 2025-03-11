@@ -17,28 +17,29 @@ import ReceiptRegister from './components/AccountBooks/ReceiptRegister/ReceiptRe
 import ReceiptVoucherRegister from './components/AccountBooks/ReceiptRegister/ReceiptVoucherRegister';
 import ContraRegister from './components/AccountBooks/ContraRegister/ContraRegister';
 import ContraVoucherRegister from './components/AccountBooks/ContraRegister/ContraVoucherRegister';
+import BankReconciliationMaster from './components/BankReconciliation/BankReconciliationMaster';
 
 const routesConfig = [
-    { path: "/customer-form", component: CustomerFormMaster },
-    { path: "/supplier-form", component: SupplierFormMaster },
-    { path: "/sales-register", component: SalesRegister },
-    { path: "/sales-voucher-register", component: SalesVoucherRegister },
-    { path: "/credit-note-register", component: CreditNoteRegister },
-    { path: "/credit-note-voucher-register", component: CreditNoteVoucherRegister },
-    { path: "/purchase-register", component: PurchaseRegister },
-    { path: "/purchase-voucher-register", component: PurchaseVoucherRegister },
-    { path: "/debit-note-register", component: DebitNoteRegister },
-    { path: "/debit-note-voucher-register", component: DebitNoteVoucherRegister },
-    { path: "/journal-register", component: JournalRegister },
-    { path: "/journal-voucher-register", component: JournalVoucherRegister },
-    { path: "/payment-register", component: PaymentRegister },
-    { path: "/payment-voucher-register", component: PaymentVoucherRegister },
-    { path: "/receipt-register", component: ReceiptRegister },
-    { path: "/receipt-voucher-register", component: ReceiptVoucherRegister },
-    { path: "/contra-register", component: ContraRegister },
-    { path: "/contra-voucher-register", component: ContraVoucherRegister },
-    { path: "/payment-reconciliation", component: PaymentReconciliationMaster },
-
+  { path: '/customer-form', component: CustomerFormMaster },
+  { path: '/supplier-form', component: SupplierFormMaster },
+  { path: '/sales-register', component: SalesRegister },
+  { path: '/sales-voucher-register', component: SalesVoucherRegister },
+  { path: '/credit-note-register', component: CreditNoteRegister },
+  { path: '/credit-note-voucher-register', component: CreditNoteVoucherRegister },
+  { path: '/purchase-register', component: PurchaseRegister },
+  { path: '/purchase-voucher-register', component: PurchaseVoucherRegister },
+  { path: '/debit-note-register', component: DebitNoteRegister },
+  { path: '/debit-note-voucher-register', component: DebitNoteVoucherRegister },
+  { path: '/journal-register', component: JournalRegister },
+  { path: '/journal-voucher-register', component: JournalVoucherRegister },
+  { path: '/payment-register', component: PaymentRegister },
+  { path: '/payment-voucher-register', component: PaymentVoucherRegister },
+  { path: '/receipt-register', component: ReceiptRegister },
+  { path: '/receipt-voucher-register', component: ReceiptVoucherRegister },
+  { path: '/contra-register', component: ContraRegister },
+  { path: '/contra-voucher-register', component: ContraVoucherRegister },
+  { path: '/payment-reconciliation', component: PaymentReconciliationMaster },
+  { path: '/bank-reconciliation', component: BankReconciliationMaster },
 ];
 
 export default routesConfig;
