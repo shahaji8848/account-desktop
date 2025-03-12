@@ -296,29 +296,37 @@ export async function getAccountBalance(args: any) {
 export async function getErpTransaction(args: any) {
     try {
         
-        let api_url = "api/method/erpnext.accounts.doctype.bank_reconciliation_tool_erpnext.bank_reconciliation_tool_erpnext.get_erp_transaction"
+        let api_url = "api/method/erpnext.accounts.doctype.bank_reconciliation_tool.bank_reconciliation_tool.get_linked_payments"
+        let erp_transaction: any[] = [];
+        let bank_transaction = await getBankTransaction(args)
+        for (let row of bank_transaction.message) {
+            
+            let params:any =  {
+                bank_transaction_name: row.name,
+                document_types:  ["payment_entry","journal_entry"],
+                from_date: args.from_statement_date,
+                to_date:args.to_statement_date
+            }
+    
+            const response = await fetch(`${baseUrl}${api_url}`, {
+                method: 'POST',
+                headers:{
+                    "Content-Type": "application/json",
+                    Authorization: args?.token,
+                    },
+                body: JSON.stringify(params)
+            });
+    
+            if (!response.ok) {
+                return { error: true, message: `Failed to fetch Erp Transaction: ${response.statusText}` };
+            }
+    
+            const data = await response.json();
 
-        let params:any =  {
-        bank_account: args.bank_account,
-        company: args.company,
-        from_statement_date: args.from_statement_date,
-        to_statement_date:args.to_statement_date
+            erp_transaction.push(data.message);
         }
-
-        const response = await fetch(`${baseUrl}${api_url}`, {
-            method: 'POST',
-            headers:{
-                "Content-Type": "application/json",
-                Authorization: args?.token,
-              },
-            body: JSON.stringify(params)
-        });
-
-        if (!response.ok) {
-            return { error: true, message: `Failed to fetch Erp Transaction: ${response.statusText}` };
-        }
-
-        return await response.json();
+        return erp_transaction
+        
     } 
     catch (error) {
         console.error("Error in getErpTransaction:", error);
@@ -333,8 +341,8 @@ export async function getBankTransaction(args: any) {
 
         let params:any =  {
         bank_account: args.bank_account,
-        from_statement_date: args.from_statement_date,
-        to_statement_date:args.to_statement_date
+        from_date: args.from_statement_date,
+        to_date:args.to_statement_date
         }
 
         const response = await fetch(`${baseUrl}${api_url}`, {
@@ -362,29 +370,75 @@ export async function getBankTransaction(args: any) {
 
 export async function getReconcileBankTransaction(args: any) {
     try {
-        let api_url = "api/method/erpnext.accounts.doctype.bank_reconciliation_tool_erpnext.bank_reconciliation_tool_erpnext.reconcile_bnk_transaction"
-        
-        let params: any = { matching_table: args.matching_table };
-       
-        const response = await fetch(`${baseUrl}${api_url}`, {
-            method: 'POST',
-            headers:{
+        let api_url = "/api/resource/";
+        for (let row of args.matching_table) {
+    
+          const parms = {
+              doctype: "Bank Transaction",
+              fields:["payment_entries.payment_document","payment_entries.payment_entry","payment_entries.allocated_amount"],
+              filters: [
+                ["name", "=", row.bank_transaction_id],
+              ],
+            };
+    
+            const queryParams = new URLSearchParams();
+            if (parms.fields.length > 0) {
+              queryParams.append("fields", JSON.stringify(parms.fields));
+            }
+            if (parms.filters.length > 0) {
+              queryParams.append("filters", JSON.stringify(parms.filters));
+            }
+            // console.log(parms.doctype);
+            const url = `${baseUrl}api/resource/${parms.doctype}?${queryParams.toString()}`;
+    
+            const response = await fetch(url, { method: "GET", headers: headers });
+            if (!response.ok) {
+              throw new Error(
+                `Failed to fetch data: ${response.status} - ${response.statusText}`,
+              );
+            }
+            const {data} = await response.json();
+           
+          data.push({
+                     payment_document: row.reference_to,
+                     payment_entry: row.reference_id,
+                     allocated_amount: row.matched_amount,
+                   })
+          
+          let params: any = {
+            payment_entries: data,
+          };
+         
+          const update_response = await fetch(
+            `${baseUrl}${api_url}Bank Transaction/${row.bank_transaction_id}`,
+            {
+              method: "PUT",
+              headers: {
                 "Content-Type": "application/json",
                 Authorization: args?.token,
               },
-            body: JSON.stringify(params)
-        });
-
-        if (!response.ok) {
-            return { error: true, message: `Failed to fetch reconcile bank transaction: ${response.statusText}` };
+              body: JSON.stringify(params),
+            },
+          );
+    
+          if (!update_response.ok) {
+            
+            return {
+              error: true,
+              message: `Failed to fetch reconcile bank transaction: ${update_response.statusText}`,
+            };
+          }
+         
+          return await update_response.json();
         }
-
-        return await response.json();
-    } 
-    catch (error) {
+      } catch (error) {
         console.error("Error in getReconcileBankTransaction:", error);
-        return { error: true, message: "An unexpected error occurred while fetching reconcile bank transaction." };
-    }
+        return {
+          error: true,
+          message:
+            "An unexpected error occurred while fetching reconcile bank transaction.",
+        };
+      }
 }
 
 export async function getAllocateEntries(args: any) {
