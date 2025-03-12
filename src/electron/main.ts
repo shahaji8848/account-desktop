@@ -10,7 +10,8 @@ import {
   getCurrencyData,
   login,
   getAdvancePaymentEntries,
-  getPrintFormatData
+  getPrintFormatData,
+
 } from "../apis/util.js";
 import { getPreloadPath, getUIPath } from "./pathResolver.js";
 import { ipcMain } from "electron";
@@ -22,7 +23,7 @@ import {getAccountBalance , getErpTransaction,getBankTransaction,getReconcileBan
 import {JournalEntryBreakupReport,JournalEntryDetailBreakup} from "./reports/journal_entry.js";
 import {PaymentEntryBreakupReport, PaymentEntryDetailBreakup} from "./reports/payment_entry.js";
 import { argv, connected } from 'process';
-
+import {paymentEntryAccountsDetails,getAllAccounts} from "../apis/payment_entry_apis.js"
 app.on('ready', () => {
  
   const mainWindow = new BrowserWindow({
@@ -146,6 +147,13 @@ app.on('ready', () => {
   ipcMain.handle("PaymentEntryDetailBreakup", async (_ ,kwargs: any) => {
     return await PaymentEntryDetailBreakup(kwargs);
   });
+  ipcMain.handle("paymentEntryAccountsDetails", async (_ ,kwargs: any) => {
+    return await paymentEntryAccountsDetails(kwargs.doctype , kwargs.filters , kwargs.token);
+  });
+  ipcMain.handle("getAllAccounts", async (_ ,kwargs: any) => {
+    return await getAllAccounts(kwargs.doctype , kwargs.filters , kwargs.token);
+  });
+ 
   
 
   handleCloseEvents(mainWindow);

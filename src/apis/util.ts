@@ -235,10 +235,10 @@ async function getAccountsData(doctype: any, filters: any, token: any) {
   if ('is_group' in filters) {
     accountsApiFilter.push(['is_group', '=', `${filters.is_group}`]);
   }
-  if(filters?.account_type)
-    {
-      accountsApiFilter.push(["account_type","IN",filters.account_type])
-    }
+  // if(filters?.account_type)
+  //   {
+  //     accountsApiFilter.push(["account_type","IN",filters.account_type])
+  //   }
 
   if (accountsApiFilter.length > 0) {
     url = `${baseUrl}/${doctype}?filters=${JSON.stringify(accountsApiFilter)}`;
@@ -826,8 +826,8 @@ export async function getData(kwargs: any) {
       return getPaymentEntryPartyDetails(doctype, filters, token)
     case "Payment Entry Reference Documents":
       return getPaymentEntryRefDocuments(doctype, filters, token)
-    case "Payment Entry Account Details":
-      paymentEntryAccountsDetails(doctype, filters , token)
+    // case "Payment Entry Account Details":
+    //   paymentEntryAccountsDetails(doctype, filters , token)
     default:
       return getOtherRecords(doctype, filters, token);
   }
