@@ -80,7 +80,10 @@ export function handleAllSalesFunctions(
   transporterPopup: any,
   transporterRef: any,
   setTransporterData: any,
-  transporterData: any
+  transporterData: any,
+  getPDF: any,
+  isOnPrint: any,
+  setIsOnPrint: any
 ) {
   const navigate = useNavigate();
   const handleSubmitData = async (salesInvoiceData: any, method: string = 'POST') => {
@@ -99,7 +102,7 @@ export function handleAllSalesFunctions(
               name: salesInvoiceName,
               token: token,
             });
-      console.log(x);
+      // console.log(x);
       if (x !== undefined) {
         toast.success('Form is submitted!', {
           autoClose: 2000,
@@ -358,6 +361,11 @@ export function handleAllSalesFunctions(
                 newTaxData = [...newTaxData, { ...item }];
               }
             });
+          let newAdvanceData: any = [];
+          advancePaymentData.length > 0 &&
+            advancePaymentData.map((item: any, index: number) => {
+              newAdvanceData = [...newAdvanceData, { ...item, allocated_amount: Number(item.allocated_amount) }];
+            });
           let salesInvoiceData = {
             customer: salesData.party_details.party_name,
             customer_name: salesData.party_details.party_name,
@@ -391,12 +399,12 @@ export function handleAllSalesFunctions(
             additional_discount_account: salesData.additional_discount_account,
             is_cash_or_non_trade_discount: salesData.is_cash_or_non_trade_discount,
             cost_center: salesData.cost_center || '',
-            advances: advancePaymentData?.length > 0 && advancePaymentData[0].allocated_amount !== '' ? advancePaymentData : [],
-            allocate_advances_automatically: salesData.allocate_advances_automatically,
-            only_include_allocated_payments: salesData.only_include_allocated_payments,
+            advances: advancePaymentData?.length > 0 && advancePaymentData[0].allocated_amount !== '' ? newAdvanceData : [],
+            // allocate_advances_automatically: salesData.allocate_advances_automatically,
+            // only_include_allocated_payments: salesData.only_include_allocated_payments,
             incoterm: salesData.incoterm,
             named_place: salesData.named_place,
-            ...transporterData
+            ...transporterData,
           };
           if (Object.keys(previousSalesData).length > 0) {
             if (previousSalesData === salesData) {
@@ -495,6 +503,21 @@ export function handleAllSalesFunctions(
     }
   };
 
+  const handlePrintFormat = () => {
+    if (salesInvoiceName) {
+      setIsOnPrint(true);
+      setTimeout(() => {
+        salesDataRef.current.print_format.focus();
+      }, 0);
+      getPDF(salesInvoiceName, salesData.print_format);
+    } else {
+      toast.warning('Please make sure the status is in draft!', {
+        autoClose: 2000,
+        className: 'custom-toast',
+      });
+    }
+  };
+
   const handleAllKeyFunctions = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.ctrlKey && event.key === 'a') {
       event.preventDefault(); // Prevent the default "Select All" behavior
@@ -510,7 +533,8 @@ export function handleAllSalesFunctions(
       !paymentTermsOpen &&
       !gstTableOpen &&
       !advancePaymentPopup &&
-      !transporterPopup
+      !transporterPopup &&
+      !isOnPrint
     ) {
       navigate('/');
     }
@@ -528,6 +552,10 @@ export function handleAllSalesFunctions(
       event.preventDefault(); // Prevent the default "Select All" behavior
       // setTermsPopup(true);
       handleAdvancePaymentsPopup();
+    }
+    if (event.altKey && event.key === 'p') {
+      event.preventDefault();
+      handlePrintFormat();
     }
     if (event.altKey && event.key === 't') {
       event.preventDefault();
@@ -554,6 +582,9 @@ export function handleAllSalesFunctions(
     }
     if (transporterPopup && event.key === 'Escape') {
       setTransporterPopup(false);
+    }
+    if (isOnPrint && event.key === 'Escape') {
+      setIsOnPrint(false);
     }
     if (event.key === 'F2') {
       event.preventDefault(); // Prevent the default "Select All" behavior
@@ -616,5 +647,6 @@ export function handleAllSalesFunctions(
     handleAdvancePaymentsPopup,
     handleAdvancePaymentDelete,
     handleTransporterPopup,
+    handlePrintFormat,
   };
 }

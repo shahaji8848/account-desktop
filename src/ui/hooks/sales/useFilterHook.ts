@@ -78,6 +78,9 @@ const useFilterHook = ({
       if (fieldName === 'batch_no') {
         filtered = filterData[fieldName]?.filter((item: any) => item?.toLowerCase().includes((itemsData[fieldName] as string)?.toLowerCase() || ''));
       }
+      if (fieldName === 'print_format') {
+        filtered = filterData[fieldName]?.filter((item: any) => item?.toLowerCase().includes((salesData[fieldName] as string)?.toLowerCase() || ''));
+      }
       if (fieldName === 'company_name') {
         filtered = filterData[fieldName]?.filter((item: any) =>
           item?.toLowerCase().includes((companyData[fieldName] as string)?.toLowerCase() || '')

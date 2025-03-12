@@ -66,6 +66,8 @@ export default function useHandleKeyFunctionalities({
   transporterRef,
   setTransporterData,
   setTransporterPopup,
+  getPDF,
+  salesInvoiceName,
 }: any) {
   const getAddressFilter = (type: any, name: any) => ({
     type: 'Address',
@@ -124,6 +126,10 @@ export default function useHandleKeyFunctionalities({
     } else if (fieldName === 'receivable_account') {
       setFilterListName(filterTypes[fieldName].type);
       getFilterData(filterTypes[fieldName], 'account_data');
+    } else if (fieldName === 'party_name') {
+      console.log('fetching party name');
+      setFilterListName(filterTypes[fieldName].type);
+      getFilterData(filterTypes[fieldName], 'party_name');
     } else if (fieldName === 'uom') {
       setFilterListName(filterTypes[fieldName].type);
       filterData.uom?.length <= 0 && getFilterData(filterTypes[fieldName], fieldName);
@@ -142,6 +148,10 @@ export default function useHandleKeyFunctionalities({
       setFilterListName(filterTypes[fieldName].type);
       // console.log(filterTypes[fieldName], fieldName);
       getFilterData({ type: filterTypes['batch_no'].type, filter: { item_name: itemsData.item_name || '' } }, 'batch_no');
+    } else if (fieldName === 'print_format') {
+      setFilterListName(filterTypes[fieldName].type);
+      // console.log(filterTypes[fieldName], fieldName);
+      getFilterData({ type: filterTypes['print_format'].type, filter: { doctype: 'Sales Invoice' } }, 'print_format');
     } else if (filterTypes[fieldName]) {
       setFilterListName(filterTypes[fieldName].type);
       // console.log(filterTypes[fieldName], fieldName);
@@ -511,7 +521,7 @@ export default function useHandleKeyFunctionalities({
       // console.log(getFilterData({ type: filterTypes[fieldName].type, filter: { is_transporter: true, name: value } }, fieldName), 'welcome');
       setTimeout(() => {
         setShowFilter(false);
-        setType('dropdown')
+        setType('dropdown');
       }, 0);
     } else if (name === 'mode_of_transport') {
       focusNextField(transporterRef.current.driver);
@@ -524,7 +534,7 @@ export default function useHandleKeyFunctionalities({
         });
       setTimeout(() => {
         setShowFilter(false);
-        setType('dropdown')
+        setType('dropdown');
       }, 0);
     } else if (name === 'driver') {
       focusNextField(transporterRef.current.lr_no);
@@ -538,7 +548,7 @@ export default function useHandleKeyFunctionalities({
         });
       setTimeout(() => {
         setShowFilter(false);
-        setType('')
+        setType('');
       }, 0);
     } else if (name === 'gst_vehicle_type') {
       focusNextField(salesDataRef.current.naming_series);
@@ -552,7 +562,21 @@ export default function useHandleKeyFunctionalities({
       setTimeout(() => {
         setShowFilter(false);
         setTransporterPopup(false);
-        setType('dropdown')
+        setType('dropdown');
+      }, 0);
+    } else if (name === 'print_format') {
+      // focusNextField(salesDataRef.current.receivable_account);
+      // handleShowFilter('billing_address');
+      fieldName === name &&
+        showFilter &&
+        setSalesData({
+          ...salesData,
+          [name]: value,
+        });
+      getPDF(salesInvoiceName, value);
+      setTimeout(() => {
+        setShowFilter(false);
+        // setType('dropdown')
       }, 0);
     } else if (name === 'item_name') {
       if (!showFilter) {
@@ -791,7 +815,8 @@ export default function useHandleKeyFunctionalities({
         name === 'transporter' ||
         name === 'mode_of_transport' ||
         name === 'driver' ||
-        name === 'gst_vehicle_type'
+        name === 'gst_vehicle_type' ||
+        name === 'print_format'
       ) {
         handlePartyNameAndCostCenter(name, filteredItems[selectedIndex]);
       } else if (name === 'rate') {

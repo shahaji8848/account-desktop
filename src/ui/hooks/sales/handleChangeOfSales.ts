@@ -78,6 +78,7 @@ export function handleChangeOfSales(
       'mode_of_transport',
       'driver',
       'gst_vehicle_type',
+      'print_format'
     ];
 
     if (dropdown_names.includes(name)) {

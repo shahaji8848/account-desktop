@@ -176,6 +176,7 @@ export const salesDefaultdata = {
   advances: [],
   allocate_advances_automatically: false,
   only_include_allocated_payments: false,
+  print_format: '',
 };
 
 export const dataRef = {
@@ -215,6 +216,7 @@ export const dataRef = {
   allocate_advances_automatically: null,
   only_include_allocated_payments: null,
   get_advances: null,
+  print_format: null,
 };
 
 export const companyDefaultData = {
@@ -377,6 +379,7 @@ export interface SalesData {
   terms_description: string;
   allocate_advances_automatically: boolean;
   only_include_allocated_payments: boolean;
+  print_format: string;
 }
 
 export interface CompanyData {
@@ -438,6 +441,7 @@ export const filterTypes: any = {
   contact_person: { type: 'Contact' },
   transporter: { type: 'Supplier' },
   driver: { type: 'Driver' },
+  print_format: { type: 'Print Format' },
 };
 
 export const filterDefaultData = {
@@ -470,4 +474,5 @@ export const filterDefaultData = {
   driver: [],
   mode_of_transport: [],
   gst_vehicle_type: [],
+  print_format: [],
 };
