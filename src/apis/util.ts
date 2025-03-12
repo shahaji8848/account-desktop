@@ -298,6 +298,10 @@ async function getBankAccount(doctype: any, filters: any, token: any) {
   if (filters?.input) {
     apiFilters.push(['name', 'like', `%${filters.input}%`]);
   }
+  if(filters?.account_type)
+  {
+    apiFilters.push(["account_type","IN",filters.account_type])
+  }
 
   const queryParams = new URLSearchParams();
   if (apiFilters.length > 0) {
@@ -740,8 +744,31 @@ export async function getPaymentEntryRefDocuments(
   }
 }
 
+export async function paymentEntryAccountsDetails(doctype:any , filters:any , token:any){
+  if (!filters?.account) {
+    return { error: true, msg: 'Please select an account' };
+  }
+  const getAccountsDetailUrl = "https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.doctype.payment_entry.payment_entry.get_account_details"
+  
+  const response = await fetch(getAccountsDetailUrl, {
+    method: 'POST',
+    headers: {
+      Authorization: token,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      "date":new Date().toISOString().split("T")[0],
+      "account":filters.account
+    }),
+  });
+  return await response.json()
+
+
+}
 export async function getData(kwargs: any) {
   const { doctype, filters, token } = kwargs;
+
+  //Not necessary to pass a doctype of ERPNEXT. (Fore eg some Std Get API'S are also Used Like Party Details)
 
   switch (doctype) {
     case 'Address':
@@ -798,6 +825,8 @@ export async function getData(kwargs: any) {
       return getPaymentEntryPartyDetails(doctype, filters, token)
     case "Payment Entry Reference Documents":
       return getPaymentEntryRefDocuments(doctype, filters, token)
+    case "Payment Entry Account Details":
+      paymentEntryAccountsDetails(doctype, filters , token)
     default:
       return getOtherRecords(doctype, filters, token);
   }
