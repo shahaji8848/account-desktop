@@ -28,6 +28,7 @@ export default function useGlobalKeyFunctionalities() {
   const [filterData, setFilterData] = useState<any>({
     company_name: [],
     company_address: [],
+    company_contact_person: [],
   });
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
 
@@ -36,7 +37,10 @@ export default function useGlobalKeyFunctionalities() {
     company_name: null,
     company_address: null,
     company_gstin: null,
+    company_contact_person: null,
   });
+
+  const token = localStorage.getItem('account_desktop_token') || '';
 
   const openCompanyDropdown = () => {
     setIsSelecting(false);
@@ -96,12 +100,12 @@ export default function useGlobalKeyFunctionalities() {
 
     const { name, value } = e.target;
 
-    if (['company_name', 'company_address'].includes(name)) {
-      if (name.includes('company')) {
-        setCompanyData({ ...companyData, [name]: value });
-      } else {
-        setDate({ ...date, [name]: value });
-      }
+    if (['company_name', 'company_address', 'company_contact_person'].includes(name)) {
+      // if (name.includes('company')) {
+      setCompanyData({ ...companyData, [name]: value });
+      // } else {
+      //   setDate({ ...date, [name]: value });
+      // }
     } else {
       setCompanyData({ ...companyData, [name]: value });
 
@@ -115,6 +119,19 @@ export default function useGlobalKeyFunctionalities() {
       setIsSelecting(true);
 
       if (name === 'company_name') {
+        setTimeout(() => {
+          if (companyDataRef.current.company_contact_person) {
+            companyDataRef.current.company_contact_person.focus();
+          }
+        }, 0);
+        setIsSelecting(false);
+        setShowFilter(true);
+        setFieldName('company_contact_person');
+        setCompanyData({
+          ...companyData,
+          [name]: filteredItems[selectedIndex],
+        });
+      } else if (name === 'company_contact_person') {
         setTimeout(() => {
           if (companyDataRef.current.company_address) {
             companyDataRef.current.company_address.focus();
@@ -193,10 +210,12 @@ export default function useGlobalKeyFunctionalities() {
       ? await window.electron.getData({
           doctype: type,
           filters: { ...filter, company: companyData.company_name || '' },
+          token: token,
         })
       : await getData({
           doctype: type,
           filters: { ...filter, company: companyData.company_name || '' },
+          token: token,
         });
 
     return response;
@@ -215,6 +234,9 @@ export default function useGlobalKeyFunctionalities() {
   useEffect(() => {
     if (fieldName === 'company_address') {
       getFilterData(getAddressFilter('Company', companyData.company_name), 'company_address');
+    }
+    if (fieldName === 'company_contact_person') {
+      getFilterData({ type: 'Contact', filter: { type: 'Company', type_name: companyData.company_name } }, 'company_contact_person');
     }
   }, [fieldName]);
 
@@ -235,11 +257,20 @@ export default function useGlobalKeyFunctionalities() {
 
   const handleFilter = () => {
     if (!isSelecting) {
+      // console.log(fieldName, filterData, 'filter data')
       let filtered: string[] = [];
 
       if (fieldName === 'company_name') {
         const data = filterData['company_name']?.filter((item: any) =>
           item.name?.toLowerCase().includes((companyData.company_name as string)?.toLowerCase() || '')
+        );
+        data?.map((item: any) => {
+          filtered = [...filtered, item.name];
+        });
+      }
+      if (fieldName === 'company_contact_person') {
+        const data = filterData['company_contact_person']?.filter((item: any) =>
+          item.name?.toLowerCase().includes((companyData.company_contact_person as string)?.toLowerCase() || '')
         );
         data?.map((item: any) => {
           filtered = [...filtered, item.name];

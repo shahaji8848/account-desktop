@@ -4,9 +4,17 @@ interface BottomNavbarProps {
   handlePartyNamePopup?: () => void;
   handleGstPopup?: () => void;
   handleAdvancePaymentsPopup?: () => void;
+  handleTransporterPopup?: () => void;
 }
 
-function BottomNavbar({ handleSubmit, handleTermsPopup, handlePartyNamePopup, handleGstPopup, handleAdvancePaymentsPopup }: BottomNavbarProps) {
+function BottomNavbar({
+  handleSubmit,
+  handleTermsPopup,
+  handlePartyNamePopup,
+  handleGstPopup,
+  handleAdvancePaymentsPopup,
+  handleTransporterPopup,
+}: BottomNavbarProps) {
   return (
     <div
       className="bottom-nav-bar w-100 d-flex align-items-center justify-content-start position-absolute pb-2 px-2"
@@ -100,7 +108,17 @@ function BottomNavbar({ handleSubmit, handleTermsPopup, handlePartyNamePopup, ha
           <p style={{ transform: 'rotate(-90deg)', borderLeft: '0' }}>{'>'}</p>
         </div>
       </div>
-      <div className="tab"></div>
+      <div className="tab" onClick={handleTransporterPopup}>
+        <p>
+          <span className="fw-bold" style={{ color: '#589dcc', textDecoration: 'underline' }}>
+            T
+          </span>{' '}
+          : Transporter
+        </p>
+        <div className="disabled">
+          <p style={{ transform: 'rotate(-90deg)', borderLeft: '0' }}>{'>'}</p>
+        </div>
+      </div>
       <div className="tab"></div>
     </div>
   );
