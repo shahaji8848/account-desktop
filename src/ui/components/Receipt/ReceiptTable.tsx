@@ -80,13 +80,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
 
         } else if (name === 'posting_date') {
             setDate({ ...date, [name]: value });
-        } else if (name === 'main_user_remark') {
-            setUserRemark(value)
-        } else if (name === 'main_reference_name') {
-            setReferenceNumber(value)
-        } else if (name === 'main_reference_date') {
-            setReferenceDate(value)
-        }
+        } 
 
     };
 

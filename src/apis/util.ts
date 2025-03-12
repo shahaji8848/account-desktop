@@ -743,6 +743,7 @@ export async function getPaymentEntryRefDocuments(
     return { error: true, message: error.message };
   }
 }
+// {account_type:["Bank", "Cash"]}
 
 export async function paymentEntryAccountsDetails(doctype:any , filters:any , token:any){
   if (!filters?.account) {
