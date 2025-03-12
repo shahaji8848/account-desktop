@@ -65,7 +65,12 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
             entryRefs.current.focus();
         }
         const fetchData = async () => {
-            const result = await window.electron.getData({ doctype: "Account", filters: { account_type: ["Bank", "Cash"] }, token });
+            const result = await window.electron.getData(
+                {
+                    doctype: "Payment Entry Reference Documents",
+                    filters: { ref_type: "Sales Order" },
+                    token
+                });
             console.log("Divik", result)
         };
         fetchData();
