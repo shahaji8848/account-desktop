@@ -235,6 +235,10 @@ async function getAccountsData(doctype: any, filters: any, token: any) {
   if ('is_group' in filters) {
     accountsApiFilter.push(['is_group', '=', `${filters.is_group}`]);
   }
+  if(filters?.account_type)
+    {
+      accountsApiFilter.push(["account_type","IN",filters.account_type])
+    }
 
   if (accountsApiFilter.length > 0) {
     url = `${baseUrl}/${doctype}?filters=${JSON.stringify(accountsApiFilter)}`;
@@ -298,11 +302,7 @@ async function getBankAccount(doctype: any, filters: any, token: any) {
   if (filters?.input) {
     apiFilters.push(['name', 'like', `%${filters.input}%`]);
   }
-  if(filters?.account_type)
-  {
-    apiFilters.push(["account_type","IN",filters.account_type])
-  }
-
+ 
   const queryParams = new URLSearchParams();
   if (apiFilters.length > 0) {
     queryParams.append('filters', JSON.stringify(apiFilters));
