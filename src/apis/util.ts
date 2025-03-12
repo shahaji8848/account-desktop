@@ -347,6 +347,7 @@ async function getGstHsnData(doctype: any, filters: any, token: any) {
 
 async function getOtherRecords(doctype: any, filters: any, token: any) {
   let url = `${baseUrl}/${doctype}`;
+  if (filters?.name) url +=`/${filters?.name}`
   let data = await fetchData(url, token);
   return data;
 }
