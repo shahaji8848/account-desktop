@@ -78,6 +78,7 @@ function ReceiptItemsPopup({
                                         </div>
                                         <input
                                             name="reference_date"
+                                            type='date'
                                             value={entry.reference_date}
                                             onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
                                             onKeyDown={(e) => handleKeyDown(e, 'reference_date', entry.id)}

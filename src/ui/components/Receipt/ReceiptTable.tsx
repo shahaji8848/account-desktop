@@ -56,10 +56,10 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
 
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '8848 Digital LLP';
     const token = localStorage.getItem('account_desktop_token');
-    const AccountList = useFetchData("Account", {}, token);
-    const BankAccountList = useFetchData("Bank Account", {}, token);
+    // const AccountList = useFetchData("Account", {}, token);
+    const BankAccountList = useFetchData("Account", { account_type: ["Bank", "Cash"] }, token);
     const CostCenterList = useFetchData("Cost Center", {}, token);
-
+console.log("BankAccountList",BankAccountList)
     useEffect(() => {
         if (entryRefs.current) {
             entryRefs.current.focus();
@@ -80,7 +80,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
 
         } else if (name === 'posting_date') {
             setDate({ ...date, [name]: value });
-        } 
+        }
 
     };
 
@@ -227,7 +227,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     }
                 }
 
-            }else if (field === "paid_to"){
+            } else if (field === "paid_to") {
                 setAccountPaidTo(currentFilterList[selectedIndex]?.name || '')
             }
             setShowFilter(false);
@@ -289,85 +289,65 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
 
 
     const handleSubmit = async () => {
-        const Accountdata = entries.flatMap((entry: any) => {
-            // let result = [];
 
-            // Check if any key in the entry is empty 
-            const requiredKeys = ["particulars", "party_type", "party"];
+        for (const entry of entries) {
+
+            const requiredKeys = ["paid_to", "party_type", "party", "paid_amount"];
             const hasEmptyKey = requiredKeys.some((key) => entry[key] === "");
 
-            // if (!hasEmptyKey) {
-            //     // Handle debit
-            //     if (entry.debit !== "disabled") {
-            //         result.push({
-            //             account: entry.particulars,
-            //             party_type: entry.party_type,
-            //             party: entry.party,
-            //             debit_in_account_currency: parseFloat(entry.debit),
-            //             cost_center: entry.cost_center,
-            //             account_currency: entry.account_currency,
-            //             exchange_rate: entry.exchange_rate,
-            //             reference_type: entry.reference_type,
-            //             is_advance: entry.is_advance,
-            //             reference_name: entry.reference_name,
-            //             user_remark: entry.user_remark
-            //         });
-            //     }
+            if (!hasEmptyKey) {
+                const receiptData = {
+                    naming_series: entry?.naming_series || "ACC-PAY-.YYYY.-",
+                    payment_type: entry?.payment_type,
+                    posting_date: date.posting_date,
+                    company: companyName,
+                    mode_of_payment: "",
+                    party_type: entry?.party_type,
+                    party: entry?.party,
+                    party_account: entry?.party_account,
+                    paid_amount: entry?.paid_amount,
+                    received_amount: entry?.paid_amount,
+                    unallocated_amount: 7200.00,
+                    target_exchange_rate: entry?.target_exchange_rate,
+                    paid_to: accountPaidTo,
+                    reference_no: entry?.reference_no,
+                    reference_date: entry?.reference_date,
+                    references: [
+                        {
+                            reference_doctype: "Sales Order",
+                            reference_name: "SAL-ORD-2024-00002",
+                            outstanding_amount: 12800.0,
+                            total_amount: 12800.0,
+                            allocated_amount: 12800.0
+                        }
+                    ],
+                    taxes: [],
+                    deductions: []
+                };
 
-            //     // Handle credit
-            //     if (entry.credit !== "disabled") {
-            //         result.push({
-            //             account: entry.particulars,
-            //             party_type: entry.party_type,
-            //             party: entry.party,
-            //             credit_in_account_currency: parseFloat(entry.credit),
-            //             cost_center: entry.cost_center,
-            //             account_currency: entry.account_currency,
-            //             exchange_rate: entry.exchange_rate,
-            //             reference_type: entry.reference_type,
-            //             is_advance: entry.is_advance,
-            //             reference_name: entry.reference_name,
-            //             user_remark: entry.user_remark
+                console.log("receiptData", receiptData);
 
-            //         });
-            //     }
-            // }
+                try {
+                    const receiptResponse = await window.electron.postData({ doctype: "Payment Entry", data: receiptData, token });
+                    if (receiptResponse !== undefined) {
+                        console.log("receiptResponse", receiptResponse)
+                        toast.success('Payment Form is submitted!', {
+                            autoClose: 2000,
+                            className: 'custom-toast',
+                        });
 
-
-
-
-
-            // return result;
-        });
-
-        const journalData = {
-            naming_series: accountPaidTo || "ACC-JV-.YYYY.-",
-            company: companyName,
-            company_gstin: companyGstin,
-            posting_date: date?.posting_date,
-            cheque_no: referenceNumber,
-            cheque_date: ReferenceDate,
-            user_remark: userRemark,
-            accounts: Accountdata
-        };
-
-        console.log("journalData", JSON.stringify(journalData))
-        try {
-            const journalResponse = await window.electron.postData({ doctype: "Journal Entry", data: journalData, token });
-            if (journalResponse !== undefined) {
-                toast.success('Journal Form is submitted!', {
-                    autoClose: 2000,
-                    className: 'custom-toast',
-                });
-
-            } else {
-                toast.error('Something went wrong with Journal submission!', {
-                    autoClose: 2000,
-                    className: 'custom-toast',
-                });
+                    } else {
+                        toast.error('Something went wrong with Address submission!', {
+                            autoClose: 2000,
+                            className: 'custom-toast',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error posting Address:', error);
+                }
             }
-        } catch (error) {
-            console.error('Error posting Address:', error);
+
+
         }
 
     }
