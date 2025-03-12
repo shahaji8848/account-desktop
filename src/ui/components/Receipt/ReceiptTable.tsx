@@ -37,7 +37,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
             id: nanoid(),
             party_type: "",
             party: "",
-            paid_amount: "",
+            paid_amount: 0,
             curBalance: 0,
             party_account_currency: '',
             party_account: '',
@@ -57,19 +57,24 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '8848 Digital LLP';
     const token = localStorage.getItem('account_desktop_token');
     // const AccountList = useFetchData("Account", {}, token);
-    const BankAccountList = useFetchData("Account", { account_type: ["Bank", "Cash"] }, token);
+    // const BankAccountList = useFetchData("Account", { account_type: ["Bank", "Cash"] }, token);
     const CostCenterList = useFetchData("Cost Center", {}, token);
-console.log("BankAccountList",BankAccountList)
+    // console.log("BankAccountList", BankAccountList)
     useEffect(() => {
         if (entryRefs.current) {
             entryRefs.current.focus();
         }
+        const fetchData = async () => {
+            const result = await window.electron.getData({ doctype: "Account", filters: { account_type: ["Bank", "Cash"] }, token });
+            console.log("Divik", result)
+        };
+        fetchData();
     }, []);
 
     // Handle input changes for different fields
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, id: any, rowType?: any) => {
         const { name, value } = e.target;
-
+        console.log("value>", value)
         if (rowType === 'entry_row') {
             setEntries((prevEntries: any) =>
                 prevEntries.map((entry: any) =>
@@ -229,6 +234,29 @@ console.log("BankAccountList",BankAccountList)
 
             } else if (field === "paid_to") {
                 setAccountPaidTo(currentFilterList[selectedIndex]?.name || '')
+
+                try {
+                    const paidToAccountResponse = await window.electron.getData({
+                        doctype: 'Payment Entry Account Details',
+                        filters: { account: currentFilterList[selectedIndex]?.name },
+                        token
+                    })
+                    if (paidToAccountResponse) {
+                        console.log("paidToAccountResponse", paidToAccountResponse)
+
+
+
+
+                    } else {
+                        toast.error('Something went wrong with Party', {
+                            autoClose: 2000,
+                            className: 'custom-toast',
+                        });
+                    }
+                } catch (error) {
+
+
+                }
             }
             setShowFilter(false);
             setSelectedIndex(0);
@@ -305,8 +333,8 @@ console.log("BankAccountList",BankAccountList)
                     party_type: entry?.party_type,
                     party: entry?.party,
                     party_account: entry?.party_account,
-                    paid_amount: entry?.paid_amount,
-                    received_amount: entry?.paid_amount,
+                    paid_amount: Number(entry?.paid_amount),
+                    received_amount: Number(entry?.paid_amount),
                     unallocated_amount: 7200.00,
                     target_exchange_rate: entry?.target_exchange_rate,
                     paid_to: accountPaidTo,
@@ -318,14 +346,14 @@ console.log("BankAccountList",BankAccountList)
                             reference_name: "SAL-ORD-2024-00002",
                             outstanding_amount: 12800.0,
                             total_amount: 12800.0,
-                            allocated_amount: 12800.0
+                            allocated_amount: Number(Math.abs(Number(entry?.paid_amount) - 7200).toFixed(2))
                         }
                     ],
                     taxes: [],
                     deductions: []
                 };
 
-                console.log("receiptData", receiptData);
+                console.log("receiptData", JSON.stringify(receiptData));
 
                 try {
                     const receiptResponse = await window.electron.postData({ doctype: "Payment Entry", data: receiptData, token });
@@ -456,7 +484,7 @@ console.log("BankAccountList",BankAccountList)
                     {/* Amount */}
                     <div className={`col-2 d-flex justify-content-center ${styles.voucherRowActive}`} style={{ height: '20px' }}>
                         <input
-                            type="text"
+                            type='number'
                             className={`form-control text-center p-0 ${styles.voucherRowActive}`}
                             // style={{ width: '20%' }}
                             name="paid_amount"

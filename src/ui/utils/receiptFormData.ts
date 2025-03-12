@@ -4,6 +4,6 @@ export const paymentTypeList = [
 ];
 
 export const AccountPaidToList = [
-    { name: "123654 - Axis Bank - 8D" }
+    { name: "123654 - Axis Bank - 8DL" }
    
 ];
