@@ -83,7 +83,8 @@ export function handleAllSalesFunctions(
   transporterData: any,
   getPDF: any,
   isOnPrint: any,
-  setIsOnPrint: any
+  setIsOnPrint: any,
+  setIsQuitModalOpen: any
 ) {
   const navigate = useNavigate();
   const handleSubmitData = async (salesInvoiceData: any, method: string = 'POST') => {
@@ -536,7 +537,7 @@ export function handleAllSalesFunctions(
       !transporterPopup &&
       !isOnPrint
     ) {
-      navigate('/');
+      setIsQuitModalOpen(true);
     }
     if (event.ctrlKey && event.key === 'x') {
       event.preventDefault(); // Prevent the default "Select All" behavior

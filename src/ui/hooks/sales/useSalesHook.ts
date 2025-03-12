@@ -71,6 +71,8 @@ function useSalesHook(globalData: any) {
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
+
   const salesDataRef = useRef<any>(dataRef);
   const tableBodyRef = useRef<(HTMLTableRowElement | null)[]>([]);
   const tablePopupRef = useRef<any>({ ...defaultTableDataRef });
@@ -188,7 +190,7 @@ function useSalesHook(globalData: any) {
         'Shipping Rule',
         'Incoterm',
         'Driver',
-        "Print Format",
+        'Print Format',
       ];
 
       if (dropdown_names.includes(type)) {
@@ -648,7 +650,8 @@ function useSalesHook(globalData: any) {
     transporterData,
     getPDF,
     isOnPrint,
-    setIsOnPrint
+    setIsOnPrint,
+    setIsQuitModalOpen
   );
 
   return {
@@ -734,6 +737,8 @@ function useSalesHook(globalData: any) {
     getPDF,
     isOnPrint,
     handlePrintFormat,
+    isQuitModalOpen,
+    setIsQuitModalOpen
   };
 }
 

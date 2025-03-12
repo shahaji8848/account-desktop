@@ -176,7 +176,7 @@ export const salesDefaultdata = {
   advances: [],
   allocate_advances_automatically: false,
   only_include_allocated_payments: false,
-  print_format: '',
+  print_format: 'Sales Custom',
 };
 
 export const dataRef = {
