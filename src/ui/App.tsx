@@ -27,14 +27,6 @@ function App() {
     if (storedToken) {
       setToken(storedToken);
     }
-
-    window.electron
-      .getPaymentReconciliationEntries({
-        filters: { invoice_name: '53', payment_name: 'ACC-PAY-2025-00010' },
-      })
-      .then((data: any) => {
-        console.log('reconcile', data);
-      });
   }, []);
 
   // Handle login success and store token
