@@ -69,6 +69,13 @@ electron.contextBridge.exposeInMainWorld('electron', {
   PaymentEntryDetailBreakup: (args: any) => {
     return ipcInvoke('PaymentEntryDetailBreakup', args);
   },
+ 
+  getAllAccounts: (args: any) => {
+    return ipcInvoke('getAllAccounts', args);
+  },
+  paymentEntryAccountsDetails: (args: any) => {
+    return ipcInvoke('paymentEntryAccountsDetails', args);
+  },
 });
 
 function ipcInvoke<Key extends string>(key: Key, args?: any): Promise<any> {
