@@ -11,6 +11,9 @@ import QuitConfirmationModal from '../Home/QuitConfirmationModal';
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md';
 import './bank-reconciliation.css';
 import useFetchData from '../../hooks/fetchData';
+import useGetAccountBalance from '../../hooks/bank_reconciliation/useAccountBalance';
+import useErpTransaction from '../../hooks/bank_reconciliation/useErpTransaction';
+import useBankTransaction from '../../hooks/bank_reconciliation/useBankTransaction';
 export default function BankReconciliationRework({ homeHookData, globalData }: any) {
   const token = localStorage.getItem('account_desktop_token');
   const companyData = useFetchData('Company', {}, token);
@@ -33,26 +36,29 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     to_date: new Date().toISOString().split('T')[0],
   });
 
-  console.log('Bank@@@ inital data', initalBankReconcileData);
-
   const company = initalBankReconcileData?.company;
   const bankAccount = initalBankReconcileData?.bank_account;
   const fromDate = initalBankReconcileData?.from_date;
   const toDate = initalBankReconcileData?.to_date;
 
+  const [openingBal, setOpeningBal] = useState('');
+  const [diffAmount, setDiffAmount] = useState('');
+  const [closingBalErp, setClosingBalErp] = useState('');
+  const [closingBalBank, setClosingBalBank] = useState('');
+
   const { allocationListData, fetchAllocationList } = useAllocateList();
   const { reconcileData, fetchReconcile } = useReconcile();
 
-  const [selectedInvoices, setSelectedInvoices] = useState<any[]>([]);
-  const [selectedPayments, setSelectedPayments] = useState<any[]>([]);
+  const [selectedBankStatement, setSelectedBankStatement] = useState<any[]>([]);
+  const [selectedErpTransaction, setSelectedErpTransaction] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [hideAllocationTable, setHideAllocationTable] = useState<boolean>(false);
   const [showDateFilters, setShowDateFilters] = useState(true);
 
-  const [fromStatementDate, setFromStatementDate] = useState<any>('');
-  const [toStatementDate, setToStatementDate] = useState<any>('');
-  const [fromErpDate, setFromErpDate] = useState<any>('');
-  const [toErpDate, setToErpDate] = useState<any>('');
+  const [fromStatementDate, setFromStatementDate] = useState<any>(new Date().toISOString().split('T')[0]);
+  const [toStatementDate, setToStatementDate] = useState<any>(new Date().toISOString().split('T')[0]);
+  const [fromErpDate, setFromErpDate] = useState<any>(new Date().toISOString().split('T')[0]);
+  const [toErpDate, setToErpDate] = useState<any>(new Date().toISOString().split('T')[0]);
 
   const refreshData = () => {};
 
@@ -70,6 +76,19 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     setCurrentFilterList(companyData);
     setMasterList(companyData);
   }, [companyData]);
+
+  useEffect(() => {
+    // Synchronize filter dates with main dates when they change
+    setFromStatementDate(initalBankReconcileData.from_date);
+    setToStatementDate(initalBankReconcileData.to_date);
+    setFromErpDate(initalBankReconcileData.from_date);
+    setToErpDate(initalBankReconcileData.to_date);
+  }, [initalBankReconcileData.from_date, initalBankReconcileData.to_date]);
+
+  const accountBalanceInitialData: any = useGetAccountBalance(bankAccount, company, fromDate, toDate, token);
+  const erpTransaction: any = useErpTransaction(bankAccount, fromErpDate, toErpDate, token);
+  const bankTransaction: any = useBankTransaction(bankAccount, company, fromStatementDate, toStatementDate, token);
+  console.log('initial data @@@', bankTransaction);
 
   const handleKeyDown = async (e: any, field?: any, type?: any) => {
     setInitalBankReconcileData((prevData) => ({
@@ -93,6 +112,12 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
       }
     } else if (e.key === 'Enter' && !showFilter) {
       e.preventDefault();
+      if (field === 'to_date') {
+        setOpeningBal(accountBalanceInitialData?.opening_balance);
+        setClosingBalBank(accountBalanceInitialData?.bal_bnk);
+        setClosingBalErp(accountBalanceInitialData?.erp_bal);
+        setDiffAmount(accountBalanceInitialData?.difference_amount);
+      }
       if (e.shiftKey) {
         if (index > 0) {
           focusableElements[index - 1].focus();
@@ -182,10 +207,67 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
       // Also ensure the filter shows the full list
       setCurrentFilterList(masterList);
     }
+
+    // Update the main data
     setInitalBankReconcileData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+
+    // Update filter dates independently
+    if (name === 'from_statement_date') setFromStatementDate(value);
+    if (name === 'to_statement_date') setToStatementDate(value);
+    if (name === 'from_erp_date') setFromErpDate(value);
+    if (name === 'to_erp_date') setToErpDate(value);
+  };
+
+  // Handle select all for bank statement - get complete objects
+  const handleSelectAllBankStatement = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedBankStatement(bankTransaction);
+    } else {
+      setSelectedBankStatement([]);
+    }
+  };
+
+  const handleBankStatementSelect = (data: any) => {
+    setSelectedBankStatement((prev) => {
+      // Check if this invoice is already selected by looking for its idx
+      const isSelected = prev.some((item) => item.idx === data.idx);
+
+      if (isSelected) {
+        // If already selected, remove it from the array
+        return prev.filter((item) => item.idx !== data.idx);
+      } else {
+        // If not selected, add the complete invoice object to the array
+        return [...prev, data];
+      }
+    });
+  };
+
+  // Handle select all for Erp Transaction - get complete objects
+
+  const handleSelectAllErpTransaction = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedErpTransaction(erpTransaction);
+    } else {
+      setSelectedErpTransaction([]);
+    }
+  };
+
+  const handleErpTransactionSelect = (data: any) => {
+    setSelectedErpTransaction((prev) => {
+      // Check if this payment is already selected by looking for its idx
+      const isSelected = prev.some((item) => item.idx === data.idx);
+
+      if (isSelected) {
+        // If already selected, remove it from the array
+        return prev.filter((item) => item.idx !== data.idx);
+      } else {
+        // If not selected, add the complete payment object to the array
+        return [...prev, data];
+      }
+    });
   };
 
   const handleAllocation = async () => {};
@@ -199,52 +281,6 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
       }, 100);
     }
   }, [isQuitModalOpen]);
-
-  useEffect(() => {
-    window.electron
-      .getAccountBalance({
-        bank_account: '8848 Digital - HDFC Bank',
-        company: '8848 Digital LLP',
-        from_date: '2025-01-01',
-        to_date: '2025-03-31',
-        token,
-      })
-      .then((data: any) => {
-        console.log('Bank@@@ account  balance fn called ttt', data);
-      });
-
-    window.electron
-      .getData({
-        doctype: 'Bank Account',
-        token,
-      })
-      .then((data: any) => {
-        console.log('Bank@@@ account api ii', data);
-      });
-
-    window.electron
-      .getErpTransaction({
-        company: '8848 Digital LLP',
-        bank_account: '8848 Digital - HDFC Bank',
-        from_statement_date: '2024-01-01',
-        to_statement_date: '2025-01-01',
-        token,
-      })
-      .then((data: any) => {
-        console.log('Bank@@@ erp Transation api ii', data);
-      });
-    window.electron
-      .getBankTransaction({
-        company: '8848 Digital LLP',
-        bank_account: '8848 Digital - HDFC Bank',
-        from_statement_date: '2024-01-01',
-        to_statement_date: '2025-01-01',
-        token,
-      })
-      .then((data: any) => {
-        console.log('Bank@@@ bank Transation api ii', data);
-      });
-  }, []);
 
   return (
     <div className="container-fluid px-3 py-2 bg-light" style={{ width: '1200px' }}>
@@ -313,7 +349,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                 onKeyDown={(e) => handleKeyDown(e, 'opening_balance')}
                 onFocus={handleInputFocus}
                 onChange={(e) => handleInputChange(e, 'opening_balance')}
-                // value={initalPaymentReconcileCompanyData.opening_balance}
+                value={openingBal}
               />
             </div>
             <div className="col-12 mt-3">
@@ -323,7 +359,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                 className="form-control"
                 name="bankClosingBalance"
                 readOnly
-                value="" // Will be auto-filled later
+                value={closingBalBank} // Will be auto-filled later
                 onKeyDown={(e) => handleKeyDown(e, '', '')}
               />
             </div>
@@ -334,7 +370,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                 className="form-control"
                 name="erpClosingBalance"
                 readOnly
-                value="" // Will be auto-filled later
+                value={closingBalErp} // Will be auto-filled later
                 onKeyDown={(e) => handleKeyDown(e, '', '')}
               />
             </div>
@@ -346,7 +382,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                 className="form-control"
                 name="differenceAmount"
                 readOnly
-                value="" // Will be auto-filled later
+                value={diffAmount} // Will be auto-filled later
                 onKeyDown={(e) => handleKeyDown(e, '', '')}
               />
             </div>
@@ -369,7 +405,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                     type="date"
                     className="form-control"
                     name="from_statement_date"
-                    defaultValue="2024-04-01"
+                    value={fromStatementDate}
                     onKeyDown={(e) => handleKeyDown(e, 'from_statement_date')}
                     onChange={(e) => handleInputChange(e, 'from_statement_date')}
                   />
@@ -380,7 +416,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                     type="date"
                     className="form-control"
                     name="from_erp_date"
-                    defaultValue="2024-04-01"
+                    value={fromErpDate}
                     onKeyDown={(e) => handleKeyDown(e, 'from_erp_date')}
                     onChange={(e) => handleInputChange(e, 'from_erp_date')}
                   />
@@ -393,7 +429,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                     type="date"
                     className="form-control"
                     name="to_statement_date"
-                    defaultValue="2025-03-07"
+                    value={toStatementDate}
                     onKeyDown={(e) => handleKeyDown(e, 'to_statement_date')}
                     onChange={(e) => handleInputChange(e, 'to_statement_date')}
                   />
@@ -404,7 +440,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                     type="date"
                     className="form-control"
                     name="to_erp_date"
-                    defaultValue="2025-03-07"
+                    value={toErpDate}
                     onKeyDown={(e) => handleKeyDown(e, 'to_erp_date')}
                     onChange={(e) => handleInputChange(e, 'to_erp_date')}
                   />
@@ -413,7 +449,96 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
             </div>
           </div>
         </div>
+
+        {/* Unreconcile Entries */}
+        <div className="col-12 mt-5">
+          <h2 className="mb-2">Unreconciled Entries</h2>
+        </div>
+        {/* Unreconcile table */}
+        <div className="col-md-6 mt-3">
+          <p>Bank Statement</p>
+          <table className="table table-bordered invoice-table">
+            <thead className="table-primary">
+              <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    onChange={handleSelectAllBankStatement}
+                    onKeyDown={(e) => handleKeyDown(e, '', '')}
+                    checked={selectedBankStatement.length === bankTransaction?.length && bankTransaction?.length > 0}
+                  />
+                </th>
+                <th>Date</th>
+                <th>Bank Transaction ID</th>
+                <th>Deposit</th>
+                <th>withdrawal</th>
+                <th>UnAllocated Amount</th>{' '}
+              </tr>
+            </thead>
+            <tbody>
+              {bankTransaction.map((bankStatementData: any, index: number) => (
+                <tr key={index}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedBankStatement.some((item) => item.idx === bankStatementData.idx)}
+                      onChange={() => handleBankStatementSelect(bankStatementData)}
+                      onKeyDown={(e) => handleKeyDown(e, '', '')}
+                    />
+                  </td>
+                  <td>{bankStatementData.date}</td>
+                  <td>{bankStatementData.name}</td>
+                  <td>{bankStatementData.deposit}</td>
+                  <td>{bankStatementData.withdrawal}</td>
+                  <td>{bankStatementData.unallocated_amount}</td>{' '}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="col-md-6 mt-3">
+          <p>Erp Transaction</p>
+          <table className="table table-bordered payment-table">
+            <thead className="table-primary">
+              <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    onChange={handleSelectAllErpTransaction}
+                    onKeyDown={(e) => handleKeyDown(e, '', '')}
+                    checked={selectedErpTransaction.length === erpTransaction?.length && erpTransaction?.length > 0}
+                  />
+                </th>
+                <th>Date</th>
+                <th>Reference ID</th>
+                <th>Withdrawal</th>
+                <th>Remaining Amount</th>
+                <th>Reference ID</th> <th>Deposit</th> <th>Reference Doc</th>{' '}
+              </tr>
+            </thead>
+            <tbody>
+              {erpTransaction?.map((erpTransactionData: any, index: number) => (
+                <tr key={index}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      onKeyDown={(e) => handleKeyDown(e, '', '')}
+                      checked={selectedErpTransaction.some((item) => item.idx === erpTransactionData.idx)}
+                      onChange={() => handleErpTransactionSelect(erpTransactionData)}
+                    />
+                  </td>
+                  {/* <td>{payment.reference_type}</td>
+                  <td>{payment.reference_name}</td>
+                  <td>{payment.posting_date}</td>
+                  <td>{payment.amount}</td>
+                  <td>{payment.difference_amount}</td>{' '} */}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
+
       {showFilter && (
         <ShowFilter filteredItems={currentFilterList} selectedIndex={selectedIndex} handleItemFocus={setSelectedIndex} right="0" top="58px" />
       )}

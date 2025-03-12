@@ -11,7 +11,7 @@ import QuitConfirmationModal from '../Home/QuitConfirmationModal';
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md';
 import './bank-reconciliation.css';
 import useFetchData from '../../hooks/fetchData';
-export default function BankReconciliationRework({ homeHookData, globalData }: any) {
+export default function BankReconciliationReworkFallBack({ homeHookData, globalData }: any) {
   const token = localStorage.getItem('account_desktop_token');
   const companyData = useFetchData('Company', {}, token);
   const bankData = useFetchData('Bank Account', {}, token);

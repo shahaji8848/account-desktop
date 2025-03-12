@@ -28,5 +28,7 @@ interface Window {
     getReconcileBankTransaction: any;
     getAllocateEntries: any;
     getBankAccount: any;
+    getAllAccounts:any;
+    paymentEntryAccountsDetails:any;
   };
 }
