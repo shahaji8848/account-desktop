@@ -43,3 +43,19 @@ export const partyTypeList = [
     { name: "Shareholder" },
     { name: "Supplier" },
 ];
+
+export const isAdvanceList = [
+    { name: "Yes" },
+    { name: "No" },
+];
+
+export const referenceTypeList = [
+    { name: "Sales Invoice" },
+    { name: "Asset" },
+    { name: "Purchase Invoice" },
+];
+
+export const accountTypeList = [
+    { name: "Cr" },
+    { name: "Dr" },
+];

@@ -3,12 +3,13 @@ import BottomNavbar from '../../../ui/components/Sales/BottomNavbar'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../ui/store/root-reducer'
 import JournalTable from './JournalTable'
+import JournalItemsPopup from './JournalItemsPopup'
 
-const Journal = ({ homeHookData, globalData,salesHookData }: any) => {
+const Journal = ({ homeHookData, globalData, salesHookData }: any) => {
     const [VoucherRegisterList, setVoucherRegisterList] = useState<any>([]);
     const { voucherRegisterMonthDate } = homeHookData
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '';
- 
+
     return (
         <div className="main-body" style={{ width: "86%" }}>
             <div
@@ -34,9 +35,11 @@ const Journal = ({ homeHookData, globalData,salesHookData }: any) => {
             <JournalTable
                 homeHookData={homeHookData}
                 globalData={globalData}
-                VoucherRegisterList={VoucherRegisterList}
-                type='sales_voucher_register'
+                companyGstin={salesHookData?.companyData.company_gstin}
             />
+            {/* <JournalItemsPopup
+                tableItemsPopup={true}
+            /> */}
             <BottomNavbar />
         </div>
     )
