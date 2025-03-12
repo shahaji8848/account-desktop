@@ -3,7 +3,16 @@ export const paymentTypeList = [
     { name: "Pay" },
 ];
 
-export const AccountPaidToList = [
-    { name: "123654 - Axis Bank - 8DL" }
-   
+export const referenceCategory = [
+    { name: "Agst Ref" },
+    { name: "on Account" },
+
+];
+
+export const referenceTypes = [
+    { name: "Sales Order" },
+    { name: "Sales Invoice" },
+    { name: "Journal Entry" },
+    { name: "Dunning" },
+
 ];

@@ -1,46 +1,49 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./CustomTable.css";
 
-const tableData = [
-    {
-        account: "Debtors - 8DL",
-        currency: "INR",
-        due_date: "2024-11-10",
-        exchange_rate: 1,
-        invoice_amount: 118000,
-        outstanding_amount: 14146,
-        payment_amount: 103854,
-        posting_date: "2024-11-10",
-        voucher_no: "SINV-24-00062",
-        voucher_type: "Sales Invoice",
-    },
-    {
-        account: "Debtors - 8DL",
-        currency: "INR",
-        due_date: "2025-03-12",
-        exchange_rate: 1,
-        invoice_amount: 1087.97,
-        outstanding_amount: 1077.97,
-        payment_amount: 10,
-        posting_date: "2025-03-12",
-        voucher_no: "SINV-25-00215",
-        voucher_type: "Sales Invoice",
-    },
-];
+// const tableData = [
+//     {
+//         account: "Debtors - 8DL",
+//         currency: "INR",
+//         due_date: "2024-11-10",
+//         exchange_rate: 1,
+//         invoice_amount: 118000,
+//         outstanding_amount: 14146,
+//         payment_amount: 103854,
+//         posting_date: "2024-11-10",
+//         voucher_no: "SINV-24-00062",
+//         voucher_type: "Sales Invoice",
+//     },
+//     {
+//         account: "Debtors - 8DL",
+//         currency: "INR",
+//         due_date: "2025-03-12",
+//         exchange_rate: 1,
+//         invoice_amount: 1087.97,
+//         outstanding_amount: 1077.97,
+//         payment_amount: 10,
+//         posting_date: "2025-03-12",
+//         voucher_no: "SINV-25-00215",
+//         voucher_type: "Sales Invoice",
+//     },
+// ];
 
 function ReferenceTablePopUp({
     referenceTablePopUp,
     setReferenceTablePopUp,
     setSelectedReferenceRowData,
+    tableData,
+    referenceId,
     entries,
     receiptPopupID,
     handleInputChange,
     handleKeyDown,
     handleInputFocus,
+    updateReferenceById
 }: any) {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const rowRefs = useRef<(HTMLTableRowElement | null)[]>([]);
-   
+
 
     useEffect(() => {
         if (referenceTablePopUp) {
@@ -67,20 +70,34 @@ function ReferenceTablePopUp({
         } else if (e.key === "Escape") {
             e.preventDefault();
             setReferenceTablePopUp(false);
+        } else if (e.key === "Enter") {
+            setSelectedIndex(index);
+            const selectedRowData = {
+                name: tableData[index].voucher_no,
+                grandTotal: tableData[index].invoice_amount,
+                outstanding: tableData[index].outstanding_amount,
+                allocated: tableData[index].payment_amount,
+            };
+            setSelectedReferenceRowData(selectedRowData);
+            updateReferenceById(referenceId, selectedRowData);
+            setReferenceTablePopUp(false);
         }
     };
 
     const handleRowClick = (index: number) => {
         setSelectedIndex(index);
-        setSelectedReferenceRowData({
+        const selectedRowData = {
             name: tableData[index].voucher_no,
             grandTotal: tableData[index].invoice_amount,
             outstanding: tableData[index].outstanding_amount,
             allocated: tableData[index].payment_amount,
-        });
+        };
+        setSelectedReferenceRowData(selectedRowData);
+        updateReferenceById(referenceId, selectedRowData);
+        setReferenceTablePopUp(false);
     };
 
-  
+
 
     return (
         <div
@@ -110,7 +127,7 @@ function ReferenceTablePopUp({
                             </tr>
                         </thead>
                         <tbody>
-                            {tableData.map((row, index) => (
+                            {tableData.map((row: any, index: any) => (
                                 <tr
                                     key={index}
                                     ref={(el) => (rowRefs.current[index] = el)}
