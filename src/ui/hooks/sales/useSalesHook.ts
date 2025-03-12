@@ -12,6 +12,8 @@ import {
   salesDefaultdata,
   TaxData,
   taxDefaultInfoRef,
+  tranporterDefaultData,
+  tranporterDefaultRef,
 } from '../../utils/data';
 
 import useHandleKeyFunctionalities from './useHandleKeyFunctionalities';
@@ -38,6 +40,8 @@ function useSalesHook(globalData: any) {
   const [productData, setProductData] = useState<any>([]);
   const [taxInfo, setTaxInfo] = useState<any>([]);
   const [serialNoData, setSerialNoData] = useState<any>([]);
+  const [transporterData, setTransporterData] = useState<any>({ ...tranporterDefaultData, lr_date: new Date().toISOString().split('T')[0] });
+  const [salesPDF, setSalesPDF] = useState('');
 
   const [showFilter, setShowFilter] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -61,9 +65,13 @@ function useSalesHook(globalData: any) {
   const [paymentTermsOpen, setPaymentTermsOpen] = useState(false);
   const [gstTableOpen, setGstTableOpen] = useState(false);
   const [advancePaymentPopup, setAdvancePaymentPopup] = useState(false);
+  const [transporterPopup, setTransporterPopup] = useState(false);
+  const [isOnPrint, setIsOnPrint] = useState(false);
 
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
 
   const salesDataRef = useRef<any>(dataRef);
   const tableBodyRef = useRef<(HTMLTableRowElement | null)[]>([]);
@@ -72,6 +80,7 @@ function useSalesHook(globalData: any) {
   const textAreaRef = useRef<HTMLElement | null>(null);
   const taxInfoRef = useRef<any[]>([]);
   const taxInfoPopupRef = useRef<any>(taxDefaultInfoRef);
+  const transporterRef = useRef<any>(tranporterDefaultRef);
   const advancePaymentRef = useRef<any[]>([]);
 
   const companyData = useSelector((state: RootState) => state.companyDataReducer);
@@ -88,7 +97,7 @@ function useSalesHook(globalData: any) {
   //   console.log(x, 'items');
   // }, []);
 
-  console.log(window.electron ? 'desktop' : 'web');
+  // console.log(window.electron ? 'desktop' : 'web');
 
   const fetchTaxes = async (value: string) => {
     try {
@@ -110,22 +119,46 @@ function useSalesHook(globalData: any) {
     }
   };
 
+  async function getPDF(name: any, format: any) {
+    try {
+      let x = await window.electron.getPrintFormatData({ doctype: 'Sales Invoice', name: name, format: format, token: token });
+      // console.log(x, 'payment terms');
+      const url = `data:application/pdf;base64,${x.data}`;
+      // console.log(url, 'Generated PDF URL');
+      setSalesPDF(url);
+      return url;
+    } catch (error) {
+      console.error('Error generating PDF URL:', error);
+      return null;
+    }
+  }
+
+  // useEffect(() => {
+  //   getPDF();
+  // }, []);
+
   // useEffect(async () => {
-  //   let x = await window.electron.getAdvancePaymentEntries({
-  //     doctype: 'Sales Invoice',
-  //     company: '8848 Digital LLP',
-  //     only_include_allocated_payments: false,
-  //     customer: 'Namiex Chemicals Pvt. Ltd.',
-  //     rounded_total: 1600,
-  //     grand_total: 1600,
-  //     __islocal: 1,
-  //   });
-  //   // let x = await window.electron.getData({doctype:'Incoterm',filters:{}});
+  //   // let x = await window.electron.getAdvancePaymentEntries({
+  //   //   doctype: 'Sales Invoice',
+  //   //   company: '8848 Digital LLP',
+  //   //   only_include_allocated_payments: false,
+  //   //   customer: 'Namiex Chemicals Pvt. Ltd.',
+  //   //   rounded_total: 1600,
+  //   //   grand_total: 1600,
+  //   //   __islocal: 1,
+  //   // });
+  //   // let x = await window.electron.getData({
+  //   //   doctype: "Payment Entry Account Details",
+  //   //   filters: { account: "123654 - Axis Bank - 8DL" },
+  //   //   token: token
+  //   // });
+  //   let x = await window.electron.getPrintFormatData({ doctype: 'Sales Invoice', name: 'SINV-25-00212', format: 'Sales Custom', token: token });
   //   console.log(x, 'payment terms');
   //   // let x = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { item_code: 'Product' } });
   //   // console.log(x, 'promotional scheme');
   //   // let x1 = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { name: 'Product Scheme' } });
   //   // console.log(x1);
+  //   getPDF(x.data);
   // }, []);
 
   const getResponseData = async (type: any, filter: any) => {
@@ -142,7 +175,7 @@ function useSalesHook(globalData: any) {
             token: token,
           });
 
-      // console.log(type, filter, response, 'response');
+      console.log(type, filter, response, 'response');
 
       const dropdown_names = [
         'Company',
@@ -156,14 +189,17 @@ function useSalesHook(globalData: any) {
         'Warehouse',
         'Shipping Rule',
         'Incoterm',
+        'Driver',
+        'Print Format',
       ];
 
       if (dropdown_names.includes(type)) {
         let data: any = [];
 
-        response.map((item: any) => {
-          data = [...data, item.name];
-        });
+        response?.length > 0 &&
+          response.map((item: any) => {
+            data = [...data, item.name];
+          });
         return type === 'Shipping Rule' ? ['', ...data] : data;
       } else {
         return response;
@@ -175,13 +211,14 @@ function useSalesHook(globalData: any) {
   };
 
   async function getFilterData(filterDetails: any, name: any) {
-    if (name === 'batch_no') {
+    if (name === 'batch_no' || name === 'contact_person') {
       const response = await window.electron.getData({
         doctype: filterDetails.type,
         filters: { ...filterDetails.filter },
         token: token,
       });
       if (response) {
+        console.log(response, filterDetails, 'resp');
         let data: any = [];
 
         response.map((item: any) => {
@@ -477,7 +514,14 @@ function useSalesHook(globalData: any) {
     token,
     getAdvancePaymentData,
     advancePaymentRef,
-    advancePaymentData
+    advancePaymentData,
+    transporterPopup,
+    transporterData,
+    transporterRef,
+    setTransporterData,
+    setTransporterPopup,
+    getPDF,
+    salesInvoiceName,
   });
 
   const { handleFilter } = useFilterHook({
@@ -495,6 +539,7 @@ function useSalesHook(globalData: any) {
     setFilteredItems,
     setSelectedIndex,
     fieldName,
+    transporterData,
   });
 
   // useEffect to focus on the first input field
@@ -509,7 +554,7 @@ function useSalesHook(globalData: any) {
   // UseEffect to filter items based on user input
   useEffect(() => {
     handleFilter();
-  }, [salesData, fieldName, filterData, isSelecting, itemsData, companyData, taxInfo]);
+  }, [salesData, fieldName, filterData, isSelecting, itemsData, companyData, taxInfo, transporterData]);
 
   const {
     handleValueChange,
@@ -524,6 +569,8 @@ function useSalesHook(globalData: any) {
     handleGstPopup,
     handleAdvancePaymentsPopup,
     handleAdvancePaymentDelete,
+    handleTransporterPopup,
+    handlePrintFormat,
   } = handleAllSalesFunctions(
     setPreviousSalesData,
     setSubmitted,
@@ -594,7 +641,17 @@ function useSalesHook(globalData: any) {
     setAdvancePaymentIndex,
     advancePaymentIndex,
     advancePaymentRef,
-    token
+    token,
+    setPaymentData,
+    setTransporterPopup,
+    transporterPopup,
+    transporterRef,
+    setTransporterData,
+    transporterData,
+    getPDF,
+    isOnPrint,
+    setIsOnPrint,
+    setIsQuitModalOpen
   );
 
   return {
@@ -672,6 +729,16 @@ function useSalesHook(globalData: any) {
     advancePaymentRef,
     setAdvancePaymentIndex,
     handleAdvancePaymentDelete,
+    transporterPopup,
+    transporterData,
+    transporterRef,
+    handleTransporterPopup,
+    salesPDF,
+    getPDF,
+    isOnPrint,
+    handlePrintFormat,
+    isQuitModalOpen,
+    setIsQuitModalOpen
   };
 }
 

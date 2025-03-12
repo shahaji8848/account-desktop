@@ -145,6 +145,7 @@ export const salesDefaultdata = {
     shipping_country: '',
     shipping_pincode: '',
     shipping_gst_category: '',
+    contact_person: '',
   },
   cost_center: '',
   sales_no: '',
@@ -175,6 +176,7 @@ export const salesDefaultdata = {
   advances: [],
   allocate_advances_automatically: false,
   only_include_allocated_payments: false,
+  print_format: 'Sales Custom',
 };
 
 export const dataRef = {
@@ -184,6 +186,7 @@ export const dataRef = {
   billing_gstin: null,
   shipping_gstin: null,
   receivable_account: null,
+  contact_person: null,
   cost_center: null,
   sales_no: null,
   naming_series: null,
@@ -213,6 +216,7 @@ export const dataRef = {
   allocate_advances_automatically: null,
   only_include_allocated_payments: null,
   get_advances: null,
+  print_format: null,
 };
 
 export const companyDefaultData = {
@@ -226,6 +230,7 @@ export const companyDefaultData = {
   country: '',
   pincode: '',
   gst_category: '',
+  company_contact_person: '',
 };
 
 export const advancesDefaultInfo = {
@@ -235,7 +240,7 @@ export const advancesDefaultInfo = {
   advance_amount: '',
   allocated_amount: '',
   difference_posting_date: '',
-}
+};
 
 export const advancesDefaultRef = {
   reference_type: null,
@@ -244,7 +249,7 @@ export const advancesDefaultRef = {
   advance_amount: null,
   allocated_amount: null,
   difference_posting_date: null,
-}
+};
 
 export const taxDefaultInfo = {
   charge_type: '',
@@ -263,6 +268,34 @@ export const defaultDateData = {
 export const defaultDateRef = {
   posting_date: null,
   due_date: null,
+};
+
+export const tranporterDefaultData = {
+  transporter: '',
+  transporter_name: '',
+  gst_transporter_id: '',
+  mode_of_transport: '',
+  driver: '',
+  driver_name: '',
+  lr_no: '',
+  vehicle_no: '',
+  lr_date: '',
+  distance: '',
+  gst_vehicle_type: '',
+};
+
+export const tranporterDefaultRef = {
+  transporter: null,
+  transporter_name: null,
+  gst_transporter_id: null,
+  mode_of_transport: null,
+  driver: null,
+  driver_name: null,
+  lr_no: null,
+  vehicle_no: null,
+  lr_date: null,
+  distance: null,
+  gst_vehicle_type: null,
 };
 
 export const defaultTableData = {
@@ -344,8 +377,9 @@ export interface SalesData {
   terms_and_conditions: string;
   payment_terms: string;
   terms_description: string;
-  allocate_advances_automatically: boolean,
-  only_include_allocated_payments: boolean,
+  allocate_advances_automatically: boolean;
+  only_include_allocated_payments: boolean;
+  print_format: string;
 }
 
 export interface CompanyData {
@@ -359,6 +393,7 @@ export interface CompanyData {
   country: string;
   pincode: string;
   gst_category: string;
+  company_contact_person: string;
 }
 
 export interface TaxData {
@@ -376,6 +411,10 @@ export const salesNoData = ['SINV-.YY.-', 'SRET-.YY.-', 'INV-.YYYY.-', 'ACC-SINV
 export const additionalDiscountOnData = ['', 'Net Total', 'Grand Total'];
 
 export const marginTypeData = ['', 'Percentage', 'Amount'];
+
+export const modeOfTransportData = ['', 'Road', 'Air', 'Rail', 'Ship'];
+
+export const GSTVehicleTypeData = ['', 'Regular', 'Over Dimensional Cargo (ODC)'];
 
 export const filterTypes: any = {
   company_name: { type: 'Company' },
@@ -399,6 +438,10 @@ export const filterTypes: any = {
   currency: { type: 'Currency' },
   batch_no: { type: 'Batch' },
   incoterm: { type: 'Incoterm' },
+  contact_person: { type: 'Contact' },
+  transporter: { type: 'Supplier' },
+  driver: { type: 'Driver' },
+  print_format: { type: 'Print Format' },
 };
 
 export const filterDefaultData = {
@@ -426,4 +469,10 @@ export const filterDefaultData = {
   currency: [],
   batch_no: [],
   incoterm: [],
+  contact_person: [],
+  transporter: [],
+  driver: [],
+  mode_of_transport: [],
+  gst_vehicle_type: [],
+  print_format: [],
 };

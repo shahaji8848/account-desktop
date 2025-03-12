@@ -18,7 +18,10 @@ export function handleChangeOfSales(
   setAdvancePaymentData: any,
   advancePaymentData: any,
   setAdvancePaymentIndex: any,
-  advancePaymentIndex: any
+  advancePaymentIndex: any,
+  transporterPopup: any,
+  setTransporterData: any,
+  transporterData: any
 ) {
   const handleInputChange = (value: string, name: string, item_index: number) => {
     const data = [...salesData.table];
@@ -69,7 +72,13 @@ export function handleChangeOfSales(
       'batch_no',
       'item_tax_template',
       'receivable_account',
+      'contact_person',
       'incoterm',
+      'transporter',
+      'mode_of_transport',
+      'driver',
+      'gst_vehicle_type',
+      'print_format'
     ];
 
     if (dropdown_names.includes(name)) {
@@ -82,7 +91,7 @@ export function handleChangeOfSales(
       }, 0);
     }
 
-    console.log(typeLabel !== 'table', type !== 'dropdown', advancePaymentPopup, advancePaymentData[advancePaymentIndex]);
+    // console.log(typeLabel !== 'table', type !== 'dropdown', advancePaymentPopup, advancePaymentData[advancePaymentIndex]);
 
     if (type !== 'dropdown') {
       if (typeLabel !== 'table') {
@@ -113,6 +122,14 @@ export function handleChangeOfSales(
           }, 0);
         } else if (tableItemsPopup) {
           setItemsData({ ...itemsData, [name]: value });
+        } else if (transporterPopup) {
+          if (name === 'distance' && value !== '' && /^-?\d+\.?\d*$/.test(value)) {
+            setTransporterData({ ...transporterData, [name]: value });
+          }
+          if (name !== 'distance') {
+            setTransporterData({ ...transporterData, [name]: value });
+          }
+          // setTransporterData({ ...transporterData, [name]: value });
         } else if (advancePaymentPopup && (name === 'allocated_amount' || name === 'difference_posting_date')) {
           const data = [...advancePaymentData];
           data[advancePaymentIndex][name] = value;
@@ -141,7 +158,9 @@ export function handleChangeOfSales(
         name !== 'is_cash_or_non_trade_discount' &&
         !name.includes('receivable') &&
         name !== 'only_include_allocated_payments' &&
-        name !== 'allocate_advances_automatically'
+        name !== 'allocate_advances_automatically' &&
+        name !== 'contact_person' &&
+        !transporterPopup
       ) {
         setSalesData({ ...salesData, [name]: value });
         setFieldName(name);
@@ -157,7 +176,13 @@ export function handleChangeOfSales(
           // console.log(salesData, name, checked);
           setSalesData({ ...salesData, [name]: checked });
         }, 0);
-      } else if (name.includes('party') || name.includes('billing') || name.includes('shipping') || name === 'receivable_account') {
+      } else if (
+        name.includes('party') ||
+        name.includes('billing') ||
+        name.includes('shipping') ||
+        name === 'receivable_account' ||
+        name === 'contact_person'
+      ) {
         // console.log('value', value, name)
         setFieldName(name);
         setSalesData({
@@ -173,6 +198,15 @@ export function handleChangeOfSales(
             'account_data'
           );
         }
+        // if (name === 'contact_person') {
+        //   getFilterData(
+        //     {
+        //       type: 'Contact',
+        //       filter: { input: value },
+        //     },
+        //     'contact_person'
+        //   );
+        // }
       } else if (name.includes('date')) {
         setDate({ ...date, [name]: value });
       } else if (name === 'update_stock') {
@@ -253,6 +287,8 @@ export function handleChangeOfSales(
         if (name === 'item_tax_template') {
           setType('dropdown');
         }
+      } else if (transporterPopup) {
+        setTransporterData({ ...transporterData, [name]: value });
       } else {
         // Assuming value is a JSON string that needs to be parsed
         handleInputChange(value, name, item_index);

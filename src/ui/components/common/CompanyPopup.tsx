@@ -28,6 +28,22 @@ function CompanyPopup({ nextfield, popup, globalData }: any) {
               value={companyData['company_name']}
               onChange={(e: any) => handleValueChange(e)}
               ref={(el) => (companyDataRef.current.company_name = el)}
+              onKeyDown={(e) => handleValueKeyDown(e, companyDataRef.current.company_contact_person)}
+              className="ms-2"
+              style={{ outline: 'none', width: '63%' }}
+              onFocus={handleFocus}
+            />
+          </div>
+          <div className="d-flex align-items-center w-100">
+            <div className="salesNo d-flex align-items-center justify-content-between" style={{ width: '33%' }}>
+              <label className="ps-1 pe-3">Company Contact Person</label>
+              <p>: </p>
+            </div>
+            <input
+              name="company_contact_person"
+              value={companyData['company_contact_person']}
+              onChange={(e: any) => handleValueChange(e)}
+              ref={(el) => (companyDataRef.current.company_contact_person = el)}
               onKeyDown={(e) => handleValueKeyDown(e, companyDataRef.current.company_address)}
               className="ms-2"
               style={{ outline: 'none', width: '63%' }}

@@ -407,7 +407,7 @@ function Table({
                   <i>
                     {salesData.additional_discount_amount !== '' && salesData.apply_discount_on !== 'Net Total'
                       ? `${salesData.currency || 'Rs. '} ${Number(getTotal() - salesData.additional_discount_amount).toFixed(2)}`
-                      : `${salesData.currency || 'Rs. '} ${Number(getTotal()) || 0}`}
+                      : `${salesData.currency || 'Rs. '} ${Number(getTotal()).toFixed(2) || 0}`}
                   </i>
                 </b>
               </p>

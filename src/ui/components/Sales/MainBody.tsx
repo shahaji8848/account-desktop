@@ -9,6 +9,7 @@ import TermsPopup from './TermsPopup';
 import PaymentDataTablePopup from './PaymentDataTablePopup';
 import GstDataTablePopup from './GstDataTablePopup';
 import AdvancePaymentPopup from './AdvancePaymentPopup';
+import TransporterPopup from './TransporterPopup';
 // import CompanyPopup from "../common/CompanyPopup";
 
 function MainBody({ salesDataRef, ...salesHookData }: any) {
@@ -69,7 +70,13 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
     getAdvancePaymentData,
     advancePaymentRef,
     setAdvancePaymentIndex,
-    handleAdvancePaymentDelete
+    handleAdvancePaymentDelete,
+    handleTransporterPopup,
+    transporterPopup,
+    transporterData,
+    transporterRef,
+    isOnPrint,
+    salesPDF,
   } = salesHookData;
 
   const handleFocus = (e: any) => {
@@ -88,10 +95,36 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
 
   return (
     <div className="body-with-filter d-flex align-items-stretch justify-content-between position-relative" style={{ minHeight: 'calc(100% - 11px)' }}>
-      <div className="main-body-left w-100">
-        <div className="data-main pe-1">
-          <div className="d-flex w-100 align-items-center pt-2 pb-0 justify-content-between">
-            {/* <Input
+      {isOnPrint ? (
+        <div className="d-flex w-100 align-items-start flex-column">
+          <div className="d-flex w-100 align-items-center py-3 justify-content-between">
+            <div className="d-flex align-items-center">
+              <div className="d-flex align-items-center justify-content-between">
+                <label className="ps-1 pe-3">Print Format</label>
+                <p>: </p>
+              </div>
+              <input
+                name="print_format"
+                value={salesData.print_format}
+                onChange={(e: any) => handleValueChange(e)}
+                onKeyDown={handleValueKeyDown}
+                ref={(el) => (salesDataRef.current.print_format = el)}
+                className="ms-2"
+                style={{ outline: 'none' }}
+                onFocus={(e) => {
+                  e.preventDefault();
+                  setType('dropdown');
+                }}
+              />
+            </div>
+          </div>
+          <iframe src={salesPDF} width="100%" height="600px" title="PDF Viewer" style={{ border: 'none' }}></iframe>
+        </div>
+      ) : (
+        <div className="main-body-left w-100">
+          <div className="data-main pe-1">
+            <div className="d-flex w-100 align-items-center pt-2 pb-0 justify-content-between">
+              {/* <Input
               label="Sales"
               placeholder="No."
               value={salesData['sales_no']}
@@ -102,339 +135,340 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
               style={{ background: '#2a66b0', color: 'white' }}
               disabled={submitted}
             /> */}
-            <div className="salesNo d-flex align-items-center" style={{ width: '33%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
-                <label style={{ background: '#2a66b0', color: 'white' }} className="px-5">
-                  Series *
-                </label>
-                <p>: </p>
-              </div>
-              <input
-                name="naming_series"
-                value={salesData.naming_series}
-                onChange={(e: any) => handleValueChange(e)}
-                onKeyDown={handleValueKeyDown}
-                ref={(el) => (salesDataRef.current.naming_series = el)}
-                className="ms-2 w-50"
-                style={{ outline: 'none' }}
-                onFocus={handleFocus}
-              />
-            </div>
-            {salesData.naming_series !== '' && (
-              <div className="d-flex align-items-center ps-1 ms-1">
-                <label
-                  className="ps-1 pe-3"
-                  style={{
-                    background: 'transparent',
-                    color: '#747573',
-                    fontStyle: 'italic',
-                  }}
-                >
-                  status
-                </label>
-                <p
-                  style={{
-                    fontStyle: 'italic',
-                  }}
-                >
-                  :{' '}
-                </p>
-                <p className="ps-2 font-bold" style={{ fontWeight: 'bold' }}>
-                  {submitted ? 'Draft' : 'null'}
-                </p>
-              </div>
-            )}
-            <div className="salesNo d-flex align-items-center" style={{ width: '33%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
-                <label className="ps-1 pe-3">Posting Date *</label>
-                <p>: </p>
-              </div>
-              <input
-                name="posting_date"
-                value={date.posting_date}
-                onChange={(e: any) => handleValueChange(e)}
-                onKeyDown={handleValueKeyDown}
-                ref={(el) => (dateRef.current.posting_date = el)}
-                className="ms-2 w-50"
-                style={{ outline: 'none' }}
-                type="date"
-              />
-            </div>
-          </div>
-          <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between">
-            <div className="d-flex align-items-center" style={{ width: '42%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '35.9%' }}>
-                <label className="ps-1 pe-3">Party A/C Name *</label>
-                <p>: </p>
-              </div>
-              <input
-                name="party_name"
-                value={salesData.party_details['party_name']}
-                // onChange={(e: any) => handleValueChange(e)}
-                // ref={(el) => (salesDataRef.current.party_name = el)}
-                // onKeyDown={handleValueKeyDown}
-                className="ms-2"
-                style={{ outline: 'none', width: '50%' }}
-                onFocus={handleFocus}
-                // readOnly
-              />
-            </div>
-            <div className="salesNo d-flex align-items-center" style={{ width: '33%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
-                <label className="ps-1 pe-3">Due Date *</label>
-                <p>: </p>
-              </div>
-              <input
-                name="due_date"
-                value={date.due_date}
-                onChange={(e: any) => handleValueChange(e)}
-                onKeyDown={handleValueKeyDown}
-                ref={(el) => (dateRef.current.due_date = el)}
-                className="ms-2 w-50"
-                style={{ outline: 'none' }}
-                type="date"
-              />
-            </div>
-          </div>
-          <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between" style={{ minHeight: '21.6px' }}>
-            <div className="d-flex align-items-center" style={{ width: '43.8%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '34.5%' }}>
-                <label className="ps-1 pe-3">Billing Address</label>
-                <p>: </p>
-              </div>
-              <p className="ps-2 font-bold" style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                {salesData.party_details.billing_address_line1 ? `${salesData.party_details.billing_address_line1?.slice(0, 35)}...` : ''}
-              </p>
-            </div>
-            <div className="d-flex align-items-center" style={{ width: '33%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
-                <label className="ps-1 pe-3">Shipping Address</label>
-                <p>: </p>
-              </div>
-              <p className="ps-2 font-bold" style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                {salesData.party_details.shipping_address_line1 ? `${salesData.party_details.shipping_address_line1?.slice(0, 35)}...` : ''}
-              </p>
-            </div>
-          </div>
-          {/* <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between"></div> */}
-          <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between" style={{ minHeight: '21.6px' }}>
-            <div className="d-flex align-items-center" style={{ width: '43.8%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '34.5%' }}>
-                <label className="ps-1 pe-3">Billing GSTIN No.</label>
-                <p>: </p>
-              </div>
-              <p className="ps-2 font-bold w-50" style={{ fontWeight: 'bold' }}>
-                {salesData.party_details.billing_gstin}
-              </p>
-            </div>
-            <div className="d-flex align-items-center" style={{ width: '33%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
-                <label className="ps-1 pe-3">Shipping GSTIN No.</label>
-                <p>: </p>
-              </div>
-              <p className="ps-2 font-bold w-50" style={{ fontWeight: 'bold' }}>
-                {salesData.party_details.shipping_gstin}
-              </p>
-            </div>
-          </div>
-          {/* <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between"></div> */}
-          <div className="d-flex w-100 align-items-center pt-0 justify-content-between">
-            <div className="d-flex align-items-center" style={{ width: '35.4%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '42.5%' }}>
-                <label className="ps-1 pe-3">Cost Center</label>
-                <p>: </p>
-              </div>
-              <input
-                name="cost_center"
-                value={salesData.cost_center}
-                onChange={(e: any) => handleValueChange(e)}
-                onKeyDown={handleValueKeyDown}
-                ref={(el) => (salesDataRef.current.cost_center = el)}
-                className="ms-2"
-                style={{ outline: 'none' }}
-                onFocus={handleFocus}
-              />
-            </div>
-            <div className="d-flex align-items-center" style={{ width: '33%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
-                <label className="ps-1 pe-3">Shipping Detail</label>
-                <p>: </p>
-              </div>
-              <input
-                name="shipping_detail"
-                value={salesData.shipping_detail}
-                onChange={(e: any) => handleValueChange(e)}
-                onKeyDown={handleValueKeyDown}
-                ref={(el) => (salesDataRef.current.shipping_detail = el)}
-                className="ms-2"
-                style={{ outline: 'none', width: '50%' }}
-                onFocus={handleFocus}
-              />
-            </div>
-          </div>
-          <div className="d-flex w-100 pt-0 align-items-center justify-content-between">
-            <div className="d-flex align-items-center" style={{ width: '35.4%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '42.5%' }}>
-                <label className="ps-1 pe-3">Payment Terms</label>
-                <p>: </p>
-              </div>
-              <input
-                name="payment_terms"
-                value={salesData.payment_terms}
-                onChange={(e: any) => handleValueChange(e)}
-                onKeyDown={handleValueKeyDown}
-                ref={(el) => (salesDataRef.current.payment_terms = el)}
-                className="ms-2"
-                style={{ outline: 'none' }}
-                onFocus={handleFocus}
-              />
-            </div>
-
-            <div className="d-flex align-items-center" style={{ width: '33%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
-                <label className="ps-1 pe-3">Update Stock</label>
-                <p>: </p>
-              </div>
-              <input
-                name="update_stock"
-                type="checkbox"
-                // value={salesData.update_stock}
-                checked={salesData.update_stock ? true : false}
-                onChange={handleValueChange}
-                onKeyDown={handleValueKeyDown}
-                ref={(el) => (salesDataRef.current.update_stock = el)}
-                className="ms-2"
-                style={{ outline: 'none' }}
-                // onFocus={handleFocus}
-              />
-            </div>
-          </div>
-          <div className="d-flex w-100 align-items-center py-0 justify-content-between">
-            <div className="d-flex align-items-center" style={{ width: '35.4%' }}>
-              {salesData.update_stock && (
-                <>
-                  <div className="d-flex align-items-center justify-content-between" style={{ width: '42.5%' }}>
-                    <label className="ps-1 pe-3">Source Warehouse</label>
-                    <p>: </p>
-                  </div>
-                  <input
-                    name="source_warehouse"
-                    value={salesData.source_warehouse}
-                    onChange={(e: any) => handleValueChange(e)}
-                    onKeyDown={handleValueKeyDown}
-                    ref={(el) => (salesDataRef.current.source_warehouse = el)}
-                    onFocus={handleFocus}
-                    className="ms-2"
-                    style={{ outline: 'none' }}
-                  />
-                </>
-              )}
-            </div>
-          </div>
-          <div className="d-flex w-100 pt-0 align-items-center justify-content-between">
-            <div className="d-flex align-items-center" style={{ width: '35.4%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '42.5%' }}>
-                <label className="ps-1 pe-3">Incoterm</label>
-                <p>: </p>
-              </div>
-              <input
-                name="incoterm"
-                value={salesData.incoterm}
-                onChange={(e: any) => handleValueChange(e)}
-                onKeyDown={handleValueKeyDown}
-                ref={(el) => (salesDataRef.current.incoterm = el)}
-                className="ms-2"
-                style={{ outline: 'none' }}
-                onFocus={handleFocus}
-              />
-            </div>
-            {salesData.incoterm !== '' && (
-              <div className="d-flex align-items-center" style={{ width: '33%' }}>
+              <div className="salesNo d-flex align-items-center" style={{ width: '33%' }}>
                 <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
-                  <label className="ps-1 pe-3">Named Place</label>
+                  <label style={{ background: '#2a66b0', color: 'white' }} className="px-5">
+                    Series *
+                  </label>
                   <p>: </p>
                 </div>
                 <input
-                  name="named_place"
-                  type="text"
-                  value={salesData.named_place}
+                  name="naming_series"
+                  value={salesData.naming_series}
+                  onChange={(e: any) => handleValueChange(e)}
+                  onKeyDown={handleValueKeyDown}
+                  ref={(el) => (salesDataRef.current.naming_series = el)}
+                  className="ms-2 w-50"
+                  style={{ outline: 'none' }}
+                  onFocus={handleFocus}
+                />
+              </div>
+              {salesData.naming_series !== '' && (
+                <div className="d-flex align-items-center ps-1 ms-1">
+                  <label
+                    className="ps-1 pe-3"
+                    style={{
+                      background: 'transparent',
+                      color: '#747573',
+                      fontStyle: 'italic',
+                    }}
+                  >
+                    status
+                  </label>
+                  <p
+                    style={{
+                      fontStyle: 'italic',
+                    }}
+                  >
+                    :{' '}
+                  </p>
+                  <p className="ps-2 font-bold" style={{ fontWeight: 'bold' }}>
+                    {submitted ? 'Draft' : 'null'}
+                  </p>
+                </div>
+              )}
+              <div className="salesNo d-flex align-items-center" style={{ width: '33%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
+                  <label className="ps-1 pe-3">Posting Date *</label>
+                  <p>: </p>
+                </div>
+                <input
+                  name="posting_date"
+                  value={date.posting_date}
+                  onChange={(e: any) => handleValueChange(e)}
+                  onKeyDown={handleValueKeyDown}
+                  ref={(el) => (dateRef.current.posting_date = el)}
+                  className="ms-2 w-50"
+                  style={{ outline: 'none' }}
+                  type="date"
+                />
+              </div>
+            </div>
+            <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between">
+              <div className="d-flex align-items-center" style={{ width: '42%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '35.9%' }}>
+                  <label className="ps-1 pe-3">Party A/C Name *</label>
+                  <p>: </p>
+                </div>
+                <input
+                  name="party_name"
+                  value={salesData.party_details['party_name']}
+                  // onChange={(e: any) => handleValueChange(e)}
+                  // ref={(el) => (salesDataRef.current.party_name = el)}
+                  // onKeyDown={handleValueKeyDown}
+                  className="ms-2"
+                  style={{ outline: 'none', width: '50%' }}
+                  onFocus={handleFocus}
+                  // readOnly
+                />
+              </div>
+              <div className="salesNo d-flex align-items-center" style={{ width: '33%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
+                  <label className="ps-1 pe-3">Due Date *</label>
+                  <p>: </p>
+                </div>
+                <input
+                  name="due_date"
+                  value={date.due_date}
+                  onChange={(e: any) => handleValueChange(e)}
+                  onKeyDown={handleValueKeyDown}
+                  ref={(el) => (dateRef.current.due_date = el)}
+                  className="ms-2 w-50"
+                  style={{ outline: 'none' }}
+                  type="date"
+                />
+              </div>
+            </div>
+            <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between" style={{ minHeight: '21.6px' }}>
+              <div className="d-flex align-items-center" style={{ width: '43.8%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '34.5%' }}>
+                  <label className="ps-1 pe-3">Billing Address</label>
+                  <p>: </p>
+                </div>
+                <p className="ps-2 font-bold" style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                  {salesData.party_details.billing_address_line1 ? `${salesData.party_details.billing_address_line1?.slice(0, 35)}...` : ''}
+                </p>
+              </div>
+              <div className="d-flex align-items-center" style={{ width: '33%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
+                  <label className="ps-1 pe-3">Shipping Address</label>
+                  <p>: </p>
+                </div>
+                <p className="ps-2 font-bold" style={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                  {salesData.party_details.shipping_address_line1 ? `${salesData.party_details.shipping_address_line1?.slice(0, 35)}...` : ''}
+                </p>
+              </div>
+            </div>
+            {/* <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between"></div> */}
+            <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between" style={{ minHeight: '21.6px' }}>
+              <div className="d-flex align-items-center" style={{ width: '43.8%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '34.5%' }}>
+                  <label className="ps-1 pe-3">Billing GSTIN No.</label>
+                  <p>: </p>
+                </div>
+                <p className="ps-2 font-bold w-50" style={{ fontWeight: 'bold' }}>
+                  {salesData.party_details.billing_gstin}
+                </p>
+              </div>
+              <div className="d-flex align-items-center" style={{ width: '33%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
+                  <label className="ps-1 pe-3">Shipping GSTIN No.</label>
+                  <p>: </p>
+                </div>
+                <p className="ps-2 font-bold w-50" style={{ fontWeight: 'bold' }}>
+                  {salesData.party_details.shipping_gstin}
+                </p>
+              </div>
+            </div>
+            {/* <div className="d-flex w-100 align-items-center pt-0 pb-0 justify-content-between"></div> */}
+            <div className="d-flex w-100 align-items-center pt-0 justify-content-between">
+              <div className="d-flex align-items-center" style={{ width: '35.4%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '42.5%' }}>
+                  <label className="ps-1 pe-3">Cost Center</label>
+                  <p>: </p>
+                </div>
+                <input
+                  name="cost_center"
+                  value={salesData.cost_center}
+                  onChange={(e: any) => handleValueChange(e)}
+                  onKeyDown={handleValueKeyDown}
+                  ref={(el) => (salesDataRef.current.cost_center = el)}
+                  className="ms-2"
+                  style={{ outline: 'none' }}
+                  onFocus={handleFocus}
+                />
+              </div>
+              <div className="d-flex align-items-center" style={{ width: '33%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
+                  <label className="ps-1 pe-3">Shipping Detail</label>
+                  <p>: </p>
+                </div>
+                <input
+                  name="shipping_detail"
+                  value={salesData.shipping_detail}
+                  onChange={(e: any) => handleValueChange(e)}
+                  onKeyDown={handleValueKeyDown}
+                  ref={(el) => (salesDataRef.current.shipping_detail = el)}
+                  className="ms-2"
+                  style={{ outline: 'none', width: '50%' }}
+                  onFocus={handleFocus}
+                />
+              </div>
+            </div>
+            <div className="d-flex w-100 pt-0 align-items-center justify-content-between">
+              <div className="d-flex align-items-center" style={{ width: '35.4%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '42.5%' }}>
+                  <label className="ps-1 pe-3">Payment Terms</label>
+                  <p>: </p>
+                </div>
+                <input
+                  name="payment_terms"
+                  value={salesData.payment_terms}
+                  onChange={(e: any) => handleValueChange(e)}
+                  onKeyDown={handleValueKeyDown}
+                  ref={(el) => (salesDataRef.current.payment_terms = el)}
+                  className="ms-2"
+                  style={{ outline: 'none' }}
+                  onFocus={handleFocus}
+                />
+              </div>
+
+              <div className="d-flex align-items-center" style={{ width: '33%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
+                  <label className="ps-1 pe-3">Update Stock</label>
+                  <p>: </p>
+                </div>
+                <input
+                  name="update_stock"
+                  type="checkbox"
+                  // value={salesData.update_stock}
+                  checked={salesData.update_stock ? true : false}
                   onChange={handleValueChange}
                   onKeyDown={handleValueKeyDown}
-                  ref={(el) => (salesDataRef.current.named_place = el)}
+                  ref={(el) => (salesDataRef.current.update_stock = el)}
                   className="ms-2"
                   style={{ outline: 'none' }}
                   // onFocus={handleFocus}
                 />
               </div>
-            )}
-          </div>
-          <div className="d-flex w-100 pt-0 pb-1 align-items-center justify-content-between">
-            <div className="d-flex align-items-center" style={{ width: '35.4%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '42.5%' }}>
-                <label className="ps-1 pe-3">Currency *</label>
-                <p>: </p>
-              </div>
-              <input
-                name="currency"
-                value={salesData.currency}
-                onChange={(e: any) => handleValueChange(e)}
-                onKeyDown={handleValueKeyDown}
-                ref={(el) => (salesDataRef.current.currency = el)}
-                className="ms-2"
-                style={{ outline: 'none', width: '50%' }}
-                onFocus={handleFocus}
-              />
             </div>
-            <div className="d-flex align-items-center" style={{ width: '33%' }}>
-              <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
-                <label className="ps-1 pe-3">Exchange Rate</label>
-                <p>: </p>
+            <div className="d-flex w-100 align-items-center py-0 justify-content-between">
+              <div className="d-flex align-items-center" style={{ width: '35.4%' }}>
+                {salesData.update_stock && (
+                  <>
+                    <div className="d-flex align-items-center justify-content-between" style={{ width: '42.5%' }}>
+                      <label className="ps-1 pe-3">Source Warehouse</label>
+                      <p>: </p>
+                    </div>
+                    <input
+                      name="source_warehouse"
+                      value={salesData.source_warehouse}
+                      onChange={(e: any) => handleValueChange(e)}
+                      onKeyDown={handleValueKeyDown}
+                      ref={(el) => (salesDataRef.current.source_warehouse = el)}
+                      onFocus={handleFocus}
+                      className="ms-2"
+                      style={{ outline: 'none' }}
+                    />
+                  </>
+                )}
               </div>
-              <input
-                name="conversion_rate"
-                value={salesData.conversion_rate}
-                onChange={(e: any) => handleValueChange(e)}
-                onKeyDown={handleValueKeyDown}
-                ref={(el) => (salesDataRef.current.conversion_rate = el)}
-                className="ms-2"
-                style={{ outline: 'none', width: '50%' }}
-                // onFocus={handleFocus}
-              />
+            </div>
+            <div className="d-flex w-100 pt-0 align-items-center justify-content-between">
+              <div className="d-flex align-items-center" style={{ width: '35.4%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '42.5%' }}>
+                  <label className="ps-1 pe-3">Incoterm</label>
+                  <p>: </p>
+                </div>
+                <input
+                  name="incoterm"
+                  value={salesData.incoterm}
+                  onChange={(e: any) => handleValueChange(e)}
+                  onKeyDown={handleValueKeyDown}
+                  ref={(el) => (salesDataRef.current.incoterm = el)}
+                  className="ms-2"
+                  style={{ outline: 'none' }}
+                  onFocus={handleFocus}
+                />
+              </div>
+              {salesData.incoterm !== '' && (
+                <div className="d-flex align-items-center" style={{ width: '33%' }}>
+                  <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
+                    <label className="ps-1 pe-3">Named Place</label>
+                    <p>: </p>
+                  </div>
+                  <input
+                    name="named_place"
+                    type="text"
+                    value={salesData.named_place}
+                    onChange={handleValueChange}
+                    onKeyDown={handleValueKeyDown}
+                    ref={(el) => (salesDataRef.current.named_place = el)}
+                    className="ms-2"
+                    style={{ outline: 'none' }}
+                    // onFocus={handleFocus}
+                  />
+                </div>
+              )}
+            </div>
+            <div className="d-flex w-100 pt-0 pb-1 align-items-center justify-content-between">
+              <div className="d-flex align-items-center" style={{ width: '35.4%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '42.5%' }}>
+                  <label className="ps-1 pe-3">Currency *</label>
+                  <p>: </p>
+                </div>
+                <input
+                  name="currency"
+                  value={salesData.currency}
+                  onChange={(e: any) => handleValueChange(e)}
+                  onKeyDown={handleValueKeyDown}
+                  ref={(el) => (salesDataRef.current.currency = el)}
+                  className="ms-2"
+                  style={{ outline: 'none', width: '50%' }}
+                  onFocus={handleFocus}
+                />
+              </div>
+              <div className="d-flex align-items-center" style={{ width: '33%' }}>
+                <div className="d-flex align-items-center justify-content-between" style={{ width: '45.7%' }}>
+                  <label className="ps-1 pe-3">Exchange Rate</label>
+                  <p>: </p>
+                </div>
+                <input
+                  name="conversion_rate"
+                  value={salesData.conversion_rate}
+                  onChange={(e: any) => handleValueChange(e)}
+                  onKeyDown={handleValueKeyDown}
+                  ref={(el) => (salesDataRef.current.conversion_rate = el)}
+                  className="ms-2"
+                  style={{ outline: 'none', width: '50%' }}
+                  // onFocus={handleFocus}
+                />
+              </div>
             </div>
           </div>
+          <Table
+            tableData={salesData.table}
+            tableBodyRef={tableBodyRef}
+            handleValueChange={handleValueChange}
+            handleValueKeyDown={handleValueKeyDown}
+            textAreaRef={textAreaRef}
+            activeIndex={activeIndex}
+            salesData={salesData}
+            taxData={taxData}
+            setSalesData={setSalesData}
+            handleRate={handleRate}
+            setActiveIndex={setActiveIndex}
+            taxInfo={taxInfo}
+            setTaxInfo={setTaxInfo}
+            taxInfoRef={taxInfoRef}
+            handleTaxValueChange={handleTaxValueChange}
+            handleTaxKeyDown={handleTaxKeyDown}
+            taxIndex={taxIndex}
+            setTaxIndex={setTaxIndex}
+            getTotal={getTotal}
+            shippingTaxData={shippingTaxData}
+            paymentData={paymentData}
+            termsData={termsData}
+            paymentTermsOpen={paymentTermsOpen}
+            gstData={gstData}
+            gstTableOpen={gstTableOpen}
+            handleFocus={handleFocus}
+            salesDataRef={salesDataRef}
+            productData={productData}
+            setType={setType}
+          />
         </div>
-        <Table
-          tableData={salesData.table}
-          tableBodyRef={tableBodyRef}
-          handleValueChange={handleValueChange}
-          handleValueKeyDown={handleValueKeyDown}
-          textAreaRef={textAreaRef}
-          activeIndex={activeIndex}
-          salesData={salesData}
-          taxData={taxData}
-          setSalesData={setSalesData}
-          handleRate={handleRate}
-          setActiveIndex={setActiveIndex}
-          taxInfo={taxInfo}
-          setTaxInfo={setTaxInfo}
-          taxInfoRef={taxInfoRef}
-          handleTaxValueChange={handleTaxValueChange}
-          handleTaxKeyDown={handleTaxKeyDown}
-          taxIndex={taxIndex}
-          setTaxIndex={setTaxIndex}
-          getTotal={getTotal}
-          shippingTaxData={shippingTaxData}
-          paymentData={paymentData}
-          termsData={termsData}
-          paymentTermsOpen={paymentTermsOpen}
-          gstData={gstData}
-          gstTableOpen={gstTableOpen}
-          handleFocus={handleFocus}
-          salesDataRef={salesDataRef}
-          productData={productData}
-          setType={setType}
-        />
-      </div>
+      )}
       {showFilter && (
         <ShowFilter
           filteredItems={filteredItems || []}
@@ -460,6 +494,14 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         handleValueChange={handleValueChange}
         handleValueKeyDown={handleValueKeyDown}
         salesDataRef={salesDataRef}
+        handleFocus={handleFocus}
+      />
+      <TransporterPopup
+        transporterPopup={transporterPopup}
+        transporterData={transporterData}
+        handleValueChange={handleValueChange}
+        handleValueKeyDown={handleValueKeyDown}
+        transporterRef={transporterRef}
         handleFocus={handleFocus}
       />
       <AdvancePaymentPopup
@@ -507,6 +549,7 @@ function MainBody({ salesDataRef, ...salesHookData }: any) {
         handlePartyNamePopup={handlePartyNamePopup}
         handleGstPopup={handleGstPopup}
         handleAdvancePaymentsPopup={handleAdvancePaymentsPopup}
+        handleTransporterPopup={handleTransporterPopup}
       />
     </div>
   );
