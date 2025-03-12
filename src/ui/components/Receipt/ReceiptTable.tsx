@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store/root-reducer";
 import { nanoid } from "nanoid";
 import ReceiptItemsPopup from "./ReceiptItemsPopup";
+import ReferenceTablePopUp from "./ReferenceTablePopUp";
 // import JournalItemsPopup from "./JournalItemsPopup";
 
 
@@ -26,12 +27,14 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
     // State to manage input values for multiple rows
     const [entryType, setEntryType] = useState('');
     const [accountPaidTo, setAccountPaidTo] = useState('')
+    const [accountPaidToList, setAccountPaidToList] = useState([])
+    const [accountPaidToBalance, setAccountPaidToBalance] = useState<number>(0)
     const [referenceNumber, setReferenceNumber] = useState('')
     const [ReferenceDate, setReferenceDate] = useState<any>(() => {
         const today = new Date();
         return today.toISOString().split("T")[0];
     });
-    const [userRemark, setUserRemark] = useState('')
+
     const [entries, setEntries] = useState<any>([
         {
             id: nanoid(),
@@ -43,16 +46,30 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
             party_account: '',
             naming_series: "ACC-PAY-.YYYY.-",
             payment_type: '',
-
             cost_center: '',
             target_exchange_rate: 1.0000,
             reference_no: '',
-            reference_date: ''
+            reference_date: '',
+
         }
     ]);
+
+    const [references, setReferences] = useState<any>([
+        {
+            id: nanoid(),
+            reference_doctype: '',
+            reference_name: '',
+            total_amount: 0,
+            outstanding_amount: 0,
+            allocated_amount: 0
+        }
+    ]);
+
     const [referenceNameLsit, setReferenceNameLsit] = useState<any>([])
     const [receiptPopupID, setReceiptPopupID] = useState<any>([]);
     const [receiptPopup, setReceiptPopup] = useState<boolean>(false);
+    const [referenceTablePopUp, setReferenceTablePopUp] = useState<boolean>(false);
+    const [selectedReferenceRowData, setSelectedReferenceRowData] = useState<any>({});
 
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '8848 Digital LLP';
     const token = localStorage.getItem('account_desktop_token');
@@ -60,20 +77,50 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
     // const BankAccountList = useFetchData("Account", { account_type: ["Bank", "Cash"] }, token);
     const CostCenterList = useFetchData("Cost Center", {}, token);
     // console.log("BankAccountList", BankAccountList)
+
+    //delete this
+    const fetch = async () => {
+        const result = await window.electron.getData(
+            {
+                doctype: "Payment Entry Reference Documents",
+                filters: {
+                    company: "8848 Digital LLP",
+                    ref_type: "Sales Invoice",
+                    party_type: "Customer",
+                    party: "Namiex Chemicals Pvt. Ltd.",
+                    party_account: "Debtors - 8DL",
+                    account: "123654 - Axis Bank - 8DL",
+                    payment_type: "Receive"
+                },
+                token
+            });
+
+        console.log("Jagya", result)
+    };
+
+    // lkdjlklk
+
+    const fetchAccountPaidToData = async () => {
+        const result = await window.electron.getAllAccounts(
+            {
+                doctype: "dummy",
+                filters: { account_type: ["Bank", "Cash"] },
+                token
+            });
+
+        console.log("Divik", result)
+
+        if (result?.data) {
+            setAccountPaidToList(result?.data)
+        }
+    };
     useEffect(() => {
         if (entryRefs.current) {
             entryRefs.current.focus();
         }
-        const fetchData = async () => {
-            const result = await window.electron.getData(
-                {
-                    doctype: "Payment Entry Reference Documents",
-                    filters: { ref_type: "Sales Order" },
-                    token
-                });
-            console.log("Divik", result)
-        };
-        fetchData();
+
+        fetchAccountPaidToData();
+        fetch()
     }, []);
 
     // Handle input changes for different fields
@@ -90,6 +137,12 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
 
         } else if (name === 'posting_date') {
             setDate({ ...date, [name]: value });
+        } else if (rowType === 'reference_row') {
+            setReferences((prevReferences: any) =>
+                prevReferences.map((reference: any) =>
+                    reference.id === id ? { ...reference, [name]: value } : reference
+                )
+            );
         }
 
     };
@@ -109,6 +162,8 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
         if (e.key === "Escape") {
             if (receiptPopup) {
                 setReceiptPopup(false)
+            } else if (referenceTablePopUp) {
+                setReferenceTablePopUp(false)
             } else {
                 setIsQuitModalOpen(true);
 
@@ -142,17 +197,19 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     const newEntries = [
                         ...prevEntries,
                         {
-                            id: nanoid(), // Generate a new unique ID
+                            id: nanoid(),
                             party_type: "",
                             party: "",
-                            paid_amount: "",
+                            paid_amount: 0,
                             curBalance: 0,
-                            bank_account: '',
-                            cost_center: '',
                             party_account_currency: '',
-                            exchange_rate: 1.0000,
-                            reference_number: '',
-                            reference_date: ''
+                            party_account: '',
+                            naming_series: "ACC-PAY-.YYYY.-",
+                            payment_type: '',
+                            cost_center: '',
+                            target_exchange_rate: 1.0000,
+                            reference_no: '',
+                            reference_date: '',
                         }
                     ];
 
@@ -167,6 +224,24 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     return newEntries;
                 });
 
+            } else if (e.key === "Enter" && field === "allocated_amount" && value) {
+
+                console.log("OOOO")
+                setReferences((prevEntries: any) => {
+                    const newEntries = [
+                        ...prevEntries,
+                        {
+                            id: nanoid(),
+                            reference_doctype: '',
+                            reference_name: '',
+                            total_amount: 0,
+                            outstanding_amount: 0,
+                            allocated_amount: 0
+                        }
+                    ];
+
+                    return newEntries;
+                });
             }
 
             // Enter: Move focus forward
@@ -241,15 +316,15 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                 setAccountPaidTo(currentFilterList[selectedIndex]?.name || '')
 
                 try {
-                    const paidToAccountResponse = await window.electron.getData({
-                        doctype: 'Payment Entry Account Details',
+                    const paidToAccountResponse = await window.electron.paymentEntryAccountsDetails({
+                        doctype: 'dummy',
                         filters: { account: currentFilterList[selectedIndex]?.name },
                         token
                     })
                     if (paidToAccountResponse) {
-                        console.log("paidToAccountResponse", paidToAccountResponse)
+                        console.log("paidToAccountResponse", paidToAccountResponse?.message?.account_balance)
 
-
+                        setAccountPaidToBalance(paidToAccountResponse?.message?.account_balance || 0)
 
 
                     } else {
@@ -314,8 +389,12 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
             setSelectedIndex(0)
         } else if (field === "paid_to") {
             setShowFilter(true);
-            setCurrentFilterList(AccountPaidToList);
+            setCurrentFilterList(accountPaidToList);
             setSelectedIndex(0)
+        } else if (field === 'ref_type') {
+            setReferenceTablePopUp(true)
+            setReceiptPopupID(id)
+            setShowFilter(false)
         }
 
     }
@@ -416,7 +495,9 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                                 value={accountPaidTo}
                                 style={{ height: '20px', flexBasis: '40%' }}
                             />
+
                         </div>
+                        <span className="fst-italic">Current Balance: {accountPaidToBalance}</span>
                     </div>
 
                 </div>
@@ -509,6 +590,102 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     </div>
 
 
+                    {/* *********** */}
+                    <div className="col-12">
+                        <div className="row">
+                            {references.map((reference: any, index: any) => (
+                                <div className="col-12 d-flex">
+                                    <div className={`text-muted text-center`}>
+                                        <input
+                                            type='text'
+                                            className={`form-control`}
+                                            // style={{ width: '20%' }}
+                                            name="agst_ref"
+                                            value=''
+                                            placeholder="Agst Ref"
+                                            onChange={(e) => handleInputChange(e, reference.id, 'reference_row')}
+                                            onKeyDown={(e) => handleKeyDown(e, 'agst_ref', reference.id)}
+                                            onFocus={(e) => handleInputFocus(e, reference.id)}
+                                        />
+                                    </div>
+
+                                    <div className={`text-muted text-center`}>
+                                        <input
+                                            type='text'
+                                            className={`form-control`}
+                                            // style={{ width: '20%' }}
+                                            name="reference_doctype"
+                                            value={reference?.reference_doctype}
+                                            placeholder="Reference type"
+                                            onChange={(e) => handleInputChange(e, reference.id, 'reference_row')}
+                                            onKeyDown={(e) => handleKeyDown(e, 'reference_doctype', reference.id)}
+                                            onFocus={(e) => handleInputFocus(e, reference.id)}
+                                        />
+                                    </div>
+
+                                    <div className={`text-muted text-center`}>
+                                        <input
+                                            type='text'
+                                            className={`form-control`}
+                                            // style={{ width: '20%' }}
+                                            name="reference_name"
+                                            value={reference?.reference_name}
+                                            placeholder="Name"
+                                            onChange={(e) => handleInputChange(e, reference.id, 'reference_row')}
+                                            onKeyDown={(e) => handleKeyDown(e, 'reference_name', reference.id)}
+                                            onFocus={(e) => handleInputFocus(e, reference.id)}
+                                        />
+                                    </div>
+
+
+                                    <div className={`text-muted text-center`}>
+                                        <input
+                                            type='text'
+                                            className={`form-control`}
+                                            // style={{ width: '20%' }}
+                                            name="total_amount"
+                                            value={reference?.total_amount}
+                                            placeholder="Grand Total"
+                                            onChange={(e) => handleInputChange(e, reference.id, 'reference_row')}
+                                            onKeyDown={(e) => handleKeyDown(e, 'total_amount', reference.id)}
+                                            onFocus={(e) => handleInputFocus(e, reference.id)}
+                                        />
+                                    </div>
+
+                                    <div className={`text-muted text-center`}>
+                                        <input
+                                            type='text'
+                                            className={`form-control`}
+                                            // style={{ width: '20%' }}
+                                            name="outstanding_amount"
+                                            value={reference?.outstanding_amount}
+                                            placeholder="Outstanding"
+                                            onChange={(e) => handleInputChange(e, reference.id, 'reference_row')}
+                                            onKeyDown={(e) => handleKeyDown(e, 'outstanding_amount', reference.id)}
+                                            onFocus={(e) => handleInputFocus(e, reference.id)}
+                                        />
+                                    </div>
+
+                                    <div className={`text-muted text-center`}>
+                                        <input
+                                            type='text'
+                                            className={`form-control`}
+                                            // style={{ width: '20%' }}
+                                            name="allocated_amount"
+                                            value={reference?.allocated_amount}
+                                            placeholder="Allocated"
+                                            onChange={(e) => handleInputChange(e, reference.id, 'reference_row')}
+                                            onKeyDown={(e) => handleKeyDown(e, 'allocated_amount', reference.id)}
+                                            onFocus={(e) => handleInputFocus(e, reference.id)}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+
+                        </div>
+                    </div>
+
+
                 </div>
             ))}
 
@@ -535,6 +712,17 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
 
             <ReceiptItemsPopup
                 receiptPopup={receiptPopup}
+                entries={entries}
+                receiptPopupID={receiptPopupID}
+                handleInputChange={handleInputChange}
+                handleKeyDown={handleKeyDown}
+                handleInputFocus={handleInputFocus}
+            />
+
+            <ReferenceTablePopUp
+                referenceTablePopUp={referenceTablePopUp}
+                setReferenceTablePopUp={setReferenceTablePopUp}
+                setSelectedReferenceRowData={setSelectedReferenceRowData}
                 entries={entries}
                 receiptPopupID={receiptPopupID}
                 handleInputChange={handleInputChange}
