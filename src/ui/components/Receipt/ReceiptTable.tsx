@@ -4,11 +4,13 @@ import styles from "./receipt.module.css";
 import QuitConfirmationModal from "../Home/QuitConfirmationModal";
 import ShowFilter from "../common/ShowFilter";
 import { isAdvanceList, journalEntryType, seriesList, partyTypeList, referenceTypeList, accountTypeList } from "../../utils/journalFormData";
+import { paymentTypeList, AccountPaidToList } from "../../utils/receiptFormData";
 import useFetchData from "../../hooks/fetchData"
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/root-reducer";
 import { nanoid } from "nanoid";
+import ReceiptItemsPopup from "./ReceiptItemsPopup";
 // import JournalItemsPopup from "./JournalItemsPopup";
 
 
@@ -23,7 +25,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
     const [currentFilterList, setCurrentFilterList] = useState<any[]>([]);
     // State to manage input values for multiple rows
     const [entryType, setEntryType] = useState('');
-    const [journalSeries, setJournalSeries] = useState('')
+    const [accountPaidTo, setAccountPaidTo] = useState('')
     const [referenceNumber, setReferenceNumber] = useState('')
     const [ReferenceDate, setReferenceDate] = useState<any>(() => {
         const today = new Date();
@@ -35,21 +37,22 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
             id: nanoid(),
             party_type: "",
             party: "",
-            amount: "",
+            paid_amount: "",
             curBalance: 0,
-            party_account_currency:'',
-            party_account:'',
-            bank_account: '',
+            party_account_currency: '',
+            party_account: '',
+            naming_series: "ACC-PAY-.YYYY.-",
+            payment_type: '',
+
             cost_center: '',
-            exchange_rate: 1.0000,
-            reference_number: '',
+            target_exchange_rate: 1.0000,
+            reference_no: '',
             reference_date: ''
         }
     ]);
     const [referenceNameLsit, setReferenceNameLsit] = useState<any>([])
-    const [journalPopupID, setJournalPopupID] = useState<any>([]);
-    const [journalPopup, setJournalPopup] = useState<boolean>(false);
-
+    const [receiptPopupID, setReceiptPopupID] = useState<any>([]);
+    const [receiptPopup, setReceiptPopup] = useState<boolean>(false);
 
     const companyName = useSelector((state: RootState) => state.companyDataReducer?.company_name) || '8848 Digital LLP';
     const token = localStorage.getItem('account_desktop_token');
@@ -100,8 +103,8 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
         const focusIndex = focusableElements.indexOf(e.currentTarget);
 
         if (e.key === "Escape") {
-            if (journalPopup) {
-                setJournalPopup(false)
+            if (receiptPopup) {
+                setReceiptPopup(false)
             } else {
                 setIsQuitModalOpen(true);
 
@@ -129,7 +132,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
             );
 
             // Add new row when Enter is pressed in Debit or Credit field
-            if ((field === "amount") && value) {
+            if ((field === "paid_amount") && value) {
 
                 setEntries((prevEntries: any) => {
                     const newEntries = [
@@ -138,7 +141,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                             id: nanoid(), // Generate a new unique ID
                             party_type: "",
                             party: "",
-                            amount: "",
+                            paid_amount: "",
                             curBalance: 0,
                             bank_account: '',
                             cost_center: '',
@@ -177,84 +180,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
 
         } else if (e.key === 'Enter' && showFilter) {
             e.preventDefault();
-            // let newEntries = [...entries];
-            if (field === 'particulars') {
-                // setEntries((prevEntries: any) => {
-                //     return prevEntries.map((entry: any) => {
-                //         return entry.id === id
-                //             ? { ...entry, [field]: currentFilterList[selectedIndex]?.name || "" }
-                //             : entry;
-                //     });
-                // });
-                // //fetching current balance for selected account
-                // try {
-                //     const accountBalance = await window.electron.getData({ doctype: 'Journal Entry Accounts', filters: { account: currentFilterList[selectedIndex]?.name, company: companyName }, token });
-                //     if (accountBalance !== undefined) {
-                //         setEntries((prevEntries: any) =>
-                //             prevEntries.map((entry: any) =>
-                //                 entry.id === id
-                //                     ? {
-                //                         ...entry,
-                //                         curBalance: accountBalance?.balance,
-                //                         account_currency: accountBalance?.account_currency
-                //                     }
-                //                     : entry
-                //             )
-                //         );
-
-                //     } else {
-                //         toast.error('Something went wrong with Party', {
-                //             autoClose: 2000,
-                //             className: 'custom-toast',
-                //         });
-                //     }
-                // } catch (error) {
-                //     console.error('Error posting Bank Account:', error);
-                // }
-
-
-            } else if (field === 'reference_type') {
-                // setEntries((prevEntries: any) => {
-                //     return prevEntries.map((entry: any) => {
-                //         return entry.id === id
-                //             ? { ...entry, [field]: currentFilterList[selectedIndex]?.name || "" }
-                //             : entry;
-                //     });
-                // });
-
-                // const selectedRowData = entries.find((entry: any) => entry.id === id);
-
-                // //fetching Reference Name for selected reference type
-                // try {
-                //     const referenceName = await window.electron.getData({
-                //         doctype: "Journal Receipt Names",
-                //         filters: {
-                //             account: selectedRowData?.particulars,
-                //             reference_type: currentFilterList[selectedIndex]?.name,
-                //             cost_center: selectedRowData?.cost_center
-                //         },
-                //         token
-                //     })
-                //     if (referenceName) {
-                //         setReferenceNameLsit(referenceName?.data || [])
-
-                //     } else {
-                //         toast.error('Something went wrong with Party', {
-                //             autoClose: 2000,
-                //             className: 'custom-toast',
-                //         });
-                //     }
-                // } catch (error) {
-                //     console.error('Error posting Bank Account:', error);
-                // }
-
-
-                // setEntries(newEntries);
-            } else if (field === 'entry_type') {
-                setEntryType(currentFilterList[selectedIndex]?.name || '')
-            } else if (field === 'journal_series') {
-                setJournalSeries(currentFilterList[selectedIndex]?.name || '')
-            } else if (field === "party_type" || field === "party" || field === 'bank_account' || field === 'cost_center') {
+            if (field === "party_type" || field === "party" || field === 'payment_type' || field === 'cost_center') {
 
                 setEntries((prevEntries: any) =>
                     prevEntries.map((entry: any) =>
@@ -281,8 +207,8 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                         })
                         if (partyDataResponse?.message) {
                             console.log("partyData", partyDataResponse.message)
-                            const partyData  = partyDataResponse.message
-                            
+                            const partyData = partyDataResponse.message
+
                             setEntries((prevEntries: any) =>
                                 prevEntries.map((entry: any) =>
                                     entry.id === id
@@ -290,7 +216,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                                             ...entry,
                                             curBalance: partyData?.party_balance,
                                             party_account_currency: partyData?.party_account_currency,
-                                            party_account:partyData?.party_account
+                                            party_account: partyData?.party_account
                                         }
                                         : entry
                                 )
@@ -307,12 +233,14 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     }
                 }
 
+            }else if (field === "paid_to"){
+                setAccountPaidTo(currentFilterList[selectedIndex]?.name || '')
             }
             setShowFilter(false);
             setSelectedIndex(0);
-        } else if (e.ctrlKey && e.key === 's' && field === 'particulars') {
-            setJournalPopupID(id)
-            setJournalPopup(true)
+        } else if (e.ctrlKey && e.key === 's' && field === 'party') {
+            setReceiptPopupID(id)
+            setReceiptPopup(true)
             setShowFilter(false)
         }
         else if (e.ctrlKey && e.key === 'a') {
@@ -326,25 +254,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
     const handleInputFocus = async (e: React.FocusEvent<HTMLInputElement>, id: any) => {
         const { name: field, value } = e.target;
         setShowFilter(false);
-        if (field === 'entry_type') {
-            setShowFilter(true);
-            setCurrentFilterList(journalEntryType);
-            setSelectedIndex(0)
-        } else if (field === 'journal_series') {
-            setShowFilter(true);
-            setCurrentFilterList(seriesList);
-            setSelectedIndex(0)
-        } else if (field === 'type') {
-            setShowFilter(true);
-            setCurrentFilterList(accountTypeList);
-            setSelectedIndex(0)
-
-        } else if (field === 'particulars') {
-            setShowFilter(true);
-            setCurrentFilterList(AccountList);
-            setSelectedIndex(0)
-
-        } else if (field === 'party_type') {
+        if (field === 'party_type') {
             setShowFilter(true);
             setCurrentFilterList(partyTypeList);
             setSelectedIndex(0)
@@ -367,25 +277,17 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                 console.error('Error posting Bank Account:', error);
             }
 
-        } else if (field === 'bank_account') {
+        } else if (field === 'payment_type') {
             setShowFilter(true);
-            setCurrentFilterList(BankAccountList);
+            setCurrentFilterList(paymentTypeList);
             setSelectedIndex(0)
         } else if (field === 'cost_center') {
             setShowFilter(true);
             setCurrentFilterList(CostCenterList);
             setSelectedIndex(0)
-        } else if (field === 'is_advance') {
+        } else if (field === "paid_to") {
             setShowFilter(true);
-            setCurrentFilterList(isAdvanceList);
-            setSelectedIndex(0)
-        } else if (field === 'reference_type') {
-            setShowFilter(true);
-            setCurrentFilterList(referenceTypeList);
-            setSelectedIndex(0)
-        } else if (field === 'reference_name') {
-            setShowFilter(true);
-            setCurrentFilterList(referenceNameLsit);
+            setCurrentFilterList(AccountPaidToList);
             setSelectedIndex(0)
         }
 
@@ -445,7 +347,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
         });
 
         const journalData = {
-            naming_series: journalSeries || "ACC-JV-.YYYY.-",
+            naming_series: accountPaidTo || "ACC-JV-.YYYY.-",
             company: companyName,
             company_gstin: companyGstin,
             posting_date: date?.posting_date,
@@ -478,7 +380,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
 
     // Calculate total debit and credit amounts
     // const totalDebit = entries.reduce((sum: any, entry: any) => sum + (parseFloat(entry.debit) || 0), 0);
-    const totalAmount = entries.reduce((sum: any, entry: any) => sum + (parseFloat(entry.amount) || 0), 0);
+    const totalAmount = entries.reduce((sum: any, entry: any) => sum + (parseFloat(entry.paid_amount) || 0), 0);
     console.log("entries", entries)
     return (
         <div
@@ -493,37 +395,21 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                 {/* entry field  */}
                 <div className="col-4">
                     <div className="row">
-                        {/* <div className="col-12 d-flex align-items-center">
-                            <label className="fw-bold" style={{ flexBasis: '20%' }}>Entry Type</label>
+                        <div className="col-12 d-flex align-items-center">
+                            <label className="fw-bold" style={{ flexBasis: '20%' }}>Account</label>
                             <span className='colon-span me-2'>:</span>
                             <input
                                 type="text"
                                 className="form-control"
                                 ref={(el) => el && (entryRefs.current = el)}
-                                onKeyDown={(e) => handleKeyDown(e, 'entry_type', 0)}
-                                name="entry_type"
+                                onKeyDown={(e) => handleKeyDown(e, 'paid_to', 0)}
+                                name="paid_to"
                                 onFocus={(e) => handleInputFocus(e, 0)}
                                 onChange={(e) => { handleInputChange(e, 0) }}
-                                value={entryType}
+                                value={accountPaidTo}
                                 style={{ height: '20px', flexBasis: '40%' }}
                             />
-                        </div> */}
-
-                        {/* series field  */}
-                        {/* <div className="col-12 mt-2 d-flex align-items-center">
-                            <label className="fw-bold" style={{ flexBasis: '20%' }}>Series</label>
-                            <span className='colon-span me-2'>:</span>
-                            <input
-                                type="text"
-                                className="form-control"
-                                onKeyDown={(e) => handleKeyDown(e, 'journal_series', 0)}
-                                name="journal_series"
-                                onFocus={(e) => handleInputFocus(e, 0)}
-                                onChange={(e) => { handleInputChange(e, 0) }}
-                                value={journalSeries}
-                                style={{ height: '20px', flexBasis: '40%' }}
-                            />
-                        </div> */}
+                        </div>
                     </div>
 
                 </div>
@@ -599,11 +485,11 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                             type="text"
                             className={`form-control text-center p-0 ${styles.voucherRowActive}`}
                             // style={{ width: '20%' }}
-                            name="amount"
-                            value={entry.credit}
+                            name="paid_amount"
+                            value={entry.paid_amount}
 
                             onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
-                            onKeyDown={(e) => handleKeyDown(e, 'amount', entry.id)}
+                            onKeyDown={(e) => handleKeyDown(e, 'paid_amount', entry.id)}
                         />
                     </div>
 
@@ -640,14 +526,14 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
 
             {/* row pop-up form */}
 
-            {/* <JournalItemsPopup
-                journalPopup={journalPopup}
+            <ReceiptItemsPopup
+                receiptPopup={receiptPopup}
                 entries={entries}
-                journalPopupID={journalPopupID}
+                receiptPopupID={receiptPopupID}
                 handleInputChange={handleInputChange}
                 handleKeyDown={handleKeyDown}
                 handleInputFocus={handleInputFocus}
-            /> */}
+            />
 
             {/* Quit Confirmation Modal */}
             {isQuitModalOpen && (
