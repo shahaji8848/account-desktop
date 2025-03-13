@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow, Menu, session } from 'electron';
 import {
   saveForm,
   isDev,
@@ -11,21 +11,38 @@ import {
   login,
   getAdvancePaymentEntries,
   getPrintFormatData,
-
-} from "../apis/util.js";
-import { getPreloadPath, getUIPath } from "./pathResolver.js";
-import { ipcMain } from "electron";
-import { salesRegisterMonthWiseSales,salesBreakupReport } from "./reports/sales_register.js";
-import { creditNoteRegisterMonthWiseSales,creditNoteBreakupReport } from './reports/credit_note_register.js';
-import { PurchaseInvoiceMonthWiseBreakup , PurchaseInvoiceBreakupReport } from "./reports/purchase_invoice.js";
-import {getPaymentReconciliationEntries , getAllocationList,ReconcileAmount} from "./apis/payment_reconciliation.js";
-import {getAccountBalance , getErpTransaction,getBankTransaction,getReconcileBankTransaction,getAllocateEntries} from "./apis/bank_reconcilation.js";
-import {JournalEntryBreakupReport,JournalEntryDetailBreakup} from "./reports/journal_entry.js";
-import {PaymentEntryBreakupReport, PaymentEntryDetailBreakup} from "./reports/payment_entry.js";
+} from '../apis/util.js';
+import { getPreloadPath, getUIPath } from './pathResolver.js';
+import { ipcMain } from 'electron';
+import { salesRegisterMonthWiseSales, salesBreakupReport } from './reports/sales_register.js';
+import { creditNoteRegisterMonthWiseSales, creditNoteBreakupReport } from './reports/credit_note_register.js';
+import { PurchaseInvoiceMonthWiseBreakup, PurchaseInvoiceBreakupReport } from './reports/purchase_invoice.js';
+import { getPaymentReconciliationEntries, getAllocationList, ReconcileAmount } from './apis/payment_reconciliation.js';
+import {
+  getAccountBalance,
+  getErpTransaction,
+  getBankTransaction,
+  getReconcileBankTransaction,
+  getAllocateEntries,
+} from './apis/bank_reconcilation.js';
+import { JournalEntryBreakupReport, JournalEntryDetailBreakup } from './reports/journal_entry.js';
+import { PaymentEntryBreakupReport, PaymentEntryDetailBreakup } from './reports/payment_entry.js';
 import { argv, connected } from 'process';
-import {paymentEntryAccountsDetails,getAllAccounts} from "../apis/payment_entry_apis.js"
+import { paymentEntryAccountsDetails, getAllAccounts } from '../apis/payment_entry_apis.js';
 app.on('ready', () => {
- 
+  session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+    details.requestHeaders['Origin'] = 'https://yatish-testing-v15.frappe.cloud';
+    callback({ cancel: false, requestHeaders: details.requestHeaders });
+  });
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    const responseHeaders = details.responseHeaders || {}; // Ensure it's not undefined
+
+    responseHeaders['Access-Control-Allow-Origin'] = ['*']; // Allow all origins
+    responseHeaders['Access-Control-Allow-Methods'] = ['GET, POST, PUT, DELETE, OPTIONS'];
+    responseHeaders['Access-Control-Allow-Headers'] = ['Content-Type, Authorization'];
+
+    callback({ responseHeaders });
+  });
   const mainWindow = new BrowserWindow({
     webPreferences: {
       preload: getPreloadPath(),
@@ -50,13 +67,11 @@ app.on('ready', () => {
   ipcMain.handle('saveForm', async (_, kwargs: any) => {
     return await saveForm(kwargs);
   });
-    ipcMain.handle("postData", async (_ ,kwargs: any) => {
-      return await postData(kwargs);
-
+  ipcMain.handle('postData', async (_, kwargs: any) => {
+    return await postData(kwargs);
   });
-  ipcMain.handle("updateData", async (_ ,kwargs: any) => {
+  ipcMain.handle('updateData', async (_, kwargs: any) => {
     return await updateData(kwargs);
-
   });
 
   ipcMain.handle('getTaxes', async (_, kwargs: any) => {
@@ -66,7 +81,7 @@ app.on('ready', () => {
   ipcMain.handle('getData', async (_, kwargs: any) => {
     return await getData(kwargs);
   });
-  
+
   ipcMain.handle('getAdvancePaymentEntries', async (_, kwargs: any) => {
     return await getAdvancePaymentEntries(kwargs);
   });
@@ -110,51 +125,49 @@ app.on('ready', () => {
     return await getAllocateEntries(kwargs);
   });
 
-  ipcMain.handle("salesRegister", async (_ ,kwargs: any) => {
+  ipcMain.handle('salesRegister', async (_, kwargs: any) => {
     return await salesRegisterMonthWiseSales(kwargs);
   });
-  ipcMain.handle("salesBreakupReport", async (_ ,kwargs: any) => {
+  ipcMain.handle('salesBreakupReport', async (_, kwargs: any) => {
     return await salesBreakupReport(kwargs);
   });
-  ipcMain.handle("creditNoteRegister", async (_ ,kwargs: any) => {
+  ipcMain.handle('creditNoteRegister', async (_, kwargs: any) => {
     return await creditNoteRegisterMonthWiseSales(kwargs);
   });
-  ipcMain.handle("creditNoteBreakupReport", async (_ ,kwargs: any) => {
+  ipcMain.handle('creditNoteBreakupReport', async (_, kwargs: any) => {
     return await creditNoteBreakupReport(kwargs);
   });
-  ipcMain.handle("PurchaseInvoiceMonthWiseBreakup", async (_ ,kwargs: any) => {
+  ipcMain.handle('PurchaseInvoiceMonthWiseBreakup', async (_, kwargs: any) => {
     return await PurchaseInvoiceMonthWiseBreakup(kwargs);
   });
-  ipcMain.handle("PurchaseInvoiceBreakupReport", async (_ ,kwargs: any) => {
+  ipcMain.handle('PurchaseInvoiceBreakupReport', async (_, kwargs: any) => {
     return await PurchaseInvoiceBreakupReport(kwargs);
   });
-  ipcMain.handle("getAllocationList", async (_ ,kwargs: any) => {
+  ipcMain.handle('getAllocationList', async (_, kwargs: any) => {
     return await getAllocationList(kwargs);
   });
-  ipcMain.handle("ReconcileAmount", async (_ ,kwargs: any) => {
+  ipcMain.handle('ReconcileAmount', async (_, kwargs: any) => {
     return await ReconcileAmount(kwargs);
   });
 
-  ipcMain.handle("JournalEntryBreakupReport", async (_ ,kwargs: any) => {
+  ipcMain.handle('JournalEntryBreakupReport', async (_, kwargs: any) => {
     return await JournalEntryBreakupReport(kwargs);
   });
-  ipcMain.handle("JournalEntryDetailBreakup", async (_ ,kwargs: any) => {
+  ipcMain.handle('JournalEntryDetailBreakup', async (_, kwargs: any) => {
     return await JournalEntryDetailBreakup(kwargs);
   });
-  ipcMain.handle("PaymentEntryBreakupReport", async (_ ,kwargs: any) => {
+  ipcMain.handle('PaymentEntryBreakupReport', async (_, kwargs: any) => {
     return await PaymentEntryBreakupReport(kwargs);
   });
-  ipcMain.handle("PaymentEntryDetailBreakup", async (_ ,kwargs: any) => {
+  ipcMain.handle('PaymentEntryDetailBreakup', async (_, kwargs: any) => {
     return await PaymentEntryDetailBreakup(kwargs);
   });
-  ipcMain.handle("paymentEntryAccountsDetails", async (_ ,kwargs: any) => {
-    return await paymentEntryAccountsDetails(kwargs.doctype , kwargs.filters , kwargs.token);
+  ipcMain.handle('paymentEntryAccountsDetails', async (_, kwargs: any) => {
+    return await paymentEntryAccountsDetails(kwargs.doctype, kwargs.filters, kwargs.token);
   });
-  ipcMain.handle("getAllAccounts", async (_ ,kwargs: any) => {
-    return await getAllAccounts(kwargs.doctype , kwargs.filters , kwargs.token);
+  ipcMain.handle('getAllAccounts', async (_, kwargs: any) => {
+    return await getAllAccounts(kwargs.doctype, kwargs.filters, kwargs.token);
   });
- 
-  
 
   handleCloseEvents(mainWindow);
   // createMenu(mainWindow);
