@@ -4,7 +4,9 @@ import {
   chargeTypeData,
   defaultTableData,
   filterTypes,
+  GSTVehicleTypeData,
   marginTypeData,
+  modeOfTransportData,
   salesNoData,
   taxDefaultInfo,
 } from '../../utils/data';
@@ -47,7 +49,7 @@ export default function useHandleKeyFunctionalities({
   shippingDetails,
   setShippingTaxData,
   setTermsPopup,
-  getData,
+  getResponseData,
   setGstData,
   getTotal,
   serialNoData,
@@ -59,6 +61,13 @@ export default function useHandleKeyFunctionalities({
   getAdvancePaymentData,
   advancePaymentRef,
   advancePaymentData,
+  transporterPopup,
+  transporterData,
+  transporterRef,
+  setTransporterData,
+  setTransporterPopup,
+  getPDF,
+  salesInvoiceName,
 }: any) {
   const getAddressFilter = (type: any, name: any) => ({
     type: 'Address',
@@ -95,9 +104,32 @@ export default function useHandleKeyFunctionalities({
     ) {
       setFilterListName(filterTypes[fieldName].type);
       getFilterData(filterTypes[fieldName], 'account_data');
+    } else if (fieldName === 'contact_person') {
+      setFilterListName(filterTypes[fieldName].type);
+      getFilterData(
+        { type: filterTypes[fieldName].type, filter: { type: 'Customer', type_name: salesData.party_details.party_name } },
+        'contact_person'
+      );
+    } else if (fieldName === 'transporter') {
+      // console.log("hello")
+      setFilterListName(filterTypes[fieldName].type);
+      getFilterData({ type: filterTypes[fieldName].type, filter: { is_transporter: true } }, fieldName);
+    } else if (fieldName === 'driver') {
+      setFilterListName(filterTypes[fieldName].type);
+      getFilterData({ type: filterTypes[fieldName].type, filter: {} }, fieldName);
+    } else if (fieldName === 'gst_vehicle_type') {
+      setFilterListName('GST Vehicle Type');
+      setFilterData({ ...filterData, gst_vehicle_type: GSTVehicleTypeData });
+    } else if (fieldName === 'mode_of_transport') {
+      setFilterListName('Mode Of Transport');
+      setFilterData({ ...filterData, mode_of_transport: modeOfTransportData });
     } else if (fieldName === 'receivable_account') {
       setFilterListName(filterTypes[fieldName].type);
       getFilterData(filterTypes[fieldName], 'account_data');
+    } else if (fieldName === 'party_name') {
+      console.log('fetching party name');
+      setFilterListName(filterTypes[fieldName].type);
+      getFilterData(filterTypes[fieldName], 'party_name');
     } else if (fieldName === 'uom') {
       setFilterListName(filterTypes[fieldName].type);
       filterData.uom?.length <= 0 && getFilterData(filterTypes[fieldName], fieldName);
@@ -116,6 +148,10 @@ export default function useHandleKeyFunctionalities({
       setFilterListName(filterTypes[fieldName].type);
       // console.log(filterTypes[fieldName], fieldName);
       getFilterData({ type: filterTypes['batch_no'].type, filter: { item_name: itemsData.item_name || '' } }, 'batch_no');
+    } else if (fieldName === 'print_format') {
+      setFilterListName(filterTypes[fieldName].type);
+      // console.log(filterTypes[fieldName], fieldName);
+      getFilterData({ type: filterTypes['print_format'].type, filter: { doctype: 'Sales Invoice' } }, 'print_format');
     } else if (filterTypes[fieldName]) {
       setFilterListName(filterTypes[fieldName].type);
       // console.log(filterTypes[fieldName], fieldName);
@@ -194,6 +230,21 @@ export default function useHandleKeyFunctionalities({
     // updateSalesData({ [name]: filteredItems[selectedIndex] });
     // console.log(fieldName, name, 'filter info');
     if (name === 'party_name') {
+      focusNextField(salesDataRef.current.contact_person);
+      // handleShowFilter('billing_address');
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          party_details: {
+            ...salesData.party_details,
+            [name]: value,
+          },
+        });
+      setTimeout(() => {
+        setShowFilter(false);
+        // setType('dropdown')
+      }, 0);
+    } else if (name === 'contact_person') {
       focusNextField(salesDataRef.current.receivable_account);
       // handleShowFilter('billing_address');
       fieldName === name &&
@@ -292,7 +343,7 @@ export default function useHandleKeyFunctionalities({
       }, 0);
       setIsSelecting(false);
     } else if (name === 'incoterm') {
-      console.log('first', value);
+      // console.log('first', value);
       if (fieldName === name && showFilter) {
         setSalesData({
           ...salesData,
@@ -327,7 +378,7 @@ export default function useHandleKeyFunctionalities({
       fieldName === name &&
         getCurrencyData()
           .then((resp: any) => {
-            console.log(resp, 'resp');
+            // console.log(resp, 'resp');
             setSalesData({
               ...salesData,
               [name]: value,
@@ -356,7 +407,7 @@ export default function useHandleKeyFunctionalities({
       // console.log(value.name);
       fieldName === name &&
         showFilter &&
-        getData('Terms and Conditions', { name: value.name }).then((response: any) => {
+        getResponseData('Terms and Conditions', { name: value.name }).then((response: any) => {
           // console.log(response, 'terms');
           let html = response.terms;
           html = html.replace(/<style([\s\S]*?)<\/style>/gi, '');
@@ -369,7 +420,7 @@ export default function useHandleKeyFunctionalities({
           html = html.replace(/<br\s*[\/]?>/gi, '\n');
           html = html.replace(/<[^>]+>/gi, '');
 
-          console.log(html, response, 'terms & c');
+          // console.log(html, response, 'terms & c');
           setSalesData({
             ...salesData,
             [name]: value.name,
@@ -405,7 +456,7 @@ export default function useHandleKeyFunctionalities({
         // setType('dropdown')
       }, 0);
     } else if (name === 'naming_series') {
-      console.log(value);
+      // console.log(value);
       fieldName === name &&
         setSalesData({
           ...salesData,
@@ -437,6 +488,96 @@ export default function useHandleKeyFunctionalities({
         }, 0);
         setType('');
       }
+    } else if (name === 'contact_person') {
+      focusNextField(salesDataRef.current.receivable_account);
+      // handleShowFilter('billing_address');
+      fieldName === name &&
+        setSalesData({
+          ...salesData,
+          party_details: {
+            ...salesData.party_details,
+            [name]: value,
+          },
+        });
+      setTimeout(() => {
+        setShowFilter(false);
+        // setType('dropdown')
+      }, 0);
+    } else if (name === 'transporter') {
+      focusNextField(transporterRef.current.mode_of_transport);
+      // handleShowFilter('billing_address');
+      // console.log(value);
+      fieldName === name &&
+        showFilter &&
+        getResponseData('Supplier', { is_transporter: true, name: value }).then((resp: any) => {
+          setTransporterData({
+            ...transporterData,
+            [name]: value,
+            gst_transporter_id: resp.gst_transporter_id,
+            transporter_name: value,
+          });
+        });
+      // getData({ type: filterTypes[fieldName].type, filter: { is_transporter: true, name: value } }, fieldName);
+      // console.log(getFilterData({ type: filterTypes[fieldName].type, filter: { is_transporter: true, name: value } }, fieldName), 'welcome');
+      setTimeout(() => {
+        setShowFilter(false);
+        setType('dropdown');
+      }, 0);
+    } else if (name === 'mode_of_transport') {
+      focusNextField(transporterRef.current.driver);
+      // handleShowFilter('billing_address');
+      fieldName === name &&
+        showFilter &&
+        setTransporterData({
+          ...transporterData,
+          [name]: value,
+        });
+      setTimeout(() => {
+        setShowFilter(false);
+        setType('dropdown');
+      }, 0);
+    } else if (name === 'driver') {
+      focusNextField(transporterRef.current.lr_no);
+      // handleShowFilter('billing_address');
+      fieldName === name &&
+        showFilter &&
+        setTransporterData({
+          ...transporterData,
+          [name]: value,
+          driver_name: value,
+        });
+      setTimeout(() => {
+        setShowFilter(false);
+        setType('');
+      }, 0);
+    } else if (name === 'gst_vehicle_type') {
+      focusNextField(salesDataRef.current.naming_series);
+      // handleShowFilter('billing_address');
+      fieldName === name &&
+        showFilter &&
+        setTransporterData({
+          ...transporterData,
+          [name]: value,
+        });
+      setTimeout(() => {
+        setShowFilter(false);
+        setTransporterPopup(false);
+        setType('dropdown');
+      }, 0);
+    } else if (name === 'print_format') {
+      // focusNextField(salesDataRef.current.receivable_account);
+      // handleShowFilter('billing_address');
+      fieldName === name &&
+        showFilter &&
+        setSalesData({
+          ...salesData,
+          [name]: value,
+        });
+      getPDF(salesInvoiceName, value);
+      setTimeout(() => {
+        setShowFilter(false);
+        // setType('dropdown')
+      }, 0);
     } else if (name === 'item_name') {
       if (!showFilter) {
         let data = [...salesData.table];
@@ -650,6 +791,7 @@ export default function useHandleKeyFunctionalities({
       setIsSelecting(true);
 
       handleFocus(name);
+      // console.log(name, 'name');
 
       if (
         name === 'party_name' ||
@@ -668,7 +810,13 @@ export default function useHandleKeyFunctionalities({
         name === 'currency' ||
         name === 'item_name' ||
         name === 'receivable_account' ||
-        name === 'incoterm'
+        name === 'incoterm' ||
+        name === 'contact_person' ||
+        name === 'transporter' ||
+        name === 'mode_of_transport' ||
+        name === 'driver' ||
+        name === 'gst_vehicle_type' ||
+        name === 'print_format'
       ) {
         handlePartyNameAndCostCenter(name, filteredItems[selectedIndex]);
       } else if (name === 'rate') {
@@ -954,7 +1102,7 @@ export default function useHandleKeyFunctionalities({
             : salesDataRef.current?.get_advances?.focus();
         }, 0);
         break;
-      } 
+      }
       // case 'get_advances': {
       //   if (advancePaymentData.length > 0) {
       //     (advancePaymentRef.current[0].childNodes[3] as HTMLElement).focus();
@@ -982,6 +1130,38 @@ export default function useHandleKeyFunctionalities({
             setType('');
           }, 0);
         }
+      }
+      case 'lr_no': {
+        focusNextField(transporterRef.current.lr_date);
+        setTimeout(() => {
+          setShowFilter(false);
+          setType('');
+        }, 0);
+        break;
+      }
+      case 'lr_date': {
+        focusNextField(transporterRef.current.vehicle_no);
+        setTimeout(() => {
+          setShowFilter(false);
+          setType('');
+        }, 0);
+        break;
+      }
+      case 'vehicle_no': {
+        focusNextField(transporterRef.current.distance);
+        setTimeout(() => {
+          setShowFilter(false);
+          setType('');
+        }, 0);
+        break;
+      }
+      case 'distance': {
+        focusNextField(transporterRef.current.gst_vehicle_type);
+        setTimeout(() => {
+          setShowFilter(false);
+          setType('dropdown');
+        }, 0);
+        break;
       }
       default: {
         salesDataRef.current[name as keyof typeof salesDataRef.current]?.focus();

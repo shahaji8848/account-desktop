@@ -74,7 +74,17 @@ export function handleAllSalesFunctions(
   setAdvancePaymentIndex: any,
   advancePaymentIndex: any,
   advancePaymentRef: any,
-  token: any
+  token: any,
+  setPaymentData: any,
+  setTransporterPopup: any,
+  transporterPopup: any,
+  transporterRef: any,
+  setTransporterData: any,
+  transporterData: any,
+  getPDF: any,
+  isOnPrint: any,
+  setIsOnPrint: any,
+  setIsQuitModalOpen: any
 ) {
   const navigate = useNavigate();
   const handleSubmitData = async (salesInvoiceData: any, method: string = 'POST') => {
@@ -93,7 +103,7 @@ export function handleAllSalesFunctions(
               name: salesInvoiceName,
               token: token,
             });
-      console.log(x);
+      // console.log(x);
       if (x !== undefined) {
         toast.success('Form is submitted!', {
           autoClose: 2000,
@@ -124,6 +134,16 @@ export function handleAllSalesFunctions(
           setPreviousSalesData(salesData);
           setSubmitted(true);
           setSalesInvoiceName(x.data.name);
+          // console.log(paymentData?.terms === undefined, paymentData);
+          paymentData?.terms === undefined &&
+            setPaymentData({
+              terms: [
+                {
+                  credit_days: 0,
+                  invoice_portion: 100,
+                },
+              ],
+            });
         }
       } else {
         toast.error('Something went wrong. Please Re-enter all the data!', {
@@ -156,7 +176,10 @@ export function handleAllSalesFunctions(
     setAdvancePaymentData,
     advancePaymentData,
     setAdvancePaymentIndex,
-    advancePaymentIndex
+    advancePaymentIndex,
+    transporterPopup,
+    setTransporterData,
+    transporterData
   );
 
   const handleAdvancePaymentDelete = (index: any) => {
@@ -178,7 +201,7 @@ export function handleAllSalesFunctions(
   const handleValueKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const { name, value } = e.target as HTMLInputElement;
 
-    // console.log(type)
+    // console.log(type);
 
     if (type !== 'dropdown') {
       if (e.key === 'Enter' && name !== 'update_stock' && !tableItemsPopup) {
@@ -243,6 +266,7 @@ export function handleAllSalesFunctions(
         }, 0);
       }
     } else {
+      // console.log(e);
       if (e.ctrlKey && name === 'item_name' && e.key === 'Enter' && !tableItemsPopup) {
         setTableItemsPopup(true);
         if (salesData.table.length > 0) {
@@ -262,11 +286,10 @@ export function handleAllSalesFunctions(
         e.preventDefault();
         setSelectedIndex((prev: any) => (prev > 0 ? prev - 1 : prev));
       } else if (e.key === 'Enter' && !e.ctrlKey && !tableItemsPopup && !taxInfoPopup && !advancePaymentPopup) {
+        // console.log('hello')
         handleKeyEnter(name, value);
       } else if (e.key === 'Enter' && !e.ctrlKey && tableItemsPopup) {
         handleTableKeyEnter(name);
-      } else if (e.key === 'Enter' && !e.ctrlKey && advancePaymentPopup) {
-        // advance payment
       } else if (e.key === 'Escape') {
         setShowFilter(false);
         setPartyNamePopup(false);
@@ -339,6 +362,11 @@ export function handleAllSalesFunctions(
                 newTaxData = [...newTaxData, { ...item }];
               }
             });
+          let newAdvanceData: any = [];
+          advancePaymentData.length > 0 &&
+            advancePaymentData.map((item: any, index: number) => {
+              newAdvanceData = [...newAdvanceData, { ...item, allocated_amount: Number(item.allocated_amount) }];
+            });
           let salesInvoiceData = {
             customer: salesData.party_details.party_name,
             customer_name: salesData.party_details.party_name,
@@ -347,8 +375,10 @@ export function handleAllSalesFunctions(
             company: companyData.company_name,
             company_address: companyData.company_address,
             company_gstin: companyData.company_gstin,
+            company_contact_person: companyData.company_contact_person,
             customer_address: salesData.party_details.billing_address,
             billing_address_gstin: salesData.party_details.billing_gstin,
+            contact_person: salesData.party_details.contact_person,
             // customer: "Reliance Retail Limited",
             taxes_and_charges: salesData.tax_template,
             items: [...data],
@@ -370,11 +400,12 @@ export function handleAllSalesFunctions(
             additional_discount_account: salesData.additional_discount_account,
             is_cash_or_non_trade_discount: salesData.is_cash_or_non_trade_discount,
             cost_center: salesData.cost_center || '',
-            advances: advancePaymentData.length > 0 && advancePaymentData[0].allocated_amount !== '' ? advancePaymentData : [],
-            allocate_advances_automatically: salesData.allocate_advances_automatically,
-            only_include_allocated_payments: salesData.only_include_allocated_payments,
+            advances: advancePaymentData?.length > 0 && advancePaymentData[0].allocated_amount !== '' ? newAdvanceData : [],
+            // allocate_advances_automatically: salesData.allocate_advances_automatically,
+            // only_include_allocated_payments: salesData.only_include_allocated_payments,
             incoterm: salesData.incoterm,
             named_place: salesData.named_place,
+            ...transporterData,
           };
           if (Object.keys(previousSalesData).length > 0) {
             if (previousSalesData === salesData) {
@@ -450,6 +481,15 @@ export function handleAllSalesFunctions(
     }, 0);
   };
 
+  const handleTransporterPopup = () => {
+    setTransporterPopup(true);
+    setTimeout(() => {
+      setSelectedIndex(0);
+      (transporterRef.current.transporter as HTMLElement).focus();
+      setType('dropdown');
+    }, 0);
+  };
+
   const handleAdvancePaymentsPopup = () => {
     if (salesData.table?.length > 0) {
       setAdvancePaymentPopup(true);
@@ -458,6 +498,21 @@ export function handleAllSalesFunctions(
       }, 0);
     } else {
       toast.warning('Please fill in the items to get advance payments!', {
+        autoClose: 2000,
+        className: 'custom-toast',
+      });
+    }
+  };
+
+  const handlePrintFormat = () => {
+    if (salesInvoiceName) {
+      setIsOnPrint(true);
+      setTimeout(() => {
+        salesDataRef.current.print_format.focus();
+      }, 0);
+      getPDF(salesInvoiceName, salesData.print_format);
+    } else {
+      toast.warning('Please make sure the status is in draft!', {
         autoClose: 2000,
         className: 'custom-toast',
       });
@@ -478,9 +533,11 @@ export function handleAllSalesFunctions(
       !termsPopup &&
       !paymentTermsOpen &&
       !gstTableOpen &&
-      !advancePaymentPopup
+      !advancePaymentPopup &&
+      !transporterPopup &&
+      !isOnPrint
     ) {
-      navigate('/');
+      setIsQuitModalOpen(true);
     }
     if (event.ctrlKey && event.key === 'x') {
       event.preventDefault(); // Prevent the default "Select All" behavior
@@ -496,6 +553,14 @@ export function handleAllSalesFunctions(
       event.preventDefault(); // Prevent the default "Select All" behavior
       // setTermsPopup(true);
       handleAdvancePaymentsPopup();
+    }
+    if (event.altKey && event.key === 'p') {
+      event.preventDefault();
+      handlePrintFormat();
+    }
+    if (event.altKey && event.key === 't') {
+      event.preventDefault();
+      handleTransporterPopup();
     }
     if (event.ctrlKey && event.key === 'p') {
       event.preventDefault(); // Prevent the default "Select All" behavior
@@ -515,6 +580,12 @@ export function handleAllSalesFunctions(
     }
     if (advancePaymentPopup && event.key === 'Escape') {
       setAdvancePaymentPopup(false);
+    }
+    if (transporterPopup && event.key === 'Escape') {
+      setTransporterPopup(false);
+    }
+    if (isOnPrint && event.key === 'Escape') {
+      setIsOnPrint(false);
     }
     if (event.key === 'F2') {
       event.preventDefault(); // Prevent the default "Select All" behavior
@@ -543,7 +614,7 @@ export function handleAllSalesFunctions(
   const handleItemClick = (item: string) => {
     setIsSelecting(true);
     setShowFilter(false);
-    console.log(fieldName, item);
+    // console.log(fieldName, item);
     if (tableItemsPopup) {
       handleDropdown(fieldName, item);
     } else if (fieldName === 'charge_type' || fieldName === 'account_head') {
@@ -576,5 +647,7 @@ export function handleAllSalesFunctions(
     handleGstPopup,
     handleAdvancePaymentsPopup,
     handleAdvancePaymentDelete,
+    handleTransporterPopup,
+    handlePrintFormat,
   };
 }

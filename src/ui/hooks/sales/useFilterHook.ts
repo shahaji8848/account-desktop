@@ -28,6 +28,7 @@ const useFilterHook = ({
   setFilteredItems,
   setSelectedIndex,
   fieldName,
+  transporterData,
 }: any) => {
   const handleFilter = () => {
     if (!isSelecting) {
@@ -47,15 +48,38 @@ const useFilterHook = ({
         );
       }
 
-      if (fieldName === 'party_name') {
+      if (fieldName === 'transporter') {
+        // console.log(filterData[fieldName]);
+        const filterInfo = filterData[fieldName];
+        const data =
+          (Array.isArray(filterInfo) &&
+            filterData[fieldName]?.filter((item: any) =>
+              item.name?.toLowerCase().includes((transporterData[fieldName] as string)?.toLowerCase() || '')
+            )) ||
+          [];
+        data?.map((item: any) => {
+          filtered = [...filtered, item.name];
+        });
+      }
+
+      if (fieldName === 'driver' || fieldName === 'mode_of_transport' || fieldName === 'gst_vehicle_type') {
+        // console.log(filterData[fieldName]);
+        filtered = filterData[fieldName]?.filter((item: any) =>
+          item?.toLowerCase().includes((transporterData[fieldName] as string)?.toLowerCase() || '')
+        );
+      }
+
+      if (fieldName === 'party_name' || fieldName === 'contact_person') {
+        // console.log(filterData[fieldName]);
         filtered = filterData[fieldName]?.filter((item: any) =>
           item?.toLowerCase().includes((salesData.party_details[fieldName] as string)?.toLowerCase() || '')
         );
       }
       if (fieldName === 'batch_no') {
-        filtered = filterData[fieldName]?.filter((item: any) =>
-          item?.toLowerCase().includes((itemsData[fieldName] as string)?.toLowerCase() || '')
-        );
+        filtered = filterData[fieldName]?.filter((item: any) => item?.toLowerCase().includes((itemsData[fieldName] as string)?.toLowerCase() || ''));
+      }
+      if (fieldName === 'print_format') {
+        filtered = filterData[fieldName]?.filter((item: any) => item?.toLowerCase().includes((salesData[fieldName] as string)?.toLowerCase() || ''));
       }
       if (fieldName === 'company_name') {
         filtered = filterData[fieldName]?.filter((item: any) =>
@@ -76,19 +100,17 @@ const useFilterHook = ({
           item?.toLowerCase().includes((salesData[fieldName] as string)?.toLowerCase() || '')
         );
       }
-      
+
       if (fieldName === 'receivable_account') {
         // console.log(filterData, tableItemsPopup ? itemsData[fieldName] : taxInfo[taxIndex][fieldName], "trial")
         filtered = filterData['account_data']?.filter((item: any) =>
           item?.toLowerCase().includes((salesData.party_details[fieldName] as string)?.toLowerCase() || '')
         );
       }
-      
+
       if (fieldName === 'currency') {
         // console.log(filterData, tableItemsPopup ? itemsData[fieldName] : taxInfo[taxIndex][fieldName], "trial")
-        filtered = filterData[fieldName]?.filter((item: any) =>
-          item?.toLowerCase().includes((salesData[fieldName] as string)?.toLowerCase() || '')
-        );
+        filtered = filterData[fieldName]?.filter((item: any) => item?.toLowerCase().includes((salesData[fieldName] as string)?.toLowerCase() || ''));
       }
 
       if (fieldName === 'source_warehouse') {
@@ -201,7 +223,9 @@ const useFilterHook = ({
 
         // console.log(fieldName, filterData[fieldName]);
         const data = salesData.table[activeIndex]?.item_name
-          ? itemsForFirstTable.filter((item: any) => item.name?.toLowerCase().includes((salesData.table[activeIndex].item_name as string)?.toLowerCase()))
+          ? itemsForFirstTable.filter((item: any) =>
+              item.name?.toLowerCase().includes((salesData.table[activeIndex].item_name as string)?.toLowerCase())
+            )
           : itemsForFirstTable;
 
         data?.map((item: any) => {
