@@ -137,32 +137,57 @@ function JournalItemsPopup({
                       <label className="ps-1 pe-3">Debit</label>
                       <p>: </p>
                     </div>
-                    <input
-                      name="debit"
-                      value={entry.debit}
-                      onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
-                      onKeyDown={(e) => handleKeyDown(e, 'debit', entry.id)}
-                      onFocus={(e) => handleInputFocus(e, entry.id)}
-                      className="ms-2"
-                      style={{ outline: 'none', width: '63%' }}
-                      disabled={entry.debit==="disabled"}
-                    />
+                    {entry.debit === "disabled" ?
+                      <span
+                        className="ps-2"
+                        style={{
+                          "width": '50%',
+                          "background": "#F7F7F7"
+                        }}>
+                        debit
+                      </span>
+                      : (
+                        <input
+                          name="debit"
+                          value={entry.debit}
+                          onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
+                          onKeyDown={(e) => handleKeyDown(e, 'debit', entry.id)}
+                          onFocus={(e) => handleInputFocus(e, entry.id)}
+                          className="ms-2"
+                          style={{ outline: 'none', width: '63%' }}
+                        />
+                      )
+                    }
+
                   </div>
                   <div className="d-flex align-items-center w-100">
                     <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
                       <label className="ps-1 pe-3">Credit</label>
                       <p>: </p>
                     </div>
-                    <input
-                      name="credit"
-                      value={entry.credit}
-                      onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
-                      onKeyDown={(e) => handleKeyDown(e, 'credit', entry.id)}
-                      onFocus={(e) => handleInputFocus(e, entry.id)}
-                      className="ms-2"
-                      style={{ outline: 'none', width: '63%' }}
-                      disabled={entry.credit==="disabled"}
-                    />
+
+                    {entry.credit === "disabled" ?
+                      <span
+                        className="ps-2"
+                        style={{
+                          "width": '50%',
+                          "background": "#F7F7F7"
+                        }}>
+                        debit
+                      </span>
+                      : (
+                        <input
+                          name="credit"
+                          value={entry.credit}
+                          onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
+                          onKeyDown={(e) => handleKeyDown(e, 'credit', entry.id)}
+                          onFocus={(e) => handleInputFocus(e, entry.id)}
+                          className="ms-2"
+                          style={{ outline: 'none', width: '63%' }}
+                        />
+                      )
+                    }
+
                   </div>
                   <div className="d-flex align-items-center w-100">
                     <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
@@ -209,7 +234,7 @@ function JournalItemsPopup({
                       onFocus={(e) => handleInputFocus(e, entry.id)}
                       className="ms-2"
                       style={{ outline: 'none', width: '63%' }}
-                     />
+                    />
                   </div>
                   {/* <div className="d-flex align-items-center w-100">
                     <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>

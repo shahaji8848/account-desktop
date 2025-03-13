@@ -201,64 +201,57 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
 
             // Add new row when Enter is pressed in Debit or Credit field
             if ((field === "paid_amount") && value) {
-                updateEntryWithReferences(id, references);
-                // setEntries((prevEntries: any) => {
-                //     const newEntries = [
-                //         ...prevEntries,
-                //         {
-                //             id: nanoid(),
-                //             party_type: "",
-                //             party: "",
-                //             paid_amount: 0,
-                //             curBalance: 0,
-                //             party_account_currency: '',
-                //             party_account: '',
-                //             naming_series: "ACC-PAY-.YYYY.-",
-                //             payment_type: '',
-                //             cost_center: '',
-                //             target_exchange_rate: 1.0000,
-                //             reference_no: '',
-                //             reference_date: '',
-                //         }
-                //     ];
+                // updateEntryWithReferences(id, references);
+                setEntries((prevEntries: any[]) =>
+                    prevEntries.map(entry =>
+                        entry.id === id
+                            ? {
+                                ...entry,
+                                references: entry.references.length === 0
+                                    ? [
+                                        {
+                                            id: nanoid(),
+                                            agst_ref: '', //dont send this key in post api
+                                            reference_doctype: '',
+                                            reference_name: '',
+                                            total_amount: 0,
+                                            outstanding_amount: 0,
+                                            allocated_amount: 0
+                                        }
+                                    ]
+                                    : entry.references
+                            }
+                            : entry
+                    )
+                );
 
-                //     // Delay focus to ensure state update is completed
-                //     setTimeout(() => {
-                //         const nextIndex = newEntries.length - 1; // Get the latest row index
-                //         if (inputRefs.current[nextIndex]) {
-                //             inputRefs.current[nextIndex].focus(); // Focus on "type" field of new row
-                //         }
-                //     }, 50);
-
-                //     return newEntries;
-                // });
-
-                // Delay focus to ensure state update is completed
-                //  setTimeout(() => {
-                //     const nextIndex = newEntries.length - 1; // Get the latest row index
-                //     if (inputRefs.current[nextIndex]) {
-                //         inputRefs.current[nextIndex].focus(); // Focus on "type" field of new row
-                //     }
-                // }, 50);
 
             } else if (e.key === "Enter" && field === "allocated_amount" && value) {
+                // to add new refernce 
+                setEntries((prevEntries: any[]) =>
+                    prevEntries.map(entry => {
+                        if (entry.id === id) {
+                            // Create a shallow copy of the existing references array
+                            const updatedReferences = [...entry.references];
 
-                console.log("OOOO")
-                setReferences((prevEntries: any) => {
-                    const newEntries = [
-                        ...prevEntries,
-                        {
-                            id: nanoid(),
-                            reference_doctype: '',
-                            reference_name: '',
-                            total_amount: 0,
-                            outstanding_amount: 0,
-                            allocated_amount: 0
+                            // Push the new reference object
+                            updatedReferences.push({
+                                id: nanoid(),
+                                reference_doctype: '',
+                                reference_name: '',
+                                total_amount: 0,
+                                outstanding_amount: 0,
+                                allocated_amount: 0
+                            });
+
+                            return {
+                                ...entry,
+                                references: updatedReferences
+                            };
                         }
-                    ];
-
-                    return newEntries;
-                });
+                        return entry; // Keep other entries unchanged
+                    })
+                );
             }
 
             // Enter: Move focus forward
@@ -723,7 +716,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     {/* *********** */}
                     <div className="col-12">
                         <div className="row">
-                            {references.map((reference: any, index: any) => (
+                            {entry.references.map((reference: any, index: any) => (
                                 <div className="col-12 d-flex">
                                     <div className={`text-muted text-center`}>
                                         <input
@@ -866,7 +859,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
             {/* Quit Confirmation Modal */}
             {isQuitModalOpen && (
                 <QuitConfirmationModal
-                    type="journal_form"
+                    type="receipt_form"
                     isOpen={isQuitModalOpen}
                     setIsQuitModalOpen={setIsQuitModalOpen}
                     homeHookData={homeHookData}

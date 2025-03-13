@@ -1,7 +1,20 @@
-// import { RefObject } from "react";
-// import { SalesData } from "../../hooks/useSalesHook";
+import { useNavigate } from "react-router-dom";
 
 function Sidebar({ dateRef, openCompanyDropdown, sideBarData }: any) {
+  const navigate = useNavigate();
+
+  const handleShortcutClick = (item: any) => {
+    if (item.label === "F2") {
+      dateRef.current?.posting_date?.focus();
+    } else if (item.label === "F3") {
+      openCompanyDropdown();
+    } else if (item.label === "F6") {
+      navigate('/receipt');
+    } else if (item.label === "F7") {
+      navigate('/journal');
+    }
+  };
+
   return (
     <div
       className="side-body px-1 d-flex pb-2 flex-column justify-content-between position-relative"
@@ -13,15 +26,12 @@ function Sidebar({ dateRef, openCompanyDropdown, sideBarData }: any) {
       }}
     >
       <div className="top">
-        {sideBarData?.map((item:any, index:number) => (
+        {sideBarData?.map((item: any, index: number) => (
           <div
-            className={`tab ${item.next_tab ? " mt-4" : ""} ${
-              item.tab_inactive ? "disabled" : ""
-            }`}
+            className={`tab ${item.next_tab ? " mt-4" : ""} ${item.tab_inactive ? "disabled" : ""
+              }`}
             key={index}
-            onClick={() => {item.label === "F2" && dateRef.current?.posting_date?.focus();
-              item.label === "F3" && openCompanyDropdown();
-            }}
+            onClick={() => handleShortcutClick(item)}
           >
             <p>
               <span className="fw-bold" style={{ color: "#589dcc" }}>
