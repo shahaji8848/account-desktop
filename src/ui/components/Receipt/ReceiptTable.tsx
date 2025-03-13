@@ -490,7 +490,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     party_account: entry?.party_account,
                     paid_amount: Number(entry?.paid_amount),
                     received_amount: Number(entry?.paid_amount),
-                    unallocated_amount: 7200.00,
+                    unallocated_amount: 0,
                     target_exchange_rate: entry?.target_exchange_rate,
                     paid_to: accountPaidTo,
                     reference_no: entry?.reference_no,

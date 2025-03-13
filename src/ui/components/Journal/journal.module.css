@@ -27,7 +27,7 @@
 }
 
 .negativeBalance {
-    font-size: 14px;
+    font-size: 12px;
     color: red !important;
     /* Red color for negative balance */
 }
