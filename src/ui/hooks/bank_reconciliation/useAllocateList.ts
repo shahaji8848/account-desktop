@@ -1,35 +1,35 @@
 import { useEffect, useState, useCallback } from 'react';
 
-const useAllocateList = () => {
-  const [allocationListData, setAllocationListData] = useState<any>();
-  const token = localStorage.getItem('account_desktop_token');
+const useAllocateList = (company: any, bank_statement: any, erp_transaction: any, bank_account: any, token: any) => {
+  const [data, setData] = useState<any[]>([]);
+  console.log('initial data @@@ in useEffect hook', company, bank_statement, erp_transaction, bank_account);
+  const doctype = 'Bank Reconciliation Tool';
 
-  // Create a function that can be called on demand
-  const fetchAllocationList = useCallback(async (company?: string, party_type?: string, party?: string, invoices?: any, payments?: any) => {
-    if (!company || !party_type || !party || !invoices?.length || !payments?.length) return;
+  const [apiErrorMessage, setApiErrorMessage] = useState<any>('');
+  const [apiError, setApiError] = useState<any>();
 
-    console.log('Fetching allocation list:', company, party_type, party, invoices, payments);
-
-    try {
-      const result = await window.electron.getAllocationList({
-        company: company,
-        party_type: party_type,
-        party: party,
-        invoices: invoices,
-        payments: payments,
-        token,
-      });
-
-      setAllocationListData(result?.docs || []);
-      console.log('Allocation List Data: result', result);
-      return result?.docs;
-    } catch (error) {
-      console.error('Error fetching allocation list:', error);
-      return [];
+  const fetchData = async () => {
+    const result = await window.electron.getAllocateEntries({
+      company: company,
+      doctype: doctype,
+      bank_statement: bank_statement,
+      erp_transaction: erp_transaction,
+      bank_account: bank_account,
+      token,
+    });
+    setData(result);
+    if (result?.error === true) {
+      setApiErrorMessage(result?.message);
+      setApiError(result?.error);
+      setData([]);
+    } else {
+      setData(result || {});
     }
-  }, []);
+  };
 
-  return { allocationListData, fetchAllocationList };
+  console.log('initial data @@@ in hook state data', data);
+
+  return { allocationListData: data, fetchData, allocateApiError: apiError, allocateErrorMsg: apiErrorMessage };
 };
 
 export default useAllocateList;
