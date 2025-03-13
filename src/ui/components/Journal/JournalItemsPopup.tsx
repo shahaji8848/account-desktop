@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 function JournalItemsPopup({
   journalPopup,
   entries,
@@ -6,6 +8,12 @@ function JournalItemsPopup({
   handleKeyDown,
   handleInputFocus
 }: any) {
+  const entryRefs = useRef<any>(null);
+  useEffect(() => {
+    if (entryRefs.current) {
+      entryRefs.current.focus();
+    }
+  }, [journalPopup]);
   return (
     <div
       className="popup table-popup"
@@ -34,6 +42,7 @@ function JournalItemsPopup({
                     <input
                       name="particulars"
                       value={entry.particulars}
+                      ref={(el) => el && (entryRefs.current = el)}
                       onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
                       onKeyDown={(e) => handleKeyDown(e, 'particulars', entry.id)}
                       onFocus={(e) => handleInputFocus(e, entry.id)}
@@ -132,63 +141,7 @@ function JournalItemsPopup({
                       style={{ outline: 'none', width: '63%' }}
                     />
                   </div>
-                  <div className="d-flex align-items-center w-100">
-                    <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
-                      <label className="ps-1 pe-3">Debit</label>
-                      <p>: </p>
-                    </div>
-                    {entry.debit === "disabled" ?
-                      <span
-                        className="ps-2"
-                        style={{
-                          "width": '50%',
-                          "background": "#F7F7F7"
-                        }}>
-                        debit
-                      </span>
-                      : (
-                        <input
-                          name="debit"
-                          value={entry.debit}
-                          onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
-                          onKeyDown={(e) => handleKeyDown(e, 'debit', entry.id)}
-                          onFocus={(e) => handleInputFocus(e, entry.id)}
-                          className="ms-2"
-                          style={{ outline: 'none', width: '63%' }}
-                        />
-                      )
-                    }
 
-                  </div>
-                  <div className="d-flex align-items-center w-100">
-                    <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
-                      <label className="ps-1 pe-3">Credit</label>
-                      <p>: </p>
-                    </div>
-
-                    {entry.credit === "disabled" ?
-                      <span
-                        className="ps-2"
-                        style={{
-                          "width": '50%',
-                          "background": "#F7F7F7"
-                        }}>
-                        debit
-                      </span>
-                      : (
-                        <input
-                          name="credit"
-                          value={entry.credit}
-                          onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
-                          onKeyDown={(e) => handleKeyDown(e, 'credit', entry.id)}
-                          onFocus={(e) => handleInputFocus(e, entry.id)}
-                          className="ms-2"
-                          style={{ outline: 'none', width: '63%' }}
-                        />
-                      )
-                    }
-
-                  </div>
                   <div className="d-flex align-items-center w-100">
                     <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
                       <label className="ps-1 pe-3">Reference Type</label>
@@ -267,6 +220,64 @@ function JournalItemsPopup({
                       className="ms-2"
                       style={{ outline: 'none', width: '63%', minHeight: '100px', resize: 'none', overflowY: 'auto', whiteSpace: 'pre-wrap' }}
                     />
+                  </div>
+
+                  <div className="d-flex align-items-center w-100">
+                    <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
+                      <label className="ps-1 pe-3">Debit</label>
+                      <p>: </p>
+                    </div>
+                    {entry.debit === "disabled" ?
+                      <span
+                        className="ps-2"
+                        style={{
+                          "width": '50%',
+                          "background": "#F7F7F7"
+                        }}>
+                        debit
+                      </span>
+                      : (
+                        <input
+                          name="debit"
+                          value={entry.debit}
+                          onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
+                          onKeyDown={(e) => handleKeyDown(e, 'debit', entry.id)}
+                          onFocus={(e) => handleInputFocus(e, entry.id)}
+                          className="ms-2"
+                          style={{ outline: 'none', width: '63%' }}
+                        />
+                      )
+                    }
+
+                  </div>
+                  <div className="d-flex align-items-center w-100">
+                    <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
+                      <label className="ps-1 pe-3">Credit</label>
+                      <p>: </p>
+                    </div>
+
+                    {entry.credit === "disabled" ?
+                      <span
+                        className="ps-2"
+                        style={{
+                          "width": '50%',
+                          "background": "#F7F7F7"
+                        }}>
+                        debit
+                      </span>
+                      : (
+                        <input
+                          name="credit"
+                          value={entry.credit}
+                          onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
+                          onKeyDown={(e) => handleKeyDown(e, 'credit', entry.id)}
+                          onFocus={(e) => handleInputFocus(e, entry.id)}
+                          className="ms-2"
+                          style={{ outline: 'none', width: '63%' }}
+                        />
+                      )
+                    }
+
                   </div>
                 </div>
               </>

@@ -19,6 +19,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
     const inputRefs = useRef<any>([]);
     const { isQuitModalOpen, setIsQuitModalOpen } = globalData;
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [selectedRowIndex, setSelectedRowIndex] = useState(0);
     const [showFilter, setShowFilter] = useState(false);
     const [currentFilterList, setCurrentFilterList] = useState<any[]>([]);
     // State to manage input values for multiple rows
@@ -67,7 +68,6 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
             entryRefs.current.focus();
         }
     }, []);
-
 
     // function for filtering values in filter 
     const handleFilter = (value: string) => {
@@ -130,6 +130,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
     // Handle key press (Enter to add new row, Escape to close modal)
     const handleKeyDown = async (e: any, field: any, id: any, index?: number) => {
         const { value } = e.target;
+        index && setSelectedRowIndex(index)
         const focusableElements = Array.from(
             formRef.current?.querySelectorAll(
                 "input, button, select, textarea, [tabindex]:not([tabindex='-1'])"
@@ -147,6 +148,10 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                 setIsQuitModalOpen(true);
 
             }
+        } else if (e.ctrlKey && e.key === 'Enter' && field === 'particulars') {
+            setJournalPopupID(id)
+            setJournalPopup(true)
+            setShowFilter(false)
         } else if (e.key === "Enter" && !showFilter) {
             // const newEntries = [...entries];
 
@@ -335,12 +340,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
             }
             setShowFilter(false);
             setSelectedIndex(0);
-        } else if (e.ctrlKey && e.key === 's' && field === 'particulars') {
-            setJournalPopupID(id)
-            setJournalPopup(true)
-            setShowFilter(false)
-        }
-        else if (e.ctrlKey && e.key === 'a') {
+        } else if (e.ctrlKey && e.key === 'a') {
             handleSubmit()
 
         }
@@ -624,7 +624,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                             name="particulars"
                             value={entry.particulars}
                             onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
-                            onKeyDown={(e) => handleKeyDown(e, 'particulars', entry.id)}
+                            onKeyDown={(e) => handleKeyDown(e, 'particulars', entry.id, index)}
                             onFocus={(e) => handleInputFocus(e, entry.id)}
                         />
                     </div>
@@ -638,7 +638,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                             name="party_type"
                             value={entry.party_type}
                             onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
-                            onKeyDown={(e) => handleKeyDown(e, 'party_type', entry.id)}
+                            onKeyDown={(e) => handleKeyDown(e, 'party_type', entry.id, index)}
                             onFocus={(e) => handleInputFocus(e, entry.id)}
                         />
                     </div>
@@ -652,7 +652,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                             name="party"
                             value={entry.party}
                             onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
-                            onKeyDown={(e) => handleKeyDown(e, 'party', entry.id)}
+                            onKeyDown={(e) => handleKeyDown(e, 'party', entry.id, index)}
                             onFocus={(e) => handleInputFocus(e, entry.id)}
                         />
                     </div>
@@ -669,7 +669,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                                     value={entry.debit}
                                     disabled={entry.debit === "disabled"} // Disable if "Cr" was typed
                                     onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
-                                    onKeyDown={(e) => handleKeyDown(e, 'debit', entry.id)}
+                                    onKeyDown={(e) => handleKeyDown(e, 'debit', entry.id, index)}
                                 />
                             )
                         }
@@ -688,7 +688,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                                     value={entry.credit}
                                     disabled={entry.credit === "disabled"} // Disable if "Dr" was typed
                                     onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
-                                    onKeyDown={(e) => handleKeyDown(e, 'credit', entry.id)}
+                                    onKeyDown={(e) => handleKeyDown(e, 'credit', entry.id, index)}
                                 />
                             )
                         }
