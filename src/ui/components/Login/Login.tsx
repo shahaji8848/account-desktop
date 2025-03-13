@@ -3,6 +3,7 @@ import ERPImage from '../../../assets/images/8848_Logo.svg'
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import './Login.css'
 import { toast } from "react-toastify";
+import { login } from '../../../apis/util';
 
 const Login = ({ onLoginSuccess }: any) => {
     const [formData, setFormData] = useState({
@@ -12,6 +13,8 @@ const Login = ({ onLoginSuccess }: any) => {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    const isAPP = window.electron ? true : false;
+
     const handleChange = (e: any) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -20,7 +23,11 @@ const Login = ({ onLoginSuccess }: any) => {
         e.preventDefault();
         setLoading(true);
         try {
-            const response = await window.electron.login({ email: formData?.email, password: formData?.password });
+            const response = isAPP
+                ? await window.electron.login({ email: formData?.email, password: formData?.password })
+
+                : login({ email: formData?.email, password: formData?.password })
+
             if (!response?.status) {
                 throw new Error("Login failed");
             }

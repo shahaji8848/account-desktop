@@ -31,7 +31,7 @@ export const sideBarData = [
     label: 'F6',
     text: 'Receipt',
     arrow_inactive: true,
-    tab_inactive: true,
+    tab_inactive: false,
     next_tab: false,
   },
   {
