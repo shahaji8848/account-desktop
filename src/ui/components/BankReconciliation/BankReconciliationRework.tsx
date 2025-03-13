@@ -88,7 +88,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
   const accountBalanceInitialData: any = useGetAccountBalance(bankAccount, company, fromDate, toDate, token);
   const erpTransaction: any = useErpTransaction(bankAccount, fromErpDate, toErpDate, token);
   const bankTransaction: any = useBankTransaction(bankAccount, company, fromStatementDate, toStatementDate, token);
-  console.log('initial data @@@', bankTransaction);
+  console.log('initial data @@@', bankTransaction, erpTransaction);
 
   const handleKeyDown = async (e: any, field?: any, type?: any) => {
     setInitalBankReconcileData((prevData) => ({
@@ -232,12 +232,13 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
 
   const handleBankStatementSelect = (data: any) => {
     setSelectedBankStatement((prev) => {
-      // Check if this invoice is already selected by looking for its idx
-      const isSelected = prev.some((item) => item.idx === data.idx);
+      // Use a unique identifier, such as a combination of name and date
+      const uniqueId = `${data.name}-${data.date}`;
+      const isSelected = prev.some((item) => `${item.name}` === uniqueId);
 
       if (isSelected) {
         // If already selected, remove it from the array
-        return prev.filter((item) => item.idx !== data.idx);
+        return prev.filter((item) => `${item.name}` !== uniqueId);
       } else {
         // If not selected, add the complete invoice object to the array
         return [...prev, data];
@@ -257,12 +258,12 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
 
   const handleErpTransactionSelect = (data: any) => {
     setSelectedErpTransaction((prev) => {
-      // Check if this payment is already selected by looking for its idx
-      const isSelected = prev.some((item) => item.idx === data.idx);
+      // Use 'name' as the unique identifier
+      const isSelected = prev.some((item) => item.name === data.name);
 
       if (isSelected) {
         // If already selected, remove it from the array
-        return prev.filter((item) => item.idx !== data.idx);
+        return prev.filter((item) => item.name !== data.name);
       } else {
         // If not selected, add the complete payment object to the array
         return [...prev, data];
@@ -270,7 +271,9 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     });
   };
 
-  const handleAllocation = async () => {};
+  const handleAllocation = async () => {
+    console.log('allocate data', selectedBankStatement, selectedErpTransaction);
+  };
 
   const handleReconcile = async () => {};
 
@@ -451,7 +454,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
         </div>
 
         {/* Unreconcile Entries */}
-        <div className="col-12 mt-5">
+        <div className="col-12 mt-3">
           <h2 className="mb-2">Unreconciled Entries</h2>
         </div>
         {/* Unreconcile table */}
@@ -476,23 +479,26 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
               </tr>
             </thead>
             <tbody>
-              {bankTransaction.map((bankStatementData: any, index: number) => (
-                <tr key={index}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={selectedBankStatement.some((item) => item.idx === bankStatementData.idx)}
-                      onChange={() => handleBankStatementSelect(bankStatementData)}
-                      onKeyDown={(e) => handleKeyDown(e, '', '')}
-                    />
-                  </td>
-                  <td>{bankStatementData.date}</td>
-                  <td>{bankStatementData.name}</td>
-                  <td>{bankStatementData.deposit}</td>
-                  <td>{bankStatementData.withdrawal}</td>
-                  <td>{bankStatementData.unallocated_amount}</td>{' '}
-                </tr>
-              ))}
+              {bankTransaction.map((bankStatementData: any, index: number) => {
+                const uniqueId = `${bankStatementData.name}`;
+                return (
+                  <tr key={index}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedBankStatement.some((item) => `${item.name}` === uniqueId)}
+                        onChange={() => handleBankStatementSelect(bankStatementData)}
+                        onKeyDown={(e) => handleKeyDown(e, '', '')}
+                      />
+                    </td>
+                    <td>{bankStatementData.date}</td>
+                    <td>{bankStatementData.name}</td>
+                    <td>{bankStatementData.deposit}</td>
+                    <td>{bankStatementData.withdrawal}</td>
+                    <td>{bankStatementData.unallocated_amount}</td>{' '}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -513,29 +519,52 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                 <th>Reference ID</th>
                 <th>Withdrawal</th>
                 <th>Remaining Amount</th>
-                <th>Reference ID</th> <th>Deposit</th> <th>Reference Doc</th>{' '}
+                <th>Reference Number</th>
+                <th>Deposit</th>
+                <th>Reference Doc</th>{' '}
               </tr>
             </thead>
             <tbody>
-              {erpTransaction?.map((erpTransactionData: any, index: number) => (
-                <tr key={index}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      onKeyDown={(e) => handleKeyDown(e, '', '')}
-                      checked={selectedErpTransaction.some((item) => item.idx === erpTransactionData.idx)}
-                      onChange={() => handleErpTransactionSelect(erpTransactionData)}
-                    />
-                  </td>
-                  {/* <td>{payment.reference_type}</td>
-                  <td>{payment.reference_name}</td>
-                  <td>{payment.posting_date}</td>
-                  <td>{payment.amount}</td>
-                  <td>{payment.difference_amount}</td>{' '} */}
-                </tr>
-              ))}
+              {erpTransaction?.map((erpTransactionData: any, index: number) => {
+                return (
+                  <tr key={index}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        onKeyDown={(e) => handleKeyDown(e, '', '')}
+                        // Check if the item is selected using 'name' as the unique identifier
+                        checked={selectedErpTransaction.some((item) => item.name === erpTransactionData.name)}
+                        onChange={() => handleErpTransactionSelect(erpTransactionData)}
+                      />
+                    </td>
+                    <td>{erpTransactionData.posting_date}</td>
+                    <td>{erpTransactionData.name}</td>
+                    <td>-</td>
+                    <td>{erpTransactionData.paid_amount}</td>
+                    <td>{erpTransactionData.reference_no}</td>
+                    <td>-</td>
+                    <td>{erpTransactionData.doctype}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+        </div>
+        <div className="col-12">
+          <div className="d-flex justify-content-end">
+            <div className="me-3">
+              <button className="btn btn-primary" onKeyDown={(e) => handleKeyDown(e, 'btn_allocate', '')} onClick={handleAllocation}>
+                Allocate
+              </button>
+            </div>
+            {allocationListData?.length > 0 && (
+              <div className="">
+                <button className="btn btn-secondary" onKeyDown={(e) => handleKeyDown(e, 'btn_reconcile', '')} onClick={handleReconcile}>
+                  Reconcile
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

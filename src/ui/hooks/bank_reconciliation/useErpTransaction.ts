@@ -10,7 +10,7 @@ const useErpTransaction = (bank_account: any, from_date: any, to_date: any, toke
       to_statement_date: to_date,
       token,
     });
-    setData(result?.message);
+    setData(result[0]);
   };
 
   useEffect(() => {
