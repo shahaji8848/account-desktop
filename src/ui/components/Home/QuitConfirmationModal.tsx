@@ -53,8 +53,8 @@ const QuitConfirmationModal = ({ type, isOpen, setIsQuitModalOpen, onConfirm, ho
         navigate(-1);
       } else if (type === 'payment_reconciliation') {
         navigate(-1);
-      }else if (type === 'journal_form') {
-        navigate(-1);
+      } else if (type === 'journal_form' || type === 'receipt_form') {
+        navigate('/');
       }
       // for closing the different menu list
       else if (homeHookData?.accountBooksList) {
@@ -138,7 +138,7 @@ const QuitConfirmationModal = ({ type, isOpen, setIsQuitModalOpen, onConfirm, ho
 
   return (
     <div className="modal-overlay" ref={formRef} onKeyDown={handleKeyDown} tabIndex={-1}>
-      <div className="modal-content" style={{backgroundColor:'#ffff'}}>
+      <div className="modal-content" style={{ backgroundColor: '#ffff' }}>
         <h3>Quit?</h3>
         <p style={{ paddingTop: '25px' }}>
           {' '}
