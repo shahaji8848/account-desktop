@@ -7,11 +7,7 @@
 
 const baseUrl = 'https://yatish-testing-v15.frappe.cloud';
 
-// async function getCookie() {
-//   const cookies = await session.defaultSession.cookies.get({ url: 'https://yatish-testing-v15.frappe.cloud' });
-//   const sidCookie = cookies.find((cookie) => cookie.name === 'sid');
-//   return sidCookie ? sidCookie.value : null;
-// }
+
 
 export async function login(kwargs: any) {
   const login_url = `${baseUrl}/api/method/login`;
@@ -35,8 +31,6 @@ export async function login(kwargs: any) {
       //   return data;
       // });
 
-      console.log(response.headers.get('Set-Cookie'), 'response.headers');
-      console.log(response, 'response login');
       return await response.json();
     } catch (error) {
       return { error: 'An error occurred while logging in' };
@@ -50,7 +44,6 @@ export async function generatekeys(kwargs: any) {
     'Content-Type': 'application/json',
     Authorization: process.env.API_TOKEN || '',
   };
-  console.log(process.env.API_TOKEN, 'process');
   const generateKeysUrl = `${baseUrl}/api/method/frappe.core.doctype.user.user.generate_keys`;
   const keysResponse = await fetch(generateKeysUrl, {
     method: 'POST',
@@ -65,7 +58,6 @@ export async function generatekeys(kwargs: any) {
 
   const keysData = await keysResponse.json();
 
-  console.log(keysData, 'keysData');
 
   if (keysData.message.api_secret) {
     const userDetails = `${baseUrl}/api/resource/User/${kwargs.email}`;
