@@ -11,7 +11,7 @@ import {
   getAdvancePaymentEntries,
   getPrintFormatData,
 } from '../apis/util.js';
-import {login , generatekeys} from '../apis/login.js'
+import { login, generatekeys } from '../apis/login.js';
 import { getPreloadPath, getUIPath } from './pathResolver.js';
 import { ipcMain } from 'electron';
 import { salesRegisterMonthWiseSales, salesBreakupReport } from '../apis/reports/sales_register.js';
@@ -41,9 +41,19 @@ app.on('ready', () => {
     responseHeaders['Access-Control-Allow-Origin'] = ['*']; // Allow all origins
     responseHeaders['Access-Control-Allow-Methods'] = ['GET, POST, PUT, DELETE, OPTIONS'];
     responseHeaders['Access-Control-Allow-Headers'] = ['Content-Type, Authorization'];
-    console.log(responseHeaders,"RRRRRRRR")
+    console.log(responseHeaders, 'RRRRRRRR');
     callback({ responseHeaders });
   });
+  session.defaultSession.cookies.get({}).then((cookies) => {
+    console.log('Cookies on startup:', cookies);
+  });
+
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    const responseHeaders = details.responseHeaders || {};
+    responseHeaders['Set-Cookie'] = responseHeaders['Set-Cookie'] || [];
+    callback({ responseHeaders: responseHeaders });
+  });
+
   const mainWindow = new BrowserWindow({
     webPreferences: {
       preload: getPreloadPath(),
@@ -172,7 +182,10 @@ app.on('ready', () => {
   ipcMain.handle('generatekeys', async (_, kwargs: any) => {
     return await generatekeys(kwargs);
   });
-  
+  ipcMain.handle('getSid', async () => {
+    const cookies = await session.defaultSession.cookies.get({ name: 'sid' });
+    return cookies.length > 0 ? cookies[0].value : null;
+  });
 
   handleCloseEvents(mainWindow);
   // createMenu(mainWindow);

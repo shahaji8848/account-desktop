@@ -1,4 +1,13 @@
+// import { session } from 'electron';
+
 const baseUrl = 'https://yatish-testing-v15.frappe.cloud';
+
+// async function getCookie() {
+//   const cookies = await session.defaultSession.cookies.get({ url: 'https://yatish-testing-v15.frappe.cloud' });
+//   const sidCookie = cookies.find((cookie) => cookie.name === 'sid');
+//   return sidCookie ? sidCookie.value : null;
+// }
+
 export async function login(kwargs: any) {
   const login_url = `${baseUrl}/api/method/login`;
 
@@ -15,9 +24,15 @@ export async function login(kwargs: any) {
         }),
         credentials: 'include',
       });
+      // .then((res) => res.json())
+      // .then((data) => {
+      //   console.log(data, "login data");
+      //   return data;
+      // });
 
+      console.log(response.headers.get('Set-Cookie'), 'response.headers');
+      console.log(response, 'response login');
       return await response.json();
-   
     } catch (error) {
       return { error: 'An error occurred while logging in' };
     }
@@ -25,35 +40,35 @@ export async function login(kwargs: any) {
     return { error: 'Invalid username or password' };
   }
 }
-export async function generatekeys(kwargs:any) {
-     let header_detials = {
-     'Content-Type': 'application/json',
-      Cookie: kwargs.sid,
-    };
-    const generateKeysUrl = `${baseUrl}/api/method/frappe.core.doctype.user.user.generate_keys`;
-    const keysResponse = await fetch(generateKeysUrl, {
-        method: 'POST',
-        body: JSON.stringify({
-          user: kwargs.email,
-          usr: kwargs.email,
-          pwd: kwargs.password,
-        }),
-        headers: header_detials,
-      });
+export async function generatekeys(kwargs: any) {
+  let header_detials = {
+    'Content-Type': 'application/json',
+    // Cookie: kwargs.sid,
+  };
+  const generateKeysUrl = `${baseUrl}/api/method/frappe.core.doctype.user.user.generate_keys`;
+  const keysResponse = await fetch(generateKeysUrl, {
+    method: 'POST',
+    body: JSON.stringify({
+      user: kwargs.email,
+      usr: kwargs.email,
+      pwd: kwargs.password,
+    }),
+    headers: header_detials,
+    // credentials: 'include',
+  });
 
-      const keysData = await keysResponse.json();
+  const keysData = await keysResponse.json();
 
-      if (keysData.message.api_secret) {
-        const userDetails = `${baseUrl}/api/resource/User/${kwargs.email}`;
-        const res = await fetch(userDetails, { method: 'GET', headers: header_detials });
-        let response = await res.json();
-        if (response.data.api_key) {
-          return { status: 'success', token: `token ${response.data.api_key}:${keysData.message.api_secret}` };
-        } else {
-          return { error: response.message || 'Login failed' };
-        }
-      } else {
-        return { error: keysData.message || 'Login failed' };
-      }
-   
+  if (keysData.message.api_secret) {
+    const userDetails = `${baseUrl}/api/resource/User/${kwargs.email}`;
+    const res = await fetch(userDetails, { method: 'GET', headers: header_detials });
+    let response = await res.json();
+    if (response.data.api_key) {
+      return { status: 'success', token: `token ${response.data.api_key}:${keysData.message.api_secret}` };
+    } else {
+      return { error: response.message || 'Login failed' };
+    }
+  } else {
+    return { error: keysData.message || 'Login failed' };
+  }
 }

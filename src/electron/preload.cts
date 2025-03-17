@@ -79,6 +79,9 @@ electron.contextBridge.exposeInMainWorld('electron', {
   generatekeys: (args: any) => {
     return ipcInvoke('generatekeys', args);
   },
+  getSid: () => {
+    return ipcInvoke('getSid');
+  },
   
 });
 

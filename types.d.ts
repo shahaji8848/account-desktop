@@ -31,6 +31,7 @@ interface Window {
     getAllAccounts: any;
     paymentEntryAccountsDetails: any;
     getPrintFormatData: any;
-    generatekeys:any;
+    generatekeys: any;
+    getSid: any;
   };
 }

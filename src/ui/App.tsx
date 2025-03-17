@@ -12,6 +12,7 @@ import SalesMaster from './components/Sales/SalesMaster';
 import Home from './components/Home/Home';
 import JournalMaster from './components/Journal/JournalMaster';
 import ReceiptMaster from './components/Receipt/ReceiptMaster';
+import { generatekeys } from '../apis/login';
 
 function App() {
   const { handleGlobalKeyFunctions, companyPopup, ...globalData } = useGlobalKeyFunctionalities();
@@ -31,9 +32,14 @@ function App() {
   }, []);
 
   // Handle login success and store token
-  const handleLoginSuccess = (receivedToken: string) => {
-    localStorage.setItem('account_desktop_token', receivedToken);
-    setToken(receivedToken);
+  const handleLoginSuccess = async (receivedToken: string) => {
+    const response = window.electron
+      ? await window.electron.generatekeys({ email: 'Administrator', password: 'admin' })
+      : await generatekeys({ email: 'Administrator', password: 'admin' });
+
+    console.log(response, ': response genereate keys');
+    // localStorage.setItem('account_desktop_token', receivedToken);
+    // setToken(receivedToken);
   };
 
   return (
@@ -57,26 +63,8 @@ function App() {
                   />
                 }
               />
-              <Route
-                path="/journal"
-                element={
-                  <JournalMaster
-                    salesHookData={salesHookData}
-                    homeHookData={homeHookData}
-                    globalData={globalData}
-                  />
-                }
-              />
-               <Route
-                path="/receipt"
-                element={
-                  <ReceiptMaster
-                    salesHookData={salesHookData}
-                    homeHookData={homeHookData}
-                    globalData={globalData}
-                  />
-                }
-              />
+              <Route path="/journal" element={<JournalMaster salesHookData={salesHookData} homeHookData={homeHookData} globalData={globalData} />} />
+              <Route path="/receipt" element={<ReceiptMaster salesHookData={salesHookData} homeHookData={homeHookData} globalData={globalData} />} />
               {/* remaining routes  */}
               {routesConfig.map(({ path, component: Component }) => (
                 <Route key={path} path={path} element={<Component homeHookData={homeHookData} globalData={globalData} />} />
