@@ -48,6 +48,7 @@ async function fetchData(url: string, token: any) {
   let header_details = {
     'Content-Type': 'application/json',
     Authorization: token,
+    credentials: 'include',
   };
   const response = await fetch(url, { method: 'GET', headers: header_details });
   if (!response.ok) {
@@ -67,66 +68,66 @@ async function getAddressData(doctype: any, filters: any, token: any) {
 }
 
 
-export async function login(kwargs: any) {
-  const login_url = 'https://yatish-testing-v15.frappe.cloud/api/method/login';
+// export async function login(kwargs: any) {
+//   const login_url = 'https://yatish-testing-v15.frappe.cloud/api/method/login';
 
-  if (kwargs.email && kwargs.password) {
-    try {
-      const response = await fetch(login_url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          usr: kwargs.email,
-          pwd: kwargs.password,
-        }),
-        credentials: 'include',
-      });
+//   if (kwargs.email && kwargs.password) {
+//     try {
+//       const response = await fetch(login_url, {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({
+//           usr: kwargs.email,
+//           pwd: kwargs.password,
+//         }),
+//         credentials: 'include',
+//       });
 
-      const data = await response.json();
-      const cookies = response.headers.get('set-cookie');
-      const sid = cookies || data.message?.sid || null;
-      let header_detials = {
-        'Content-Type': 'application/json',
-        Cookie: `${sid}`,
-      };
-      if (response.ok && data.message == 'Logged In') {
-        const generateKeysUrl = `https://yatish-testing-v15.frappe.cloud/api/method/frappe.core.doctype.user.user.generate_keys`;
-        const keysResponse = await fetch(generateKeysUrl, {
-          method: 'POST',
-          body: JSON.stringify({
-            user: kwargs.email,
-            usr: kwargs.email,
-            pwd: kwargs.password,
-          }),
-          headers: header_detials,
-        });
+//       const data = await response.json();
+//       const cookies = response.headers.get('set-cookie');
+//       const sid = cookies || data.message?.sid || null;
+//       let header_detials = {
+//         'Content-Type': 'application/json',
+//         Cookie: `${sid}`,
+//       };
+//       if (response.ok && data.message == 'Logged In') {
+//         const generateKeysUrl = `https://yatish-testing-v15.frappe.cloud/api/method/frappe.core.doctype.user.user.generate_keys`;
+//         const keysResponse = await fetch(generateKeysUrl, {
+//           method: 'POST',
+//           body: JSON.stringify({
+//             user: kwargs.email,
+//             usr: kwargs.email,
+//             pwd: kwargs.password,
+//           }),
+//           headers: header_detials,
+//         });
 
-        const keysData = await keysResponse.json();
+//         const keysData = await keysResponse.json();
 
-        if (keysData.message.api_secret) {
-          const userDetails = `${baseUrl}/User/${kwargs.email}`;
-          const res = await fetch(userDetails, { method: 'GET', headers: header_detials });
-          let response = await res.json();
-          if (response.data.api_key) {
-            return { status: 'success', token: `token ${response.data.api_key}:${keysData.message.api_secret}` };
-          } else {
-            return { error: data.message || 'Login failed' };
-          }
-        } else {
-          return { error: data.message || 'Login failed' };
-        }
-      } else {
-        return { error: data.message || 'Login failed' };
-      }
-    } catch (error) {
-      return { error: 'An error occurred while logging in' };
-    }
-  } else {
-    return { error: 'Invalid username or password' };
-  }
-}
+//         if (keysData.message.api_secret) {
+//           const userDetails = `${baseUrl}/User/${kwargs.email}`;
+//           const res = await fetch(userDetails, { method: 'GET', headers: header_detials });
+//           let response = await res.json();
+//           if (response.data.api_key) {
+//             return { status: 'success', token: `token ${response.data.api_key}:${keysData.message.api_secret}` };
+//           } else {
+//             return { error: data.message || 'Login failed' };
+//           }
+//         } else {
+//           return { error: data.message || 'Login failed' };
+//         }
+//       } else {
+//         return { error: data.message || 'Login failed' };
+//       }
+//     } catch (error) {
+//       return { error: 'An error occurred while logging in' };
+//     }
+//   } else {
+//     return { error: 'Invalid username or password' };
+//   }
+// }
 
 async function getItemData(doctype: string, filters: any, token: any) {
   let url = `${baseUrl}/${doctype}`;
