@@ -2,6 +2,7 @@ import { toast } from 'react-toastify';
 import { advancesDefaultInfo, defaultTableData, salesDefaultdata } from '../../utils/data';
 import { handleChangeOfSales } from './handleChangeOfSales';
 import { useNavigate } from 'react-router-dom';
+import { postData, updateData } from '../../../apis/util';
 // import PartyNamePopup from '../../components/Sales/PartyNamePopup';
 
 export function handleAllSalesFunctions(
@@ -92,12 +93,25 @@ export function handleAllSalesFunctions(
     try {
       const x =
         method === 'POST'
-          ? await window.electron.postData({
+          ? window.electron
+            ? await window.electron.postData({
+                doctype: 'Sales Invoice',
+                data: salesInvoiceData,
+                token: token,
+              })
+            : await postData({
+                doctype: 'Sales Invoice',
+                data: salesInvoiceData,
+                token: token,
+              })
+          : window.electron
+          ? await window.electron.updateData({
               doctype: 'Sales Invoice',
               data: salesInvoiceData,
+              name: salesInvoiceName,
               token: token,
             })
-          : await window.electron.updateData({
+          : await updateData({
               doctype: 'Sales Invoice',
               data: salesInvoiceData,
               name: salesInvoiceName,

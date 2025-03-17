@@ -11,6 +11,7 @@ import {
   taxDefaultInfo,
 } from '../../utils/data';
 import { handleTableKeyFunctionalities } from './handleTableKeyFunctionalities';
+import { getCurrencyData, getData } from '../../../apis/util';
 
 export default function useHandleKeyFunctionalities({
   salesData,
@@ -213,16 +214,26 @@ export default function useHandleKeyFunctionalities({
     // setShowFilter(true);
   };
 
-  const getCurrencyData = async () => {
-    const response = await window.electron.getCurrencyData({
-      data: {
-        transaction_date: new Date().toISOString().split('T')[0] || '25-2-2025',
-        from_currency: filteredItems[selectedIndex],
-        to_currency: 'INR',
-        args: 'for_selling',
-      },
-      token: token,
-    });
+  const getCurrencyResponse = async () => {
+    const response = window.electron
+      ? await window.electron.getCurrencyData({
+          data: {
+            transaction_date: new Date().toISOString().split('T')[0] || '25-2-2025',
+            from_currency: filteredItems[selectedIndex],
+            to_currency: 'INR',
+            args: 'for_selling',
+          },
+          token: token,
+        })
+      : await getCurrencyData({
+          data: {
+            transaction_date: new Date().toISOString().split('T')[0] || '25-2-2025',
+            from_currency: filteredItems[selectedIndex],
+            to_currency: 'INR',
+            args: 'for_selling',
+          },
+          token: token,
+        });
     return response;
   };
 
@@ -376,7 +387,7 @@ export default function useHandleKeyFunctionalities({
       setIsSelecting(false);
     } else if (name === 'currency') {
       fieldName === name &&
-        getCurrencyData()
+        getCurrencyResponse()
           .then((resp: any) => {
             // console.log(resp, 'resp');
             setSalesData({
@@ -858,19 +869,34 @@ export default function useHandleKeyFunctionalities({
   );
   const getPromotionalItemData = async (data: any) => {
     // console.log(data);
-    let response = await window.electron.getData({
-      doctype: 'Item',
-      filters: { name: data.free_item, company: companyData.company_name || '' },
-    });
-    let rate = await window.electron.getData({
-      doctype: 'Item Price',
-      filters: { item_code: data.free_item },
-    });
+    let response = window.electron
+      ? await window.electron.getData({
+          doctype: 'Item',
+          filters: { name: data.free_item, company: companyData.company_name || '' },
+        })
+      : await getData({
+          doctype: 'Item',
+          filters: { name: data.free_item, company: companyData.company_name || '' },
+        });
+    let rate = window.electron
+      ? await window.electron.getData({
+          doctype: 'Item Price',
+          filters: { item_code: data.free_item },
+        })
+      : await getData({
+          doctype: 'Item Price',
+          filters: { item_code: data.free_item },
+        });
     if (response && rate) {
-      let tax_info = await window.electron.getData({
-        doctype: 'Item Tax Template',
-        filters: { input: response?.taxes[0]?.item_tax_template || '' },
-      });
+      let tax_info = window.electron
+        ? await window.electron.getData({
+            doctype: 'Item Tax Template',
+            filters: { input: response?.taxes[0]?.item_tax_template || '' },
+          })
+        : await getData({
+            doctype: 'Item Tax Template',
+            filters: { input: response?.taxes[0]?.item_tax_template || '' },
+          });
       // console.log(response, rate, tax_info, 'response and rate');
       setProductData([
         {
@@ -895,9 +921,13 @@ export default function useHandleKeyFunctionalities({
   };
 
   const getPromotionalData = async (value: string) => {
-    const itemData = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { item_code: itemsData.item_name } });
+    const itemData = window.electron
+      ? await window.electron.getData({ doctype: 'Promotional Scheme', filters: { item_code: itemsData.item_name } })
+      : await getData({ doctype: 'Promotional Scheme', filters: { item_code: itemsData.item_name } });
     if (itemData && itemData.length > 0) {
-      const promotionalData = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { name: itemData[0].name } });
+      const promotionalData = window.electron
+        ? await window.electron.getData({ doctype: 'Promotional Scheme', filters: { name: itemData[0].name } })
+        : await getData({ doctype: 'Promotional Scheme', filters: { name: itemData[0].name } });
       // console.log(itemData, promotionalData, 'Promotional Scheme');
       if (promotionalData && promotionalData.customer[0]?.customer === salesData.party_details.party_name) {
         if (value >= promotionalData.product_discount_slabs[0]?.min_qty) {
