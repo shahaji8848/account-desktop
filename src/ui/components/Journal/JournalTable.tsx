@@ -17,6 +17,8 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
     const formRef = useRef<any>(null);
     const entryRefs = useRef<any>(null);
     const inputRefs = useRef<any>([]);
+    const typeRefs = useRef<any>([]);
+    const popUpRefs = useRef<any>(null);
     const { isQuitModalOpen, setIsQuitModalOpen } = globalData;
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [selectedRowIndex, setSelectedRowIndex] = useState(0);
@@ -49,7 +51,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
             is_advance: '',
             reference_name: '',
             user_remark: '',
-            Reference_due_date: ''
+            reference_due_date: new Date().toISOString().split('T')[0]
         }
     ]);
     const [referenceNameLsit, setReferenceNameLsit] = useState<any>([])
@@ -62,12 +64,19 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
     const AccountList = useFetchData("Account", {}, token);
     const BankAccountList = useFetchData("Bank Account", {}, token);
     const CostCenterList = useFetchData("Cost Center", {}, token);
+    const selectedRowData = entries.find((entry: any) => entry.id === journalPopupID);
 
     useEffect(() => {
-        if (entryRefs.current) {
+        if (popUpRefs.current && journalPopup) {
+            popUpRefs.current.focus()
+        } else if (selectedRowData?.particulars && inputRefs.current[journalPopupID] && !journalPopup) {
+            inputRefs.current[journalPopupID].focus()
+
+        } else if (entryRefs.current) {
             entryRefs.current.focus();
         }
-    }, []);
+
+    }, [journalPopup]);
 
     // function for filtering values in filter 
     const handleFilter = (value: string) => {
@@ -97,20 +106,6 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                     entry.id === id ? { ...entry, [name]: value } : entry
                 )
             );
-            // Enable/Disable fields based on type value
-            // if (name === "type") {
-            //     setEntries((prevEntries: any) =>
-            //         prevEntries.map((entry: any) =>
-            //             entry.id === id
-            //                 ? {
-            //                     ...entry,
-            //                     debit: value.toLowerCase() === "dr" ? "" : "disabled",
-            //                     credit: value.toLowerCase() === "cr" ? "" : "disabled",
-            //                 }
-            //                 : entry
-            //         )
-            //     );
-            // }
 
         } else if (name === 'posting_date') {
             setDate({ ...date, [name]: value });
@@ -143,6 +138,25 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
             setShowFilter(false)
         } else if (e.key === "Escape") {
             if (journalPopup) {
+                // calculate current balance on close of popup 
+                setEntries((prevEntries: any) =>
+                    prevEntries.map((entry: any) => {
+                        if (entry.id === id) {
+                            let updatedEntry = { ...entry };
+
+                            if (field === "debit") {
+                                const debitValue = parseFloat(entry.debit) || 0;
+                                updatedEntry.curBalance -= debitValue; // Subtract from balance
+                            } else if (field === "credit") {
+                                const creditValue = parseFloat(entry.credit) || 0;
+                                updatedEntry.curBalance += creditValue; // Add to balance
+                            }
+
+                            return updatedEntry;
+                        }
+                        return entry;
+                    })
+                );
                 setJournalPopup(false)
             } else {
                 setIsQuitModalOpen(true);
@@ -197,15 +211,15 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                             is_advance: '',
                             reference_name: '',
                             user_remark: '',
-                            Reference_due_date: ''
+                            reference_due_date: new Date().toISOString().split('T')[0]
                         }
                     ];
 
                     // Delay focus to ensure state update is completed
                     setTimeout(() => {
                         const nextIndex = newEntries.length - 1; // Get the latest row index
-                        if (inputRefs.current[nextIndex]) {
-                            inputRefs.current[nextIndex].focus(); // Focus on "type" field of new row
+                        if (typeRefs.current[nextIndex]) {
+                            typeRefs.current[nextIndex].focus(); // Focus on "type" field of new row
                         }
                     }, 50);
 
@@ -372,6 +386,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
             setCurrentFilterList(AccountList);
             setMasterList(AccountList)
             setSelectedIndex(0)
+            setJournalPopupID(id)
 
         } else if (field === 'party_type') {
             setShowFilter(true);
@@ -452,6 +467,8 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                         reference_type: entry.reference_type,
                         is_advance: entry.is_advance,
                         reference_name: entry.reference_name,
+                        reference_due_date: entry.reference_due_date,
+                        bank_account: entry.bank_account,
                         user_remark: entry.user_remark
                     });
                 }
@@ -469,6 +486,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                         reference_type: entry.reference_type,
                         is_advance: entry.is_advance,
                         reference_name: entry.reference_name,
+                        reference_due_date: entry.reference_due_date,
                         user_remark: entry.user_remark
 
                     });
@@ -532,7 +550,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                 <div className="col-4">
                     <div className="row">
                         <div className="col-12 d-flex align-items-center">
-                            <label className="fw-bold" style={{ flexBasis: '20%' }}>Entry Type</label>
+                            <label className="fw-bold" style={{ flexBasis: '20%' }}>Entry Type * :</label>
                             <span className='colon-span me-2'>:</span>
                             <input
                                 type="text"
@@ -549,7 +567,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
 
                         {/* series field  */}
                         <div className="col-12 mt-2 d-flex align-items-center">
-                            <label className="fw-bold" style={{ flexBasis: '20%' }}>Series</label>
+                            <label className="fw-bold" style={{ flexBasis: '20%' }}>Series * :</label>
                             <span className='colon-span me-2'>:</span>
                             <input
                                 type="text"
@@ -590,7 +608,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                 style={{ border: '1px solid lightgray' }}
             >
                 <div className="col-1">{' '}</div>
-                <div className="col-3">Particulars</div>
+                <div className="col-3">Particulars *</div>
                 <div className="col-3">Party Type</div>
                 <div className="col-3">Party</div>
                 <div className="col-1 text-center">Debit</div>
@@ -605,7 +623,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                         <input
                             type="text"
                             className={`form-control p-0 ${styles.voucherRowActive}`}
-                            ref={(el) => (inputRefs.current[index] = el)}
+                            ref={(el) => (typeRefs.current[index] = el)}
                             name="type"
                             value={entry.type}
                             onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
@@ -620,7 +638,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                         <input
                             type="text"
                             className={`form-control p-0 ${styles.voucherRowActive}`}
-                            // style={{ width: '25%' }}
+                            ref={(el) => (inputRefs.current[entry.id] = el)}
                             name="particulars"
                             value={entry.particulars}
                             onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
@@ -785,6 +803,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
                 journalPopup={journalPopup}
                 entries={entries}
                 journalPopupID={journalPopupID}
+                popUpRefs={popUpRefs}
                 handleInputChange={handleInputChange}
                 handleKeyDown={handleKeyDown}
                 handleInputFocus={handleInputFocus}

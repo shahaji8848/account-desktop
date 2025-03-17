@@ -4,16 +4,12 @@ function JournalItemsPopup({
   journalPopup,
   entries,
   journalPopupID,
+  popUpRefs,
   handleInputChange,
   handleKeyDown,
   handleInputFocus
 }: any) {
-  const entryRefs = useRef<any>(null);
-  useEffect(() => {
-    if (entryRefs.current) {
-      entryRefs.current.focus();
-    }
-  }, [journalPopup]);
+
   return (
     <div
       className="popup table-popup"
@@ -42,7 +38,7 @@ function JournalItemsPopup({
                     <input
                       name="particulars"
                       value={entry.particulars}
-                      ref={(el) => el && (entryRefs.current = el)}
+                      ref={(el) => el && (popUpRefs.current = el)}
                       onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
                       onKeyDown={(e) => handleKeyDown(e, 'particulars', entry.id)}
                       onFocus={(e) => handleInputFocus(e, entry.id)}
@@ -133,7 +129,7 @@ function JournalItemsPopup({
                     </div>
                     <input
                       name="exchange_rate"
-                      value={entry.exchange_rate}
+                      value={parseFloat(entry.exchange_rate).toFixed(2)}
                       onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
                       onKeyDown={(e) => handleKeyDown(e, 'exchange_rate', entry.id)}
                       onFocus={(e) => handleInputFocus(e, entry.id)}
@@ -189,23 +185,23 @@ function JournalItemsPopup({
                       style={{ outline: 'none', width: '63%' }}
                     />
                   </div>
-                  {/* <div className="d-flex align-items-center w-100">
+                  <div className="d-flex align-items-center w-100">
                     <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
                       <label className="ps-1 pe-3">Reference Due Date</label>
                       <p>: </p>
                     </div>
                     <input
-                      name="Reference_due_date"
+                      name="reference_due_date"
                       type="date"
-                      value={entry.Reference_due_date}
+                      value={entry.reference_due_date}
                       onChange={(e) => handleInputChange(e, entry.id, 'entry_row')}
-                      onKeyDown={(e) => handleKeyDown(e, 'Reference_due_date', entry.id)}
+                      onKeyDown={(e) => handleKeyDown(e, 'reference_due_date', entry.id)}
                       onFocus={(e) => handleInputFocus(e, entry.id)}
                       className="ms-2"
                       style={{ outline: 'none', width: '63%' }}
-                      
+
                     />
-                  </div> */}
+                  </div>
                   <div className="d-flex align-items-start w-100">
                     <div className="salesNo d-flex align-items-start justify-content-between" style={{ width: '35%' }}>
                       <label className="ps-1 pe-3">User Remark</label>

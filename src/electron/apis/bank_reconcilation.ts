@@ -275,6 +275,8 @@ export async function getErpTransaction(args: any) {
   try {
     let api_url = 'api/method/erpnext.accounts.doctype.bank_reconciliation_tool.bank_reconciliation_tool.get_linked_payments';
     let erp_transaction: any[] = [];
+    let unique_erp_transaction: any[] = [];
+    let payment_entry: any[] = [];
     let bank_transaction = await getBankTransaction(args);
     for (let row of bank_transaction.message) {
       let params: any = {
@@ -303,6 +305,10 @@ export async function getErpTransaction(args: any) {
     }
     for (let i of erp_transaction) {
       for (let row of i) {
+        if (!payment_entry.includes(row.name)) {
+          payment_entry.push(row.name);
+          unique_erp_transaction.push(row);
+        }
         if (row.doctype == 'Payment Entry') {
           const parms = {
             doctype: 'Payment Entry',
@@ -337,7 +343,7 @@ export async function getErpTransaction(args: any) {
         }
       }
     }
-    return erp_transaction;
+    return unique_erp_transaction;
   } catch (error) {
     console.error('Error in getErpTransaction:', error);
     return { error: true, message: 'An unexpected error occurred while fetching ErpTransaction.' };
