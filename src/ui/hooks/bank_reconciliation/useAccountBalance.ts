@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 
 const useGetAccountBalance = (bank_account: any, company: any, from_date: any, to_date: any, token: any) => {
   const [data, setData] = useState<any[]>([]);
+  const [shouldRefetch, setShouldRefetch] = useState(false);
+
   const fetchData = async () => {
     const result = await window.electron.getAccountBalance({
       bank_account: bank_account,
@@ -17,7 +19,11 @@ const useGetAccountBalance = (bank_account: any, company: any, from_date: any, t
     fetchData();
   }, [company, bank_account, from_date, to_date]);
 
-  return data;
+  const refreshData = () => {
+    setShouldRefetch((prev) => !prev);
+  };
+
+  return { accountBalanceInitialData: data, refreshData };
 };
 
 export default useGetAccountBalance;
