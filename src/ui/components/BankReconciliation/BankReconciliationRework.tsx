@@ -2,9 +2,6 @@
 import type React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import ShowFilter from '../common/ShowFilter';
-import useUnreconcileEntriesData from '../../hooks/payment_reconciliation/useUnreconcileEntriesData';
-import useAllocateList from '../../hooks/payment_reconciliation/useAllocateList';
-import useReconcile from '../../hooks/payment_reconciliation/useReconcile';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import QuitConfirmationModal from '../Home/QuitConfirmationModal';
@@ -14,6 +11,9 @@ import useFetchData from '../../hooks/fetchData';
 import useGetAccountBalance from '../../hooks/bank_reconciliation/useAccountBalance';
 import useErpTransaction from '../../hooks/bank_reconciliation/useErpTransaction';
 import useBankTransaction from '../../hooks/bank_reconciliation/useBankTransaction';
+import useAllocateList from '../../hooks/bank_reconciliation/useAllocateList';
+import useReconcile from '../../hooks/bank_reconciliation/useReconcile';
+
 export default function BankReconciliationRework({ homeHookData, globalData }: any) {
   const token = localStorage.getItem('account_desktop_token');
   const companyData = useFetchData('Company', {}, token);
@@ -46,12 +46,8 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
   const [closingBalErp, setClosingBalErp] = useState('');
   const [closingBalBank, setClosingBalBank] = useState('');
 
-  const { allocationListData, fetchAllocationList } = useAllocateList();
-  const { reconcileData, fetchReconcile } = useReconcile();
-
   const [selectedBankStatement, setSelectedBankStatement] = useState<any[]>([]);
   const [selectedErpTransaction, setSelectedErpTransaction] = useState<any[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
   const [hideAllocationTable, setHideAllocationTable] = useState<boolean>(false);
   const [showDateFilters, setShowDateFilters] = useState(true);
 
@@ -60,13 +56,6 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
   const [fromErpDate, setFromErpDate] = useState<any>(new Date().toISOString().split('T')[0]);
   const [toErpDate, setToErpDate] = useState<any>(new Date().toISOString().split('T')[0]);
 
-  const refreshData = () => {};
-
-  useEffect(() => {
-    if (allocationListData?.length > 0) {
-      setHideAllocationTable(false);
-    }
-  }, [allocationListData]); // Reset the state when new data arrives
   useEffect(() => {
     if (inputRefs.current) {
       inputRefs.current.focus();
@@ -85,10 +74,10 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     setToErpDate(initalBankReconcileData.to_date);
   }, [initalBankReconcileData.from_date, initalBankReconcileData.to_date]);
 
-  const accountBalanceInitialData: any = useGetAccountBalance(bankAccount, company, fromDate, toDate, token);
-  const erpTransaction: any = useErpTransaction(bankAccount, fromErpDate, toErpDate, token);
-  const bankTransaction: any = useBankTransaction(bankAccount, company, fromStatementDate, toStatementDate, token);
-  console.log('initial data @@@', bankTransaction);
+  const { accountBalanceInitialData, refreshData }: any = useGetAccountBalance(bankAccount, company, fromDate, toDate, token);
+  const { erpTransaction, reFetchData } = useErpTransaction(bankAccount, fromErpDate, toErpDate, token);
+  const { bankTransaction, refectBankTransaction } = useBankTransaction(bankAccount, company, fromStatementDate, toStatementDate, token);
+  // console.log('initial data @@@', bankTransaction, erpTransaction);
 
   const handleKeyDown = async (e: any, field?: any, type?: any) => {
     setInitalBankReconcileData((prevData) => ({
@@ -138,9 +127,9 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
       setSelectedIndex(newIndex);
     } else if (e.key === 'Enter' && showFilter) {
       e.preventDefault();
-      if (field === 'party') {
-        refreshData();
-      }
+      // if (field === 'party') {
+      //   refreshData();
+      // }
 
       setInitalBankReconcileData((prevData) => ({
         ...prevData,
@@ -232,12 +221,13 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
 
   const handleBankStatementSelect = (data: any) => {
     setSelectedBankStatement((prev) => {
-      // Check if this invoice is already selected by looking for its idx
-      const isSelected = prev.some((item) => item.idx === data.idx);
+      // Use a unique identifier, such as a combination of name and date
+      const uniqueId = `${data.name}`;
+      const isSelected = prev.some((item) => `${item.name}` === uniqueId);
 
       if (isSelected) {
         // If already selected, remove it from the array
-        return prev.filter((item) => item.idx !== data.idx);
+        return prev.filter((item) => `${item.name}` !== uniqueId);
       } else {
         // If not selected, add the complete invoice object to the array
         return [...prev, data];
@@ -257,12 +247,12 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
 
   const handleErpTransactionSelect = (data: any) => {
     setSelectedErpTransaction((prev) => {
-      // Check if this payment is already selected by looking for its idx
-      const isSelected = prev.some((item) => item.idx === data.idx);
+      // Use 'name' as the unique identifier
+      const isSelected = prev.some((item) => item.name === data.name);
 
       if (isSelected) {
         // If already selected, remove it from the array
-        return prev.filter((item) => item.idx !== data.idx);
+        return prev.filter((item) => item.name !== data.name);
       } else {
         // If not selected, add the complete payment object to the array
         return [...prev, data];
@@ -270,9 +260,80 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     });
   };
 
-  const handleAllocation = async () => {};
+  const extractedBankTransactions = selectedBankStatement.map((bankTransaction: any) => ({
+    bank_transaction_id: bankTransaction?.name,
+    deposit: bankTransaction?.deposit,
+    withdraw: bankTransaction?.withdrawal,
+    reference_no: bankTransaction?.reference_number,
+    unallocated_amount: bankTransaction?.unallocated_amount,
+  }));
 
-  const handleReconcile = async () => {};
+  const extractedErpTransactions = selectedErpTransaction.map((transaction: any) => ({
+    date: transaction.posting_date,
+    reference_id: transaction.name,
+    reference_number: transaction.reference_no,
+    deposit: transaction.deposit,
+    remaining_amount: transaction.paid_amount,
+    withdraw: transaction.withdraw,
+    reference_doc: transaction.doctype,
+  }));
+
+  const { allocationListData, fetchData, allocateApiError, allocateErrorMsg } = useAllocateList(
+    company,
+    extractedBankTransactions,
+    extractedErpTransactions,
+    bankAccount,
+    token
+  );
+  const handleAllocation = async () => {
+    if (!company || !bankAccount || extractedBankTransactions.length === 0 || extractedErpTransactions.length === 0) {
+      // setErrorMessage('Please select at least one invoice and one payment to reconcile');
+      toast.error('Please select at least one Bank and one Erp transaction to reconcile', {
+        position: 'top-right',
+        autoClose: 3000, // Closes after 3 seconds
+        className: 'custom-toast', // Custom class
+      });
+      return;
+    }
+    console.log('initial data @@@ in allocate fn', allocationListData);
+
+    // Call the fetch function when the button is clicked
+    fetchData();
+    if (allocateApiError === true) {
+      toast.warning(allocateErrorMsg, {
+        position: 'top-right',
+        autoClose: 3000, // Closes after 3 seconds
+        className: 'custom-toast', // Custom class
+      });
+    }
+  };
+  useEffect(() => {
+    if (allocationListData && allocationListData?.length > 0) {
+      setHideAllocationTable(false);
+    }
+  }, [allocationListData]);
+
+  const { reconcileData, fetchReconcile, apiError, apiErrorMessage } = useReconcile();
+
+  const handleReconcile = async () => {
+    const reconcileDataa = await fetchReconcile(allocationListData, token);
+    console.log(' initial data @@@ reconcile data fetched on button click:', reconcileDataa?.data);
+    if (reconcileDataa?.data && reconcileDataa.data.length > 0) {
+      toast.success('Reconciliation successful!', {
+        position: 'top-right',
+        autoClose: 3000, // Closes after 3 seconds
+        className: 'custom-toast', // Custom class
+      });
+      setSelectedBankStatement([]);
+      setSelectedErpTransaction([]);
+    } else if (apiError === true) {
+      toast.warning(apiErrorMessage, {
+        position: 'top-right',
+        autoClose: 3000, // Closes after 3 seconds
+        className: 'custom-toast', // Custom class
+      });
+    }
+  };
 
   useEffect(() => {
     if (!isQuitModalOpen) {
@@ -451,7 +512,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
         </div>
 
         {/* Unreconcile Entries */}
-        <div className="col-12 mt-5">
+        <div className="col-12 mt-3">
           <h2 className="mb-2">Unreconciled Entries</h2>
         </div>
         {/* Unreconcile table */}
@@ -471,28 +532,31 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                 <th>Date</th>
                 <th>Bank Transaction ID</th>
                 <th>Deposit</th>
-                <th>withdrawal</th>
+                <th>Withdrawal</th>
                 <th>UnAllocated Amount</th>{' '}
               </tr>
             </thead>
             <tbody>
-              {bankTransaction.map((bankStatementData: any, index: number) => (
-                <tr key={index}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={selectedBankStatement.some((item) => item.idx === bankStatementData.idx)}
-                      onChange={() => handleBankStatementSelect(bankStatementData)}
-                      onKeyDown={(e) => handleKeyDown(e, '', '')}
-                    />
-                  </td>
-                  <td>{bankStatementData.date}</td>
-                  <td>{bankStatementData.name}</td>
-                  <td>{bankStatementData.deposit}</td>
-                  <td>{bankStatementData.withdrawal}</td>
-                  <td>{bankStatementData.unallocated_amount}</td>{' '}
-                </tr>
-              ))}
+              {bankTransaction.map((bankStatementData: any, index: number) => {
+                const uniqueId = `${bankStatementData.name}`;
+                return (
+                  <tr key={index}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedBankStatement.some((item) => `${item.name}` === uniqueId)}
+                        onChange={() => handleBankStatementSelect(bankStatementData)}
+                        onKeyDown={(e) => handleKeyDown(e, '', '')}
+                      />
+                    </td>
+                    <td>{bankStatementData.date}</td>
+                    <td>{bankStatementData.name}</td>
+                    <td>{bankStatementData.deposit}</td>
+                    <td>{bankStatementData.withdrawal}</td>
+                    <td>{bankStatementData.unallocated_amount}</td>{' '}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -513,30 +577,81 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                 <th>Reference ID</th>
                 <th>Withdrawal</th>
                 <th>Remaining Amount</th>
-                <th>Reference ID</th> <th>Deposit</th> <th>Reference Doc</th>{' '}
+                <th>Reference Number</th>
+                <th>Deposit</th>
+                <th>Reference Doc</th>{' '}
               </tr>
             </thead>
             <tbody>
-              {erpTransaction?.map((erpTransactionData: any, index: number) => (
-                <tr key={index}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      onKeyDown={(e) => handleKeyDown(e, '', '')}
-                      checked={selectedErpTransaction.some((item) => item.idx === erpTransactionData.idx)}
-                      onChange={() => handleErpTransactionSelect(erpTransactionData)}
-                    />
-                  </td>
-                  {/* <td>{payment.reference_type}</td>
-                  <td>{payment.reference_name}</td>
-                  <td>{payment.posting_date}</td>
-                  <td>{payment.amount}</td>
-                  <td>{payment.difference_amount}</td>{' '} */}
-                </tr>
-              ))}
+              {erpTransaction?.map((erpTransactionData: any, index: number) => {
+                return (
+                  <tr key={index}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        onKeyDown={(e) => handleKeyDown(e, '', '')}
+                        // Check if the item is selected using 'name' as the unique identifier
+                        checked={selectedErpTransaction.some((item) => item.name === erpTransactionData.name)}
+                        onChange={() => handleErpTransactionSelect(erpTransactionData)}
+                      />
+                    </td>
+                    <td>{erpTransactionData.posting_date}</td>
+                    <td>{erpTransactionData.name}</td>
+                    <td>{erpTransactionData?.withdraw || '-'}</td>
+                    <td>{erpTransactionData.paid_amount}</td>
+                    <td>{erpTransactionData.reference_no}</td>
+                    <td>{erpTransactionData?.deposit || '-'}</td>
+                    <td>{erpTransactionData.doctype}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
+        <div className="col-12">
+          <div className="d-flex justify-content-end">
+            <div className="me-3">
+              <button className="btn btn-primary" onKeyDown={(e) => handleKeyDown(e, 'btn_allocate', '')} onClick={handleAllocation}>
+                Allocate
+              </button>
+            </div>
+            {allocationListData?.length > 0 && (
+              <div className="">
+                <button className="btn btn-secondary" onKeyDown={(e) => handleKeyDown(e, 'btn_reconcile', '')} onClick={handleReconcile}>
+                  Reconcile
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {allocationListData?.length > 0 && !hideAllocationTable && (
+          <div className="mt-4 col-md-12 reconciled-table" tabIndex={-1}>
+            <h2 className="mb-3">Reconciled Entries</h2>
+            <div className="table-responsive">
+              <table className="table table-bordered">
+                <thead className="table-success">
+                  <tr>
+                    <th>No</th>
+                    <th>Bank Transaction ID</th>
+                    <th>Matched Amount</th>
+                    <th>Reference ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allocationListData?.map((entry: any, index: number) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{entry.bank_transaction_id}</td>
+                      <td>{entry.matched_amount}</td>
+                      <td>{entry.reference_id}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
 
       {showFilter && (
