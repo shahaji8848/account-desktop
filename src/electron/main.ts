@@ -8,10 +8,10 @@ import {
   postData,
   getGstinInfo,
   getCurrencyData,
-  login,
   getAdvancePaymentEntries,
   getPrintFormatData,
 } from '../apis/util.js';
+import {login , generatekeys} from '../apis/login.js'
 import { getPreloadPath, getUIPath } from './pathResolver.js';
 import { ipcMain } from 'electron';
 import { salesRegisterMonthWiseSales, salesBreakupReport } from '../apis/reports/sales_register.js';
@@ -29,6 +29,7 @@ import { JournalEntryBreakupReport, JournalEntryDetailBreakup } from '../apis/re
 import { PaymentEntryBreakupReport, PaymentEntryDetailBreakup } from '../apis/reports/payment_entry.js';
 import { argv, connected } from 'process';
 import { paymentEntryAccountsDetails, getAllAccounts } from '../apis/payment_entry_apis.js';
+
 app.on('ready', () => {
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
     details.requestHeaders['Origin'] = 'https://yatish-testing-v15.frappe.cloud';
@@ -40,7 +41,7 @@ app.on('ready', () => {
     responseHeaders['Access-Control-Allow-Origin'] = ['*']; // Allow all origins
     responseHeaders['Access-Control-Allow-Methods'] = ['GET, POST, PUT, DELETE, OPTIONS'];
     responseHeaders['Access-Control-Allow-Headers'] = ['Content-Type, Authorization'];
-
+    console.log(responseHeaders,"RRRRRRRR")
     callback({ responseHeaders });
   });
   const mainWindow = new BrowserWindow({
@@ -168,6 +169,10 @@ app.on('ready', () => {
   ipcMain.handle('getAllAccounts', async (_, kwargs: any) => {
     return await getAllAccounts(kwargs.doctype, kwargs.filters, kwargs.token);
   });
+  ipcMain.handle('generatekeys', async (_, kwargs: any) => {
+    return await generatekeys(kwargs);
+  });
+  
 
   handleCloseEvents(mainWindow);
   // createMenu(mainWindow);
