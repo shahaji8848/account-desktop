@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { getPaymentReconciliationEntries } from '../../../apis/payment_reconciliation';
 
 const useUnreconcileEntriesData = (company?: string, party_type?: string, party?: string, filters?: any) => {
   const [data, setData] = useState<any>({});
@@ -10,16 +11,24 @@ const useUnreconcileEntriesData = (company?: string, party_type?: string, party?
   const [apiErrorMessage, setApiErrorMessage] = useState<any>('');
   const [apiError, setApiError] = useState<any>();
   const token = localStorage.getItem('account_desktop_token');
+  const isAPP = window.electron ? true : false;
 
   const fetchData = async () => {
     if (!company || !party_type || !party) return; // Ensure all fields are selected
     try {
-      const result = await window.electron.getPaymentReconciliationEntries({
-        company: company,
-        party_type: party_type,
-        party: party,
-        token,
-      });
+      const result = isAPP
+        ? await window.electron.getPaymentReconciliationEntries({
+            company: company,
+            party_type: party_type,
+            party: party,
+            token,
+          })
+        : await getPaymentReconciliationEntries({
+            company: company,
+            party_type: party_type,
+            party: party,
+            token,
+          });
 
       if (result?.error === true) {
         setApiErrorMessage(result?.message);

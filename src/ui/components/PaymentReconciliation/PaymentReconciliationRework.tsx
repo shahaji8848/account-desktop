@@ -235,7 +235,7 @@ export default function PaymentReconciliationRework({ homeHookData, globalData }
                 Allocate
               </button>
             </div>
-            {allocationListData?.length > 0 && (
+            {allocationListData?.length > 0 && !hideAllocationTable && (
               <div className="">
                 <button className="btn btn-secondary" onKeyDown={(e) => handleKeyDown(e, 'btn_reconcile', '')} onClick={handleReconcile}>
                   Reconcile

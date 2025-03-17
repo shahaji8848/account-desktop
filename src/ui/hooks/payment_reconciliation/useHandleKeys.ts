@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import useCompanyData from './useCompanyData';
-import usePartyData from './usePartyData';
-import usePartyTypeData from './usePartyTypeData';
 import useUnreconcileEntriesData from './useUnreconcileEntriesData';
 import useAllocateList from './useAllocateList';
 import useReconcile from './useReconcile';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import useFetchData from './fetchData';
 
 const useHandleKeys = (isQuitModalOpen: any, setIsQuitModalOpen: any) => {
-  const { companyData } = useCompanyData('Company');
-  const { partyData } = usePartyData('Customer');
-  const { partyTypeData } = usePartyTypeData('Payment Reconciliation Party');
+  const token = localStorage.getItem('account_desktop_token');
+
+  const companyData = useFetchData('Company', token);
+  const partyData = useFetchData('Customer', token);
+  const partyTypeData = useFetchData('Payment Reconciliation Party', token);
+
   const [currentFilterList, setCurrentFilterList] = useState<any[]>([]);
   const [masterList, setMasterList] = useState<any[]>([]);
   const [showFilter, setShowFilter] = useState(false);

@@ -3,13 +3,10 @@
 import type React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import ShowFilter from '../common/ShowFilter';
-import { invoices, payments } from '../../utils/paymentReconcile';
-import useCompanyData from '../../hooks/payment_reconciliation/useCompanyData';
-import usePartyData from '../../hooks/payment_reconciliation/usePartyData';
-import usePartyTypeData from '../../hooks/payment_reconciliation/usePartyTypeData';
 import useUnreconcileEntriesData from '../../hooks/payment_reconciliation/useUnreconcileEntriesData';
 import PaymentReconcileSection from './PaymentReconcileSection';
 import QuitConfirmationModal from '../Home/QuitConfirmationModal';
+import useFetchData from '../../hooks/payment_reconciliation/fetchData';
 
 interface Company {
   id: number;
@@ -37,9 +34,10 @@ interface ReconciledEntry {
 }
 
 export default function PaymentReconciliation({ homeHookData, globalData }: any) {
-  const { companyData } = useCompanyData('Company');
-  const { partyTypeData } = usePartyTypeData('Payment Reconciliation Party');
-  const { partyData } = usePartyData('Customer');
+  const token = localStorage.getItem('account_desktop_token');
+  const companyData = useFetchData('Company', token);
+  const partyData = useFetchData('Customer', token);
+  const partyTypeData = useFetchData('Payment Reconciliation Party', token);
   const { isQuitModalOpen, setIsQuitModalOpen } = globalData;
 
   console.log('filter data', companyData, partyData, partyTypeData);
