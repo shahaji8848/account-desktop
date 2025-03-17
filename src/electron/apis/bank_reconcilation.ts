@@ -294,44 +294,90 @@ export async function getAccountBalance(args: any) {
 
 
 export async function getErpTransaction(args: any) {
-    try {
-        
-        let api_url = "api/method/erpnext.accounts.doctype.bank_reconciliation_tool.bank_reconciliation_tool.get_linked_payments"
-        let erp_transaction: any[] = [];
-        let bank_transaction = await getBankTransaction(args)
-        for (let row of bank_transaction.message) {
-            
-            let params:any =  {
-                bank_transaction_name: row.name,
-                document_types:  ["payment_entry","journal_entry"],
-                from_date: args.from_statement_date,
-                to_date:args.to_statement_date
-            }
-    
-            const response = await fetch(`${baseUrl}${api_url}`, {
-                method: 'POST',
-                headers:{
-                    "Content-Type": "application/json",
-                    Authorization: args?.token,
-                    },
-                body: JSON.stringify(params)
-            });
-    
-            if (!response.ok) {
-                return { error: true, message: `Failed to fetch Erp Transaction: ${response.statusText}` };
-            }
-    
-            const data = await response.json();
+  try {
+      
+      let api_url = "api/method/erpnext.accounts.doctype.bank_reconciliation_tool.bank_reconciliation_tool.get_linked_payments"
+      let erp_transaction: any[] = [];
+      let unique_erp_transaction: any[] = [];
+      let payment_entry: any[] = [];
+      let bank_transaction = await getBankTransaction(args)
+      for (let row of bank_transaction.message) {
+          
+          let params:any =  {
+              bank_transaction_name: row.name,
+              document_types:  ["payment_entry","journal_entry"],
+              from_date: args.from_statement_date,
+              to_date:args.to_statement_date
+          }
+  
+          const response = await fetch(`${baseUrl}${api_url}`, {
+              method: 'POST',
+              headers:{
+                  "Content-Type": "application/json",
+                  Authorization: args?.token,
+                  },
+              body: JSON.stringify(params)
+          });
+  
+          if (!response.ok) {
+              return { error: true, message: `Failed to fetch Erp Transaction: ${response.statusText}` };
+          }
+  
+          const data = await response.json();
 
-            erp_transaction.push(data.message);
+          erp_transaction.push(data.message);
+      }
+      for (let i of erp_transaction) {
+        for (let row of i) {
+          if (!payment_entry.includes(row.name)){
+
+            payment_entry.push(row.name)
+            unique_erp_transaction.push(row)
+          }
+          if (row.doctype == "Payment Entry") {
+            const parms = {
+              doctype: "Payment Entry",
+              fields: ["base_paid_amount"],
+              filters: [["name", "=", row.name]],
+            };
+  
+            const queryParams = new URLSearchParams();
+            if (parms.fields.length > 0) {
+              queryParams.append("fields", JSON.stringify(parms.fields));
+            }
+            if (parms.filters.length > 0) {
+              queryParams.append("filters", JSON.stringify(parms.filters));
+            }
+            // console.log(parms.doctype);
+            const url = `${baseUrl}api/resource/${parms.doctype}?${queryParams.toString()}`;
+  
+            const response = await fetch(url, {
+              method: "GET",
+              headers: headers,
+            });
+            if (!response.ok) {
+              throw new Error(
+                `Failed to fetch data: ${response.status} - ${response.statusText}`,
+              );
+            }
+            const {data}  = await response.json();
+            if(row.party_type == "Customer"){
+              row.deposit = data[0].base_paid_amount;
+            }
+            if(row.party_type == "Supplier"){
+              row.withdraw = data[0].base_paid_amount;
+            }
+           
+          }
         }
-        return erp_transaction
-        
-    } 
-    catch (error) {
-        console.error("Error in getErpTransaction:", error);
-        return { error: true, message: "An unexpected error occurred while fetching ErpTransaction." };
-    }
+      }
+      return unique_erp_transaction
+      
+  } 
+  catch (error) {
+      console.error("Error in getErpTransaction:", error);
+      return { error: true, message: "An unexpected error occurred while fetching ErpTransaction." };
+  }
 }
 
 export async function getBankTransaction(args: any) {
@@ -442,46 +488,47 @@ export async function getReconcileBankTransaction(args: any) {
 }
 
 export async function getAllocateEntries(args: any) {
-    try {
-        let bank_statement = args.bank_statement;
-        let erp_transaction = args.erp_transaction;
-        let params: any = {
-            company: args.company,
-            doctype: "Bank Reconciliation Tool",
-            bank_statement: bank_statement,
-            erp_transaction: erp_transaction,
-            __islocal: 1,
-            bank_account: args.bank_account,
-        };
+  try {
+    let bank_statement = args.bank_statement;
+    let erp_transaction = args.erp_transaction;
+    let entries: any[] = [];;
+    for (let pay of erp_transaction){
+       for (let bnk_st of bank_statement){
+         if ((bnk_st.deposit > 0 && pay.deposit > 0) || (pay.withdraw >0 && bnk_st.withdraw >0)) {
+         
+           const allocatedAmount = Math.min(
+               pay.remaining_amount || 0, // Default to 0 if "remaining_amount" is undefined or falsy
+               bnk_st.unallocated_amount
+           );
+           let res = {
+               bank_transaction_id: bnk_st.bank_transaction_id,
+               reference_to: pay.reference_doc,
+               matched_amount: allocatedAmount,
+               reference_id: pay.reference_id
+           };
+           pay.remaining_amount -= allocatedAmount;
+           bnk_st.unallocated_amount -= allocatedAmount;
+  
+           entries.push(res);
+           if (pay.remaining_amount === 0) {
+               break;
+           }
+         }
+         else{
+           return {
+             error: true,
+             message: "Cannot allocate Deposit entries with Withdraw Entries.",
+           };
+         }
 
-        let arg: any = {
-            bank_statement: bank_statement,
-            erp_transaction: erp_transaction,
-        };
-
-        const response = await fetch(`${baseUrl}api/method/run_doc_method`, {
-            method: 'POST',
-            headers:{
-                "Content-Type": "application/json",
-                Authorization: args?.token,
-              },
-            body: JSON.stringify( 
-                {
-                    docs: params,
-                    method: "allocate_entries",
-                    args:arg
-                
-            })
-        });
-
-        if (!response.ok) {
-            return { error: true, message: `Failed to fetch allocate entries: ${response.statusText}` };
-        }
-
-        return await response.json();
-    } 
-    catch (error) {
-        console.error("Error in getAllocateEntries:", error);
-        return { error: true, message: "An unexpected error occurred while fetching allocate entries." };
+       }
     }
+    return entries;
+  } catch (error) {
+    console.error("Error in getAllocateEntries:", error);
+    return {
+      error: true,
+      message: "An unexpected error occurred while fetching allocate entries.",
+    };
+  }
 }

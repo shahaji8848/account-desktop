@@ -11,6 +11,7 @@ import routesConfig from './routesConfig';
 import SalesMaster from './components/Sales/SalesMaster';
 import Home from './components/Home/Home';
 import JournalMaster from './components/Journal/JournalMaster';
+import ReceiptMaster from './components/Receipt/ReceiptMaster';
 
 function App() {
   const { handleGlobalKeyFunctions, companyPopup, ...globalData } = useGlobalKeyFunctionalities();
@@ -60,6 +61,16 @@ function App() {
                 path="/journal"
                 element={
                   <JournalMaster
+                    salesHookData={salesHookData}
+                    homeHookData={homeHookData}
+                    globalData={globalData}
+                  />
+                }
+              />
+               <Route
+                path="/receipt"
+                element={
+                  <ReceiptMaster
                     salesHookData={salesHookData}
                     homeHookData={homeHookData}
                     globalData={globalData}
