@@ -77,7 +77,9 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
   const { accountBalanceInitialData, refreshData }: any = useGetAccountBalance(bankAccount, company, fromDate, toDate, token);
   const { erpTransaction, reFetchData } = useErpTransaction(bankAccount, fromErpDate, toErpDate, token);
   const { bankTransaction, refectBankTransaction } = useBankTransaction(bankAccount, company, fromStatementDate, toStatementDate, token);
-  // console.log('initial data @@@', bankTransaction, erpTransaction);
+  console.log('initial data @@@', bankTransaction, erpTransaction);
+  const bankTransactionArray = Array.isArray(bankTransaction) ? bankTransaction : [];
+  const erpTransactionArray = Array.isArray(erpTransaction) ? erpTransaction : [];
 
   const handleKeyDown = async (e: any, field?: any, type?: any) => {
     setInitalBankReconcileData((prevData) => ({
@@ -88,9 +90,9 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     const focusableElements = Array.from(
       formRef.current?.querySelectorAll("input, button, select, textarea, [tabindex]:not([tabindex='-1'])") || []
     ) as HTMLElement[];
-    console.log('focusableElements', focusableElements);
+    // console.log('focusableElements', focusableElements);
     const index = focusableElements.indexOf(e.currentTarget);
-    console.log('index', index);
+    // console.log('index', index);
 
     if (e.ctrlKey && e.key === 'Enter') {
       if (field === 'btn_allocate') {
@@ -106,6 +108,10 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
         setClosingBalBank(accountBalanceInitialData?.bal_bnk);
         setClosingBalErp(accountBalanceInitialData?.erp_bal);
         setDiffAmount(accountBalanceInitialData?.difference_amount);
+        // Recalling the APIs
+        refreshData(); // Refresh account balance data
+        reFetchData(); // Refresh ERP transaction data
+        refectBankTransaction(); // Refresh bank transaction data
       }
       if (e.shiftKey) {
         if (index > 0) {
@@ -138,7 +144,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
       setShowFilter(false);
       setSelectedIndex(0);
     } else if (e.key === 'Escape' && showFilter) {
-      // setShowFilter(false);
+      setShowFilter(false);
     } else if (e.key === 'Escape') {
       setIsQuitModalOpen(true);
     }
@@ -260,7 +266,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     });
   };
 
-  const extractedBankTransactions = selectedBankStatement.map((bankTransaction: any) => ({
+  const extractedBankTransactions = selectedBankStatement?.map((bankTransaction: any) => ({
     bank_transaction_id: bankTransaction?.name,
     deposit: bankTransaction?.deposit,
     withdraw: bankTransaction?.withdrawal,
@@ -268,7 +274,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     unallocated_amount: bankTransaction?.unallocated_amount,
   }));
 
-  const extractedErpTransactions = selectedErpTransaction.map((transaction: any) => ({
+  const extractedErpTransactions = selectedErpTransaction?.map((transaction: any) => ({
     date: transaction.posting_date,
     reference_id: transaction.name,
     reference_number: transaction.reference_no,
@@ -278,7 +284,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     reference_doc: transaction.doctype,
   }));
 
-  const { allocationListData, fetchData, allocateApiError, allocateErrorMsg } = useAllocateList(
+  const { allocationListData, setAllocationListData, fetchData, allocateApiError, allocateErrorMsg } = useAllocateList(
     company,
     extractedBankTransactions,
     extractedErpTransactions,
@@ -307,18 +313,21 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
       });
     }
   };
+
   useEffect(() => {
-    if (allocationListData && allocationListData?.length > 0) {
+    if (allocationListData && allocationListData.length > 0) {
       setHideAllocationTable(false);
     }
   }, [allocationListData]);
-
   const { reconcileData, fetchReconcile, apiError, apiErrorMessage } = useReconcile();
 
   const handleReconcile = async () => {
     const reconcileDataa = await fetchReconcile(allocationListData, token);
-    console.log(' initial data @@@ reconcile data fetched on button click:', reconcileDataa?.data);
-    if (reconcileDataa?.data && reconcileDataa.data.length > 0) {
+    console.log(' initial data @@@ reconcile data fetched on button click:', reconcileDataa, reconcileData);
+    if (
+      (Array.isArray(reconcileDataa) && reconcileDataa.length > 0) ||
+      (typeof reconcileDataa.data === 'object' && Object.keys(reconcileDataa.data).length > 0)
+    ) {
       toast.success('Reconciliation successful!', {
         position: 'top-right',
         autoClose: 3000, // Closes after 3 seconds
@@ -326,6 +335,15 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
       });
       setSelectedBankStatement([]);
       setSelectedErpTransaction([]);
+      // if (allocationListData.length > 0) {
+
+      // }
+      setAllocationListData([]);
+
+      // Recalling the APIs
+      refreshData(); // Refresh account balance data
+      reFetchData(); // Refresh ERP transaction data
+      refectBankTransaction(); // Refresh bank transaction data
     } else if (apiError === true) {
       toast.warning(apiErrorMessage, {
         position: 'top-right',
@@ -344,7 +362,9 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
   }, [isQuitModalOpen]);
 
   return (
-    <div className="container-fluid px-3 py-2 bg-light" style={{ width: '1200px' }}>
+    <div
+      className={`container-fluid px-3 py-2 bg-light ${showFilter ? 'limited-width' : 'full-width'}`} // Conditionally apply class
+    >
       <h2 className="mb-3">Bank Reconciliation</h2>
 
       <div className="row mb-4" ref={formRef} tabIndex={0}>
@@ -403,49 +423,33 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
           <div className="row">
             <div className="col-12">
               <label className="form-label">Opening Balance</label>
-              <input
-                type="text"
-                className="form-control"
-                name="opening_balance"
+              <p
+                className="form-control-like"
                 onKeyDown={(e) => handleKeyDown(e, 'opening_balance')}
                 onFocus={handleInputFocus}
-                onChange={(e) => handleInputChange(e, 'opening_balance')}
-                value={openingBal}
-              />
+                onClick={() => handleInputChange({ target: { name: 'opening_balance', value: openingBal } }, 'opening_balance')}
+              >
+                {openingBal}
+              </p>
             </div>
             <div className="col-12 mt-3">
               <label className="form-label">Closing Balance as per Bank Statement:</label>
-              <input
-                type="text"
-                className="form-control"
-                name="bankClosingBalance"
-                readOnly
-                value={closingBalBank} // Will be auto-filled later
-                onKeyDown={(e) => handleKeyDown(e, '', '')}
-              />
+              <p className="form-control-like" onKeyDown={(e) => handleKeyDown(e, '', '')}>
+                {closingBalBank}
+              </p>
             </div>
             <div className="col-12 mt-3">
               <label className="form-label">Closing Balance as per ERP:</label>
-              <input
-                type="text"
-                className="form-control"
-                name="erpClosingBalance"
-                readOnly
-                value={closingBalErp} // Will be auto-filled later
-                onKeyDown={(e) => handleKeyDown(e, '', '')}
-              />
+              <p className="form-control-like" onKeyDown={(e) => handleKeyDown(e, '', '')}>
+                {closingBalErp}
+              </p>
             </div>
 
             <div className="col-12 mt-3">
               <label className="form-label">Difference Amount:</label>
-              <input
-                type="text"
-                className="form-control"
-                name="differenceAmount"
-                readOnly
-                value={diffAmount} // Will be auto-filled later
-                onKeyDown={(e) => handleKeyDown(e, '', '')}
-              />
+              <p className="form-control-like" onKeyDown={(e) => handleKeyDown(e, '', '')}>
+                {diffAmount}
+              </p>
             </div>
           </div>
         </div>
@@ -529,34 +533,39 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                     checked={selectedBankStatement.length === bankTransaction?.length && bankTransaction?.length > 0}
                   />
                 </th>
-                <th>Date</th>
-                <th>Bank Transaction ID</th>
-                <th>Deposit</th>
-                <th>Withdrawal</th>
-                <th>UnAllocated Amount</th>{' '}
+                <th className="fs-10">Date</th>
+                <th className="fs-10">Bank Transaction ID</th>
+                <th className="fs-10">Description</th>
+                <th className="fs-10">Deposit</th>
+                <th className="fs-10">Withdrawal</th>
+                <th className="fs-10">Reference Number</th>
+                <th className="fs-10">UnAllocated Amount</th>{' '}
               </tr>
             </thead>
             <tbody>
-              {bankTransaction.map((bankStatementData: any, index: number) => {
-                const uniqueId = `${bankStatementData.name}`;
-                return (
-                  <tr key={index}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={selectedBankStatement.some((item) => `${item.name}` === uniqueId)}
-                        onChange={() => handleBankStatementSelect(bankStatementData)}
-                        onKeyDown={(e) => handleKeyDown(e, '', '')}
-                      />
-                    </td>
-                    <td>{bankStatementData.date}</td>
-                    <td>{bankStatementData.name}</td>
-                    <td>{bankStatementData.deposit}</td>
-                    <td>{bankStatementData.withdrawal}</td>
-                    <td>{bankStatementData.unallocated_amount}</td>{' '}
-                  </tr>
-                );
-              })}
+              {bankTransactionArray.length > 0 &&
+                bankTransaction?.map((bankStatementData: any, index: number) => {
+                  const uniqueId = `${bankStatementData.name}`;
+                  return (
+                    <tr key={index}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedBankStatement.some((item) => `${item.name}` === uniqueId)}
+                          onChange={() => handleBankStatementSelect(bankStatementData)}
+                          onKeyDown={(e) => handleKeyDown(e, '', '')}
+                        />
+                      </td>
+                      <td>{bankStatementData?.date}</td>
+                      <td>{bankStatementData?.name}</td>
+                      <td>{bankStatementData?.description || '-'}</td>
+                      <td>{bankStatementData?.deposit}</td>
+                      <td>{bankStatementData?.withdrawal}</td>
+                      <td>{bankStatementData?.reference_number || '-'}</td>
+                      <td>{bankStatementData?.unallocated_amount}</td>{' '}
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>
@@ -573,38 +582,39 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
                     checked={selectedErpTransaction.length === erpTransaction?.length && erpTransaction?.length > 0}
                   />
                 </th>
-                <th>Date</th>
-                <th>Reference ID</th>
-                <th>Withdrawal</th>
-                <th>Remaining Amount</th>
-                <th>Reference Number</th>
-                <th>Deposit</th>
-                <th>Reference Doc</th>{' '}
+                <th className="fs-10">Date</th>
+                <th className="fs-10">Reference ID</th>
+                <th className="fs-10">Deposit</th>
+                <th className="fs-10">Withdrawal</th>
+                <th className="fs-10">Reference Number</th>
+                <th className="fs-10">Remaining Amount</th>
+                <th className="fs-10">Reference Doc</th>{' '}
               </tr>
             </thead>
             <tbody>
-              {erpTransaction?.map((erpTransactionData: any, index: number) => {
-                return (
-                  <tr key={index}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        onKeyDown={(e) => handleKeyDown(e, '', '')}
-                        // Check if the item is selected using 'name' as the unique identifier
-                        checked={selectedErpTransaction.some((item) => item.name === erpTransactionData.name)}
-                        onChange={() => handleErpTransactionSelect(erpTransactionData)}
-                      />
-                    </td>
-                    <td>{erpTransactionData.posting_date}</td>
-                    <td>{erpTransactionData.name}</td>
-                    <td>{erpTransactionData?.withdraw || '-'}</td>
-                    <td>{erpTransactionData.paid_amount}</td>
-                    <td>{erpTransactionData.reference_no}</td>
-                    <td>{erpTransactionData?.deposit || '-'}</td>
-                    <td>{erpTransactionData.doctype}</td>
-                  </tr>
-                );
-              })}
+              {erpTransactionArray.length > 0 &&
+                erpTransaction?.map((erpTransactionData: any, index: number) => {
+                  return (
+                    <tr key={index}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          onKeyDown={(e) => handleKeyDown(e, '', '')}
+                          // Check if the item is selected using 'name' as the unique identifier
+                          checked={selectedErpTransaction.some((item) => item.name === erpTransactionData.name)}
+                          onChange={() => handleErpTransactionSelect(erpTransactionData)}
+                        />
+                      </td>
+                      <td>{erpTransactionData.posting_date}</td>
+                      <td>{erpTransactionData.name}</td>
+                      <td>{erpTransactionData?.deposit || '-'}</td>
+                      <td>{erpTransactionData?.withdraw || '-'}</td>
+                      <td>{erpTransactionData.reference_no}</td>
+                      <td>{erpTransactionData.paid_amount}</td>
+                      <td>{erpTransactionData.doctype}</td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>
@@ -655,7 +665,9 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
       </div>
 
       {showFilter && (
-        <ShowFilter filteredItems={currentFilterList} selectedIndex={selectedIndex} handleItemFocus={setSelectedIndex} right="0" top="58px" />
+        <div className="filter-container">
+          <ShowFilter filteredItems={currentFilterList} selectedIndex={selectedIndex} handleItemFocus={setSelectedIndex} right="0" top="58px" />
+        </div>
       )}
       {isQuitModalOpen && (
         <QuitConfirmationModal
