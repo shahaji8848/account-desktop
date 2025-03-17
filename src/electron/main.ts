@@ -8,16 +8,16 @@ import {
   postData,
   getGstinInfo,
   getCurrencyData,
-  login,
   getAdvancePaymentEntries,
   getPrintFormatData,
 } from '../apis/util.js';
+import { login, generatekeys } from '../apis/login.js';
 import { getPreloadPath, getUIPath } from './pathResolver.js';
 import { ipcMain } from 'electron';
-import { salesRegisterMonthWiseSales, salesBreakupReport } from './reports/sales_register.js';
-import { creditNoteRegisterMonthWiseSales, creditNoteBreakupReport } from './reports/credit_note_register.js';
-import { PurchaseInvoiceMonthWiseBreakup, PurchaseInvoiceBreakupReport } from './reports/purchase_invoice.js';
-import { getPaymentReconciliationEntries, getAllocationList, ReconcileAmount } from './apis/payment_reconciliation.js';
+import { salesRegisterMonthWiseSales, salesBreakupReport } from '../apis/reports/sales_register.js';
+import { creditNoteRegisterMonthWiseSales, creditNoteBreakupReport } from '../apis/reports/credit_note_register.js';
+import { PurchaseInvoiceMonthWiseBreakup, PurchaseInvoiceBreakupReport } from '../apis/reports/purchase_invoice.js';
+import { getPaymentReconciliationEntries, getAllocationList, ReconcileAmount } from '../apis/payment_reconciliation.js';
 import {
   getAccountBalance,
   getErpTransaction,
@@ -25,10 +25,15 @@ import {
   getReconcileBankTransaction,
   getAllocateEntries,
 } from './apis/bank_reconcilation.js';
-import { JournalEntryBreakupReport, JournalEntryDetailBreakup } from './reports/journal_entry.js';
-import { PaymentEntryBreakupReport, PaymentEntryDetailBreakup } from './reports/payment_entry.js';
+import { JournalEntryBreakupReport, JournalEntryDetailBreakup } from '../apis/reports/journal_entry.js';
+import { PaymentEntryBreakupReport, PaymentEntryDetailBreakup } from '../apis/reports/payment_entry.js';
 import { argv, connected } from 'process';
 import { paymentEntryAccountsDetails, getAllAccounts } from '../apis/payment_entry_apis.js';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
 app.on('ready', () => {
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
     details.requestHeaders['Origin'] = 'https://yatish-testing-v15.frappe.cloud';
@@ -40,9 +45,19 @@ app.on('ready', () => {
     responseHeaders['Access-Control-Allow-Origin'] = ['*']; // Allow all origins
     responseHeaders['Access-Control-Allow-Methods'] = ['GET, POST, PUT, DELETE, OPTIONS'];
     responseHeaders['Access-Control-Allow-Headers'] = ['Content-Type, Authorization'];
-
+    console.log(responseHeaders, 'RRRRRRRR');
     callback({ responseHeaders });
   });
+  session.defaultSession.cookies.get({}).then((cookies) => {
+    console.log('Cookies on startup:', cookies);
+  });
+
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    const responseHeaders = details.responseHeaders || {};
+    responseHeaders['Set-Cookie'] = responseHeaders['Set-Cookie'] || [];
+    callback({ responseHeaders: responseHeaders });
+  });
+
   const mainWindow = new BrowserWindow({
     webPreferences: {
       preload: getPreloadPath(),
@@ -167,6 +182,13 @@ app.on('ready', () => {
   });
   ipcMain.handle('getAllAccounts', async (_, kwargs: any) => {
     return await getAllAccounts(kwargs.doctype, kwargs.filters, kwargs.token);
+  });
+  ipcMain.handle('generatekeys', async (_, kwargs: any) => {
+    return await generatekeys(kwargs);
+  });
+  ipcMain.handle('getSid', async () => {
+    const cookies = await session.defaultSession.cookies.get({ name: 'sid' });
+    return cookies.length > 0 ? cookies[0].value : null;
   });
 
   handleCloseEvents(mainWindow);
