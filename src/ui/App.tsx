@@ -32,14 +32,14 @@ function App() {
   }, []);
 
   // Handle login success and store token
-  const handleLoginSuccess = async (receivedToken: string) => {
+  const handleLoginSuccess = async (data: any) => {
     const response = window.electron
-      ? await window.electron.generatekeys({ email: 'Administrator', password: 'admin' })
-      : await generatekeys({ email: 'Administrator', password: 'admin' });
+      ? await window.electron.generatekeys(data)
+      : await generatekeys(data);
 
-    console.log(response, ': response genereate keys');
-    // localStorage.setItem('account_desktop_token', receivedToken);
-    // setToken(receivedToken);
+    // console.log(response, ': response genereate keys');
+    localStorage.setItem('account_desktop_token', response.token || '');
+    setToken(response.token || '');
   };
 
   return (

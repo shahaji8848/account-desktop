@@ -1,5 +1,10 @@
 // import { session } from 'electron';
 
+// import dotenv from 'dotenv';
+
+// // Load .env file
+// dotenv.config();
+
 const baseUrl = 'https://yatish-testing-v15.frappe.cloud';
 
 // async function getCookie() {
@@ -43,8 +48,9 @@ export async function login(kwargs: any) {
 export async function generatekeys(kwargs: any) {
   let header_detials = {
     'Content-Type': 'application/json',
-    // Cookie: kwargs.sid,
+    Authorization: process.env.API_TOKEN || '',
   };
+  console.log(process.env.API_TOKEN, 'process');
   const generateKeysUrl = `${baseUrl}/api/method/frappe.core.doctype.user.user.generate_keys`;
   const keysResponse = await fetch(generateKeysUrl, {
     method: 'POST',
@@ -58,6 +64,8 @@ export async function generatekeys(kwargs: any) {
   });
 
   const keysData = await keysResponse.json();
+
+  console.log(keysData, 'keysData');
 
   if (keysData.message.api_secret) {
     const userDetails = `${baseUrl}/api/resource/User/${kwargs.email}`;

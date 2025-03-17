@@ -29,6 +29,10 @@ import { JournalEntryBreakupReport, JournalEntryDetailBreakup } from '../apis/re
 import { PaymentEntryBreakupReport, PaymentEntryDetailBreakup } from '../apis/reports/payment_entry.js';
 import { argv, connected } from 'process';
 import { paymentEntryAccountsDetails, getAllAccounts } from '../apis/payment_entry_apis.js';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 app.on('ready', () => {
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {

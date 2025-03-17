@@ -48,6 +48,7 @@ async function fetchData(url: string, token: any) {
   let header_details = {
     'Content-Type': 'application/json',
     Authorization: token,
+    credentials: 'include',
   };
   const response = await fetch(url, { method: 'GET', headers: header_details });
   if (!response.ok) {

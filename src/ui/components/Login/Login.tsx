@@ -45,7 +45,7 @@ const Login = ({ onLoginSuccess }: any) => {
         ? await window.electron.login({ email: formData?.email, password: formData?.password })
         : await login({ email: formData?.email, password: formData?.password });
 
-      console.log(response, ': response');
+    //   console.log(response, ': response');
       if (!response?.message) {
         throw new Error('Login failed');
       }
@@ -53,7 +53,7 @@ const Login = ({ onLoginSuccess }: any) => {
         toast.error(response?.error || 'Login failed. Please try again.');
       }
       setTimeout(() => {
-        onLoginSuccess();
+        onLoginSuccess({ email: formData?.email, password: formData?.password });
       }, 1000)
     } catch (error: any) {
       console.error('Error:', error);
