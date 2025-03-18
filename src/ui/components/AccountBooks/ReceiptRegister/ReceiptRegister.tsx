@@ -6,6 +6,7 @@ import BottomNavbar from '../../Sales/BottomNavbar'
 import PageHeader from '../../common/PageHeader'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/root-reducer'
+import { PaymentEntryBreakupReport } from '../../../../apis/reports/payment_entry'
 
 const ReceiptRegister = ({ homeHookData, globalData }: any) => {
     const [receiptRegisterList, setReceiptRegisterList] = useState([]);
@@ -16,7 +17,16 @@ const ReceiptRegister = ({ homeHookData, globalData }: any) => {
             const from_date = "2024-04-01";
             const to_date = "2025-03-31";
 
-            let x = await window.electron.PaymentEntryBreakupReport({
+            let x = window.electron
+            ? await window.electron.PaymentEntryBreakupReport({
+                filters: {
+                    from_date,
+                    to_date,
+                    company: "8848 Digital LLP",
+                    payment_type: 'Receive'
+                },
+                token
+            }):await PaymentEntryBreakupReport({
                 filters: {
                     from_date,
                     to_date,

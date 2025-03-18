@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getBankTransaction } from '../../../electron/apis/bank_reconcilation';
 
 const useBankTransaction = (bank_account: any, company: any, from_date: any, to_date: any, token: any) => {
   const [data, setData] = useState<any[]>([]);
@@ -7,13 +8,21 @@ const useBankTransaction = (bank_account: any, company: any, from_date: any, to_
 
   const fetchData = async () => {
     try {
-      const result = await window.electron.getBankTransaction({
-        bank_account: bank_account,
-        company: company,
-        from_statement_date: from_date,
-        to_statement_date: to_date,
-        token,
-      });
+      const result = window.electron
+        ? await window.electron.getBankTransaction({
+            bank_account: bank_account,
+            company: company,
+            from_statement_date: from_date,
+            to_statement_date: to_date,
+            token,
+          })
+        : await getBankTransaction({
+            bank_account: bank_account,
+            company: company,
+            from_statement_date: from_date,
+            to_statement_date: to_date,
+            token,
+          });
       setData(result?.message || []);
       setError(null); // Clear any previous errors on successful fetch
     } catch (err) {

@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { postData } from "../../../apis/util";
 
 const useSubmitHooks = ({ setIsAdressFormOpen, setIsBankFormOpen, rows, setRows }: any) => {
     const [editingAddress, setEditingAddress] = useState<any>({});
@@ -90,7 +91,9 @@ const useSubmitHooks = ({ setIsAdressFormOpen, setIsBankFormOpen, rows, setRows 
         }
 
         try {
-            const x = await window.electron.postData({ doctype: 'Supplier', data: supplierPayload, token });
+            const x = window.electron
+            ? await window.electron.postData({ doctype: 'Supplier', data: supplierPayload, token })
+            : await postData({ doctype: 'Supplier', data: supplierPayload, token });
             if (x !== undefined) {
                 toast.success('Supplier Form is submitted!', {
                     autoClose: 2000,
@@ -114,7 +117,9 @@ const useSubmitHooks = ({ setIsAdressFormOpen, setIsBankFormOpen, rows, setRows 
                 if (updatedStoredAddressList?.length > 0) {
                     for (const address of updatedStoredAddressList) {
                         try {
-                            const addressResponse = await window.electron.postData({ doctype: "Address", data: address, token });
+                            const addressResponse = window.electron
+                            ? await window.electron.postData({ doctype: "Address", data: address, token })
+                            : await postData({ doctype: "Address", data: address, token });
                             if (addressResponse !== undefined) {
                                 toast.success('Address Form is submitted!', {
                                     autoClose: 2000,
@@ -154,7 +159,9 @@ const useSubmitHooks = ({ setIsAdressFormOpen, setIsBankFormOpen, rows, setRows 
                 if (updatedStoredBankList?.length > 0) {
                     for (const bank of updatedStoredBankList) {
                         try {
-                            const bankResponse = await window.electron.postData({ doctype: "Bank Account", data: bank, token });
+                            const bankResponse = window.electron
+                            ? await window.electron.postData({ doctype: "Bank Account", data: bank, token })
+                            : await postData({ doctype: "Bank Account", data: bank, token });
                             if (bankResponse !== undefined) {
                                 toast.success('Bank Form is submitted!', {
                                     autoClose: 2000,
