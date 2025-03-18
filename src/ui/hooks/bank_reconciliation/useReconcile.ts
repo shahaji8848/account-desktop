@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { getReconcileBankTransaction } from '../../../apis/bank_reconcilation';
 
 const useReconcile = () => {
   const [reconcileData, setReconcileData] = useState<any>({});
@@ -8,10 +9,15 @@ const useReconcile = () => {
   const fetchReconcile = useCallback(async (matching_table: any, token: any) => {
     console.log('initial data @@@ reconcile data', matching_table, token);
     try {
-      const result = await window.electron.getReconcileBankTransaction({
-        matching_table: matching_table,
-        token,
-      });
+      const result = window.electron
+        ? await window.electron.getReconcileBankTransaction({
+            matching_table: matching_table,
+            token,
+          })
+        : await getReconcileBankTransaction({
+            matching_table: matching_table,
+            token,
+          });
       if (result?.error === true) {
         setApiErrorMessage(result?.message);
         setApiError(result?.error);

@@ -2,20 +2,19 @@
 import type React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import ShowFilter from '../common/ShowFilter';
-import useCompanyData from '../../hooks/payment_reconciliation/useCompanyData';
-import usePartyData from '../../hooks/payment_reconciliation/usePartyData';
-import usePartyTypeData from '../../hooks/payment_reconciliation/usePartyTypeData';
 import useUnreconcileEntriesData from '../../hooks/payment_reconciliation/useUnreconcileEntriesData';
 import useAllocateList from '../../hooks/payment_reconciliation/useAllocateList';
 import useReconcile from '../../hooks/payment_reconciliation/useReconcile';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import QuitConfirmationModal from '../Home/QuitConfirmationModal';
+import useFetchData from '../../hooks/payment_reconciliation/fetchData';
 
 export default function PaymentReconciliationRework({ homeHookData, globalData }: any) {
-  const { companyData } = useCompanyData('Company');
-  const { partyData } = usePartyData('Customer');
-  const { partyTypeData } = usePartyTypeData('Payment Reconciliation Party');
+  const token = localStorage.getItem('account_desktop_token');
+  const companyData = useFetchData('Company', token);
+  const partyData = useFetchData('Customer', token);
+  const partyTypeData = useFetchData('Payment Reconciliation Party', token);
   const { isQuitModalOpen, setIsQuitModalOpen } = globalData;
   const [currentFilterList, setCurrentFilterList] = useState<any[]>([]);
   const [masterList, setMasterList] = useState<any[]>([]);

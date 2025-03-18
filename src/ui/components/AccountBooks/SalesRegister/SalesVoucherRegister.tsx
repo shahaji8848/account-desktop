@@ -6,6 +6,7 @@ import BottomNavbar from '../../Sales/BottomNavbar'
 import PageHeader from '../../common/PageHeader'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/root-reducer'
+import { salesBreakupReport } from '../../../../apis/reports/sales_register'
 
 const SalesVoucherRegister = ({ homeHookData, globalData }: any) => {
     const [VoucherRegisterList, setVoucherRegisterList] = useState<any>([]);
@@ -14,7 +15,15 @@ const SalesVoucherRegister = ({ homeHookData, globalData }: any) => {
     const token = localStorage.getItem('account_desktop_token');
     const fetchVoucherList = async () => {
         try {
-            let x = await window.electron.salesBreakupReport({
+            let x = window.electron
+            ? await window.electron.salesBreakupReport({
+                filters: {
+                    from_date: voucherRegisterMonthDate?.start_date,
+                    to_date: voucherRegisterMonthDate?.end_date,
+                    company: "8848 Digital LLP",
+                },
+                token
+            }):await salesBreakupReport({
                 filters: {
                     from_date: voucherRegisterMonthDate?.start_date,
                     to_date: voucherRegisterMonthDate?.end_date,

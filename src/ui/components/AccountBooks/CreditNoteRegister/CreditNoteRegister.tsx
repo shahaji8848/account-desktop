@@ -6,6 +6,7 @@ import BottomNavbar from '../../Sales/BottomNavbar'
 import PageHeader from '../../common/PageHeader'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/root-reducer'
+import { creditNoteRegisterMonthWiseSales } from '../../../../apis/reports/credit_note_register'
 
 const CreditNoteRegister = ({ homeHookData, globalData }: any) => {
     const [creditNoteRegisterList, setCreditNoteRegisterList] = useState([]);
@@ -16,7 +17,11 @@ const CreditNoteRegister = ({ homeHookData, globalData }: any) => {
             const from_date = "2024-04-01";
             const to_date = "2025-03-31";
 
-            let x = await window.electron.creditNoteRegister({
+            let x = window.electron
+            ? await window.electron.creditNoteRegister({
+                filters: { from_date, to_date, company: "8848 Digital LLP" },
+                token
+            }):await creditNoteRegisterMonthWiseSales({
                 filters: { from_date, to_date, company: "8848 Digital LLP" },
                 token
             });

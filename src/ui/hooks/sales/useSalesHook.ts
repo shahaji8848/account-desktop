@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 import {
-  advancesDefaultInfo,
-  advancesDefaultRef,
   chargeTypeData,
   dataRef,
   defaultTableData,
@@ -23,7 +21,7 @@ import handleTaxFunctionalities from './useTaxHook';
 import { useLocation } from 'react-router-dom';
 import { RootState } from '../../store/root-reducer';
 import { useSelector } from 'react-redux';
-import { getData } from '../../../apis/util';
+import { getAdvancePaymentEntries, getData, getPrintFormatData } from '../../../apis/util';
 
 function useSalesHook(globalData: any) {
   const { companyPopup, companyDataRef, openCompanyDropdown, date, setDate, dateRef } = globalData;
@@ -101,16 +99,28 @@ function useSalesHook(globalData: any) {
 
   const fetchTaxes = async (value: string) => {
     try {
-      const taxes = await window.electron.getData({
-        doctype: 'Sales Taxes and Charges Template',
-        filters: { company: '8848 Digital LLP', name: value },
-        token: token,
-      });
-      const shippingTaxes = await window.electron.getData({
-        doctype: 'Shipping Rule',
-        filters: { company: '8848 Digital LLP', name: salesData.shipping_detail || '' },
-        token: token,
-      });
+      const taxes = isAPP
+        ? await window.electron.getData({
+            doctype: 'Sales Taxes and Charges Template',
+            filters: { company: '8848 Digital LLP', name: value },
+            token: token,
+          })
+        : await getData({
+            doctype: 'Sales Taxes and Charges Template',
+            filters: { company: '8848 Digital LLP', name: value },
+            token: token,
+          });
+      const shippingTaxes = isAPP
+        ? await window.electron.getData({
+            doctype: 'Shipping Rule',
+            filters: { company: '8848 Digital LLP', name: salesData.shipping_detail || '' },
+            token: token,
+          })
+        : await getData({
+            doctype: 'Shipping Rule',
+            filters: { company: '8848 Digital LLP', name: salesData.shipping_detail || '' },
+            token: token,
+          });
       // console.log(shippingTaxes, taxes, 'shipping taxes');
       shippingTaxes?.conditions && setShippingDetails([...shippingTaxes.conditions]);
       setTaxData([...taxes]);
@@ -121,9 +131,17 @@ function useSalesHook(globalData: any) {
 
   async function getPDF(name: any, format: any) {
     try {
-      let x = await window.electron.getPrintFormatData({ doctype: 'Sales Invoice', name: name, format: format, token: token });
+      let x = isAPP
+        ? await window.electron.getPrintFormatData({ doctype: 'Sales Invoice', name: name, format: format, token: token })
+        : await getPrintFormatData({ doctype: 'Sales Invoice', name: name, format: format, token: token });
       // console.log(x, 'payment terms');
-      const url = `data:application/pdf;base64,${x.data}`;
+      let api_url = 'https://yatish-testing-v15.frappe.cloud/api/method/frappe.utils.print_format.download_pdf';
+      let params = new URLSearchParams({
+        doctype: 'Sales Invoice',
+        name: name,
+        format: format,
+      });
+      const url = isAPP ? `data:application/pdf;base64,${x.data}` : `${api_url}?${params.toString()}`;
       // console.log(url, 'Generated PDF URL');
       setSalesPDF(url);
       return url;
@@ -212,11 +230,17 @@ function useSalesHook(globalData: any) {
 
   async function getFilterData(filterDetails: any, name: any) {
     if (name === 'batch_no' || name === 'contact_person') {
-      const response = await window.electron.getData({
-        doctype: filterDetails.type,
-        filters: { ...filterDetails.filter },
-        token: token,
-      });
+      const response = isAPP
+        ? await window.electron.getData({
+            doctype: filterDetails.type,
+            filters: { ...filterDetails.filter },
+            token: token,
+          })
+        : await getData({
+            doctype: filterDetails.type,
+            filters: { ...filterDetails.filter },
+            token: token,
+          });
       if (response) {
         console.log(response, filterDetails, 'resp');
         let data: any = [];
@@ -258,41 +282,74 @@ function useSalesHook(globalData: any) {
 
   const getItemsData = async (value: any) => {
     // console.log(value);
-    let response = await window.electron.getData({
-      doctype: 'Item',
-      filters: { name: value, company: companyData.company_name || '' },
-      token: token,
-    });
-    let rate = await window.electron.getData({
-      doctype: 'Item Price',
-      filters: { item_code: value },
-      token: token,
-    });
+    let response = isAPP
+      ? await window.electron.getData({
+          doctype: 'Item',
+          filters: { name: value, company: companyData.company_name || '' },
+          token: token,
+        })
+      : await getData({
+          doctype: 'Item',
+          filters: { name: value, company: companyData.company_name || '' },
+          token: token,
+        });
+    let rate = isAPP
+      ? await window.electron.getData({
+          doctype: 'Item Price',
+          filters: { item_code: value },
+          token: token,
+        })
+      : await getData({
+          doctype: 'Item Price',
+          filters: { item_code: value },
+          token: token,
+        });
     // console.log(response, rate);
     // let promotionalDiscount = await window.electron.getData({
     //   doctype: 'Promotional Scheme',
     //   filters: { item_code: value },
     // });
     if (response && rate) {
-      let serialData = await window.electron.getData({
-        doctype: 'Serial No',
-        filters: {
-          item_code: value,
-          warehouse: salesData?.source_warehouse ? salesData.source_warehouse : response?.item_defaults[0]?.expense_account || '',
-        },
-        token: token,
-      });
-      let batchNoData = await window.electron.getData({
-        doctype: 'Batch',
-        filters: { item_name: value },
-        token: token,
-      });
+      let serialData = isAPP
+        ? await window.electron.getData({
+            doctype: 'Serial No',
+            filters: {
+              item_code: value,
+              warehouse: salesData?.source_warehouse ? salesData.source_warehouse : response?.item_defaults[0]?.expense_account || '',
+            },
+            token: token,
+          })
+        : await getData({
+            doctype: 'Serial No',
+            filters: {
+              item_code: value,
+              warehouse: salesData?.source_warehouse ? salesData.source_warehouse : response?.item_defaults[0]?.expense_account || '',
+            },
+            token: token,
+          });
+      let batchNoData = isAPP
+        ? await window.electron.getData({
+            doctype: 'Batch',
+            filters: { item_name: value },
+            token: token,
+          })
+        : await getData({
+            doctype: 'Batch',
+            filters: { item_name: value },
+            token: token,
+          });
 
-      let gstRate = await window.electron.getData({
-        doctype: 'Item Tax Template',
-        filters: { company: companyData.company_name || '' },
-        token: token,
-      });
+      let gstRate = isAPP
+        ? await window.electron.getData({
+            doctype: 'Item Tax Template',
+            filters: { company: companyData.company_name || '' },
+            token: token,
+          })
+        : await getData({
+            doctype: 'Item Tax Template',
+            filters: { company: companyData.company_name || '' },
+            token: token,
+          });
 
       if (serialData?.length > 0) {
         setSerialNoData(serialData);
@@ -384,16 +441,27 @@ function useSalesHook(globalData: any) {
   };
 
   const getAdvancePaymentData = async () => {
-    let response = await window.electron.getAdvancePaymentEntries({
-      doctype: 'Sales Invoice',
-      company: companyData.company_name || '',
-      only_include_allocated_payments: salesData.only_include_allocated_payments,
-      customer: salesData.party_details.party_name || '',
-      rounded_total: Number(Number(getTotal()).toFixed(2)),
-      grand_total: Number(Number(getTotal()).toFixed(2)),
-      __islocal: 1,
-      token: token,
-    });
+    let response = isAPP
+      ? await window.electron.getAdvancePaymentEntries({
+          doctype: 'Sales Invoice',
+          company: companyData.company_name || '',
+          only_include_allocated_payments: salesData.only_include_allocated_payments,
+          customer: salesData.party_details.party_name || '',
+          rounded_total: Number(Number(getTotal()).toFixed(2)),
+          grand_total: Number(Number(getTotal()).toFixed(2)),
+          __islocal: 1,
+          token: token,
+        })
+      : await getAdvancePaymentEntries({
+          doctype: 'Sales Invoice',
+          company: companyData.company_name || '',
+          only_include_allocated_payments: salesData.only_include_allocated_payments,
+          customer: salesData.party_details.party_name || '',
+          rounded_total: Number(Number(getTotal()).toFixed(2)),
+          grand_total: Number(Number(getTotal()).toFixed(2)),
+          __islocal: 1,
+          token: token,
+        });
 
     // console.log(response);
 
@@ -651,7 +719,8 @@ function useSalesHook(globalData: any) {
     getPDF,
     isOnPrint,
     setIsOnPrint,
-    setIsQuitModalOpen
+    setIsQuitModalOpen,
+    setGstData
   );
 
   return {
@@ -738,7 +807,7 @@ function useSalesHook(globalData: any) {
     isOnPrint,
     handlePrintFormat,
     isQuitModalOpen,
-    setIsQuitModalOpen
+    setIsQuitModalOpen,
   };
 }
 

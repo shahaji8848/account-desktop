@@ -64,6 +64,7 @@ export async function generatekeys(kwargs: any) {
     const res = await fetch(userDetails, { method: 'GET', headers: header_detials });
     let response = await res.json();
     if (response.data.api_key) {
+      console.log(response.data.api_key, keysData.message.api_secret,"DDDDDDDDDD")
       return { status: 'success', token: `token ${response.data.api_key}:${keysData.message.api_secret}` };
     } else {
       return { error: response.message || 'Login failed' };
