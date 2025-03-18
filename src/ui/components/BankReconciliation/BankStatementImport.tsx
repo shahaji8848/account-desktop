@@ -274,8 +274,8 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
                 </div>
               </>
             )}
-            <div className="col-md-12 mt-3">
-              <div className=" mt-1">
+            <div className={`col-md-12 ${selectedFile ? '' : 'mt-3'}`}>
+              <div className={`${selectedFile ? '' : 'mt-1'}`}>
                 <label className="form-label">Import File</label>
               </div>
 
