@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { customerTypeFilter, addressTypeList, gstCategoryList, satutoryDetailFields, addressFields, bankFields } from '../../utils/customerFormData'
 import useFetchData from "../fetchData";
+import { getGstinInfo } from "../../../apis/util";
 
 const useHandlekeyHooks = ({
     supplierFormData,
@@ -35,7 +36,9 @@ const useHandlekeyHooks = ({
     const currencyList = useFetchData("Currency", {}, token);
 
     const fetchGSTInfo = async (gstinNumber: any, token: any) => {
-        const x = await window.electron.getGstinInfo({ gstin: gstinNumber || '', token });
+        const x = window.electron
+        ? await window.electron.getGstinInfo({ gstin: gstinNumber || '', token })
+        : await getGstinInfo({ gstin: gstinNumber || '', token });
         return x;
     };
 

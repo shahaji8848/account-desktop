@@ -6,6 +6,7 @@ import BottomNavbar from '../../Sales/BottomNavbar'
 import PageHeader from '../../common/PageHeader'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/root-reducer'
+import { PurchaseInvoiceMonthWiseBreakup } from '../../../../apis/reports/purchase_invoice'
 
 const DebitNoteRegister = ({ homeHookData, globalData }: any) => {
     const [debitNoteRegisterList, setDebitNoteRegisterList] = useState([]);
@@ -16,7 +17,11 @@ const DebitNoteRegister = ({ homeHookData, globalData }: any) => {
             const from_date = "2024-04-01";
             const to_date = "2025-03-31";
 
-            let x = await window.electron.PurchaseInvoiceMonthWiseBreakup({
+            let x = window.electron
+            ? await window.electron.PurchaseInvoiceMonthWiseBreakup({
+                filters: { from_date, to_date, company: "8848 Digital LLP", isReturn: 1 },
+                token
+            }):await PurchaseInvoiceMonthWiseBreakup({
                 filters: { from_date, to_date, company: "8848 Digital LLP", isReturn: 1 },
                 token
             });

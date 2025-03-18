@@ -1,4 +1,5 @@
 import { toast } from 'react-toastify';
+import { getData } from '../../../apis/util';
 
 export function handleTableKeyFunctionalities(
   itemsData: any,
@@ -240,22 +241,40 @@ export function handleTableKeyFunctionalities(
 
   const getPromotionalItemData = async (data: any) => {
     // console.log(data);
-    let response = await window.electron.getData({
-      doctype: 'Item',
-      filters: { name: data.free_item, company: companyData.company_name || '' },
-      token: token,
-    });
-    let rate = await window.electron.getData({
-      doctype: 'Item Price',
-      filters: { item_code: data.free_item },
-      token: token,
-    });
+    let response = window.electron
+      ? await window.electron.getData({
+          doctype: 'Item',
+          filters: { name: data.free_item, company: companyData.company_name || '' },
+          token: token,
+        })
+      : await getData({
+          doctype: 'Item',
+          filters: { name: data.free_item, company: companyData.company_name || '' },
+          token: token,
+        });
+    let rate = window.electron
+      ? await window.electron.getData({
+          doctype: 'Item Price',
+          filters: { item_code: data.free_item },
+          token: token,
+        })
+      : await getData({
+          doctype: 'Item Price',
+          filters: { item_code: data.free_item },
+          token: token,
+        });
     if (response && rate) {
-      let tax_info = await window.electron.getData({
-        doctype: 'Item Tax Template',
-        filters: { input: response?.taxes[0]?.item_tax_template || '' },
-        token: token,
-      });
+      let tax_info = window.electron
+        ? await window.electron.getData({
+            doctype: 'Item Tax Template',
+            filters: { input: response?.taxes[0]?.item_tax_template || '' },
+            token: token,
+          })
+        : await getData({
+            doctype: 'Item Tax Template',
+            filters: { input: response?.taxes[0]?.item_tax_template || '' },
+            token: token,
+          });
       // console.log(response, rate, tax_info, 'response and rate');
       setProductData([
         {
@@ -279,10 +298,14 @@ export function handleTableKeyFunctionalities(
     }
   };
 
-  const getData = async (value: string) => {
-    const itemData = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { item_code: itemsData.item_name }, token: token });
+  const getSchemeData = async (value: string) => {
+    const itemData = window.electron
+      ? await window.electron.getData({ doctype: 'Promotional Scheme', filters: { item_code: itemsData.item_name }, token: token })
+      : await getData({ doctype: 'Promotional Scheme', filters: { item_code: itemsData.item_name }, token: token });
     if (itemData && itemData.length > 0) {
-      const promotionalData = await window.electron.getData({ doctype: 'Promotional Scheme', filters: { name: itemData[0].name }, token: token });
+      const promotionalData = window.electron
+        ? await window.electron.getData({ doctype: 'Promotional Scheme', filters: { name: itemData[0].name }, token: token })
+        : await getData({ doctype: 'Promotional Scheme', filters: { name: itemData[0].name }, token: token });
       // console.log(itemData, promotionalData, 'Promotional Scheme');
       if (promotionalData && promotionalData.customer[0]?.customer === salesData.party_details.party_name) {
         if (value >= promotionalData.product_discount_slabs[0]?.min_qty) {
@@ -323,7 +346,7 @@ export function handleTableKeyFunctionalities(
           data['amt'] = Number(value) * Number(data['rate']);
         }
         // console.log(getData(value), 'get discount');
-        getData(value).then((discount) => {
+        getSchemeData(value).then((discount) => {
           data['discount_percentage'] = discount;
           data = calculateDiscountAmt(data, discount);
           setItemsData({ ...data });

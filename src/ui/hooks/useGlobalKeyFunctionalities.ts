@@ -238,7 +238,7 @@ export default function useGlobalKeyFunctionalities() {
     if (fieldName === 'company_contact_person') {
       getFilterData({ type: 'Contact', filter: { type: 'Company', type_name: companyData.company_name } }, 'company_contact_person');
     }
-  }, [fieldName]);
+  }, [fieldName, companyData]);
 
   useEffect(() => {
     getFilterData(

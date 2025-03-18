@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getErpTransaction } from '../../../apis/bank_reconcilation';
 
 const useErpTransaction = (bank_account: any, from_date: any, to_date: any, token: any) => {
   const [data, setData] = useState<any[]>([]);
@@ -7,12 +8,19 @@ const useErpTransaction = (bank_account: any, from_date: any, to_date: any, toke
 
   const fetchData = async () => {
     try {
-      const result = await window.electron.getErpTransaction({
-        bank_account: bank_account,
-        from_statement_date: from_date,
-        to_statement_date: to_date,
-        token,
-      });
+      const result = window.electron
+        ? await window.electron.getErpTransaction({
+            bank_account: bank_account,
+            from_statement_date: from_date,
+            to_statement_date: to_date,
+            token,
+          })
+        : await getErpTransaction({
+            bank_account: bank_account,
+            from_statement_date: from_date,
+            to_statement_date: to_date,
+            token,
+          });
       setData(result || []);
       setError(null); // Clear previous errors on successful fetch
     } catch (err) {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getAccountBalance } from '../../../apis/bank_reconcilation';
 
 const useGetAccountBalance = (bank_account: any, company: any, from_date: any, to_date: any, token: any) => {
   const [data, setData] = useState<any[]>([]);
@@ -7,13 +8,21 @@ const useGetAccountBalance = (bank_account: any, company: any, from_date: any, t
 
   const fetchData = async () => {
     try {
-      const result = await window.electron.getAccountBalance({
-        bank_account,
-        company,
-        from_date,
-        to_date,
-        token,
-      });
+      const result = window.electron
+        ? await window.electron.getAccountBalance({
+            bank_account,
+            company,
+            from_date,
+            to_date,
+            token,
+          })
+        : await getAccountBalance({
+            bank_account,
+            company,
+            from_date,
+            to_date,
+            token,
+          });
       setData(result);
       setError(null);
     } catch (err) {
