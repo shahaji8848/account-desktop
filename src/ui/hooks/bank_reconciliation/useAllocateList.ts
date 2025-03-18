@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { getAllocateEntries } from '../../../electron/apis/bank_reconcilation';
+import { getAllocateEntries } from '../../../apis/bank_reconcilation';
 
 const useAllocateList = (company: any, bank_statement: any, erp_transaction: any, bank_account: any, token: any) => {
   const [allocationListData, setAllocationListData] = useState<any[]>([]);

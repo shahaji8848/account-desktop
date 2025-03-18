@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { getReconcileBankTransaction } from '../../../electron/apis/bank_reconcilation';
+import { getReconcileBankTransaction } from '../../../apis/bank_reconcilation';
 
 const useReconcile = () => {
   const [reconcileData, setReconcileData] = useState<any>({});

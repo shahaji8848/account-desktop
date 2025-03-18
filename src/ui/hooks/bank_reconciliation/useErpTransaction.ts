@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getErpTransaction } from '../../../electron/apis/bank_reconcilation';
+import { getErpTransaction } from '../../../apis/bank_reconcilation';
 
 const useErpTransaction = (bank_account: any, from_date: any, to_date: any, token: any) => {
   const [data, setData] = useState<any[]>([]);
