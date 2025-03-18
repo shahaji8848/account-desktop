@@ -13,6 +13,7 @@ import useErpTransaction from '../../hooks/bank_reconciliation/useErpTransaction
 import useBankTransaction from '../../hooks/bank_reconciliation/useBankTransaction';
 import useAllocateList from '../../hooks/bank_reconciliation/useAllocateList';
 import useReconcile from '../../hooks/bank_reconciliation/useReconcile';
+import { useNavigate } from 'react-router-dom'; // Import navigate function
 
 export default function BankReconciliationRework({ homeHookData, globalData }: any) {
   const token = localStorage.getItem('account_desktop_token');
@@ -28,7 +29,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
 
   const formRef = useRef<any>(null);
   const inputRefs = useRef<any>(null);
-
+  const navigate = useNavigate();
   const [initalBankReconcileData, setInitalBankReconcileData] = useState({
     company: '',
     bank_account: '',
@@ -361,13 +362,25 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     }
   }, [isQuitModalOpen]);
 
+  const handleImportBankStatement = () => {
+    navigate('/bank-statement-import');
+  };
+
   return (
     <div
       className={`container-fluid px-3 py-2 bg-light ${showFilter ? 'limited-width' : 'full-width'}`} // Conditionally apply class
     >
-      <h2 className="mb-3">Bank Reconciliation</h2>
-
       <div className="row mb-4" ref={formRef} tabIndex={0}>
+        <div className="col-md-6">
+          <h2 className="mb-3">Bank Reconciliation</h2>
+        </div>
+        <div className="col-md-6">
+          <div className="d-flex justify-content-end">
+            <button className="btn btn-secondary" onClick={handleImportBankStatement}>
+              Import Bank Statement
+            </button>
+          </div>
+        </div>
         <div className="col-md-6">
           <div className="row">
             <div className="col-12">

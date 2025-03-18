@@ -7,6 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import QuitConfirmationModal from '../Home/QuitConfirmationModal';
 // import './bank-reconciliation.css';
 import useFetchData from '../../hooks/fetchData';
+import './file-upload.css';
+import { MdInsertLink } from 'react-icons/md';
 
 export default function BankStatementImport({ homeHookData, globalData }: any) {
   const token = localStorage.getItem('account_desktop_token');
@@ -161,6 +163,45 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
     }));
   };
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePath, setFilePath] = useState<string>('');
+  const fileInputRef = useRef<any>(null); // Create a ref for the file input
+
+  const handleClearFile = () => {
+    setSelectedFile(null);
+    setFilePath('');
+    setTimeout(() => {
+      fileInputRef.current?.focus(); // Use a timeout to ensure focus is set after re-render
+    }, 0);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setFilePath(`/public/files/${file.name}`);
+      const downloadButton: any = document.querySelector('.btn.btn-secondary');
+      downloadButton?.focus();
+    }
+  };
+
+  const handleAttachClick = () => {};
+
+  const handleReloadFile = () => {
+    if (selectedFile) {
+      console.log('Reloading file:', selectedFile.name);
+      // In a real application, you might want to re-process the file here
+    }
+  };
+
+  useEffect(() => {
+    if (!isQuitModalOpen) {
+      setTimeout(() => {
+        inputRefs.current?.focus();
+      }, 100);
+    }
+  }, [isQuitModalOpen]);
+
   return (
     <div className={` px-3 py-2 bg-light`} style={{ width: showFilter ? '1200px' : '100%' }}>
       <div className="row mb-4" ref={formRef} tabIndex={0}>
@@ -209,35 +250,63 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
         </div>
         <div className="col-md-6">
           <div className="row">
-            <div className="col-12">
-              <label className="form-label">Import From Google Sheets</label>
-              <input
-                type="text"
-                className="form-control"
-                name="Import_From_Google_Sheets"
-                onKeyDown={(e) => handleKeyDown(e, 'Import_From_Google _Sheets', 'Import From Google Sheets')}
-                onFocus={handleInputFocus}
-                onChange={(e) => handleInputChange(e, 'Import From Google Sheets')}
-                // value={initalBankReconcileData.bank_account}
-              />
-              <p className="mb-0 mt-1">
-                Must be publicly accessible Google Sheets URL and adding Bank Account column is necessary for importing via Google Sheets
-              </p>
+            {selectedFile ? (
+              ''
+            ) : (
+              <>
+                <div className="col-12">
+                  <label className="form-label">Import From Google Sheets</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="Import_From_Google_Sheets"
+                    onKeyDown={(e) => handleKeyDown(e, 'Import_From_Google _Sheets', 'Import From Google Sheets')}
+                    onFocus={handleInputFocus}
+                    onChange={(e) => handleInputChange(e, 'Import From Google Sheets')}
+                    // value={initalBankReconcileData.bank_account}
+                  />
+                  <p className="mb-0 mt-1">
+                    Must be publicly accessible Google Sheets URL and adding Bank Account column is necessary for importing via Google Sheets
+                  </p>
+                </div>
+                <div className="col-12 mt-3">
+                  <h6>OR</h6>
+                </div>
+              </>
+            )}
+            <div className="col-md-12 mt-3">
+              <div className=" mt-1">
+                <label className="form-label">Import File</label>
+              </div>
+
+              {!selectedFile ? (
+                <div className="mb-3">
+                  <input
+                    type="file"
+                    onChange={handleFileChange}
+                    className="form-control"
+                    ref={fileInputRef} // Attach the ref to the file input
+                  />
+                </div>
+              ) : (
+                <div className="mb-3">
+                  <div className="d-flex align-items-center rounded p-2 bg-white" style={{ height: '31.6px' }}>
+                    <MdInsertLink className="text-secondary fs-20" />
+                    <span className="text-muted flex-grow-1 ms-2">{filePath}</span>
+                    <div className="ms-2">
+                      <button className="btn btn-link text-dark bold" onClick={handleClearFile} onKeyDown={(e) => handleKeyDown(e, '', '')}>
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="col-12 mt-3">
-              <h6>OR</h6>
-            </div>
-            <div className="col-12 mt-3">
-              <label className="form-label">Import File</label>
-              <input
-                type="file"
-                name="import_file"
-                id="import_file"
-                className="form-control" // Apply button styles
-              />
-            </div>
-            <div className="col-12 mt-3">
-              <button className="btn btn-secondary"> Download Template</button>
+              <button className="btn btn-secondary" onKeyDown={(e) => handleKeyDown(e, '', '')}>
+                {' '}
+                Download Template
+              </button>
             </div>
           </div>
         </div>
@@ -245,7 +314,7 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
         <div className="col-12">
           <div className="d-flex justify-content-end">
             <div className="me-3">
-              <button className="btn btn-primary" onKeyDown={(e) => handleKeyDown(e, 'btn_allocate', '')}>
+              <button className="btn btn-primary" onKeyDown={(e) => handleKeyDown(e, '', '')}>
                 Save
               </button>
             </div>

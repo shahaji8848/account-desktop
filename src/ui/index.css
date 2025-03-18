@@ -278,6 +278,9 @@ input[type='checkbox']:focus {
 }
 
 /* Font sizes */
+.fs-20 {
+  font-size: 20px;
+}
 .fs-14 {
   font-size: 14px !important;
 }
