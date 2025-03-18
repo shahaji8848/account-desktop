@@ -15,7 +15,7 @@ const useReconcile = () => {
       if (result?.error === true) {
         setApiErrorMessage(result?.message);
         setApiError(result?.error);
-        setReconcileData({});
+        setReconcileData([]);
         console.log('Fetched reconciliation data : in hook in if', result, result.error, result?.message, apiErrorMessage);
       } else {
         setReconcileData(result || {});
@@ -25,6 +25,9 @@ const useReconcile = () => {
       return result;
     } catch (error) {
       console.error('Error fetching allocation list:', error);
+      setApiErrorMessage('An error occurred while fetching data.');
+      setApiError(true);
+      setReconcileData([]);
       return [];
     }
   }, []);
