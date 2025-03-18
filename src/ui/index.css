@@ -276,3 +276,16 @@ input[type='checkbox']:focus {
 .custom-toast {
   top: 40px !important;
 }
+
+/* Font sizes */
+.fs-14 {
+  font-size: 14px !important;
+}
+.fs-12 {
+  font-size: 12px !important;
+}
+.fs-10 {
+  font-size: 10px !important;
+  vertical-align: top;
+  text-align: center;
+}

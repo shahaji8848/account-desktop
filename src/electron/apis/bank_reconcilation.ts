@@ -411,9 +411,10 @@ export async function getReconcileBankTransaction(args: any) {
         payment_entry: row.reference_id,
         allocated_amount: row.matched_amount,
       });
+      const filteredData = data.filter((item: any) => !Object.values(item).includes(null));
 
       let params: any = {
-        payment_entries: data,
+        payment_entries: filteredData,
       };
 
       const update_response = await fetch(`${baseUrl}${api_url}Bank Transaction/${row.bank_transaction_id}`, {
