@@ -4,7 +4,7 @@ import ShowFilter from '../common/ShowFilter';
 import 'react-toastify/dist/ReactToastify.css';
 import QuitConfirmationModal from '../Home/QuitConfirmationModal';
 import useHandleKeys from '../../hooks/payment_reconciliation/useHandleKeys';
-
+import './payment-reconciliation.css';
 export default function PaymentReconciliationRework({ homeHookData, globalData }: any) {
   const { isQuitModalOpen, setIsQuitModalOpen } = globalData;
 
@@ -52,7 +52,7 @@ export default function PaymentReconciliationRework({ homeHookData, globalData }
   } = useHandleKeys(isQuitModalOpen, setIsQuitModalOpen);
 
   return (
-    <div className="container-fluid px-3 py-2 bg-light" style={{ width: '1200px' }}>
+    <div className={`container-fluid px-3 py-2 bg-light ${showFilter ? 'limited-width' : 'full-width'}`}>
       <h2 className="mb-3">Payment Reconciliation</h2>
       <div className="row mb-4" ref={formRef} tabIndex={0}>
         <div className="col-md-6">
@@ -100,23 +100,29 @@ export default function PaymentReconciliationRework({ homeHookData, globalData }
             </div>
             <div className="col-12 mt-3">
               <label className="form-label">Receivable/Payable Account:</label>
-              <input
+              {/* <input
                 type="text"
                 name="Receivable/Payable Account"
                 onKeyDown={(e) => handleKeyDown(e, '', '')}
                 value={receivablePayableAccount}
                 className="form-control"
-              />
+              /> */}
+              <p className="form-control-like" onKeyDown={(e) => handleKeyDown(e, '', '')}>
+                {receivablePayableAccount}
+              </p>
             </div>
             <div className="col-md-12 mt-3">
               <label className="form-label">Default Advance Account:</label>
-              <input
+              {/* <input
                 type="text"
                 name="Default Advance Account"
                 onKeyDown={(e) => handleKeyDown(e, '', '')}
                 className="form-control"
                 value={defaultAdvanceAccount}
-              />
+              /> */}
+              <p className="form-control-like" onKeyDown={(e) => handleKeyDown(e, '', '')}>
+                {defaultAdvanceAccount}
+              </p>
             </div>
           </div>
         </div>
