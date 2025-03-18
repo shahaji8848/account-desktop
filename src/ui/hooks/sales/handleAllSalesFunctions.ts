@@ -85,7 +85,8 @@ export function handleAllSalesFunctions(
   getPDF: any,
   isOnPrint: any,
   setIsOnPrint: any,
-  setIsQuitModalOpen: any
+  setIsQuitModalOpen: any,
+  setGstData: any
 ) {
   const navigate = useNavigate();
   const handleSubmitData = async (salesInvoiceData: any, method: string = 'POST') => {
@@ -138,6 +139,10 @@ export function handleAllSalesFunctions(
           setSalesData({ ...salesDefaultdata });
           setTaxInfo([]);
           setTaxData([]);
+          setAdvancePaymentData([]);
+          setPaymentData([]);
+          setGstData([]);
+          setTransporterData([]);
           if (salesDataRef.current) {
             setTimeout(() => {
               // salesDataRef.current.sales_no?.focus();
@@ -377,7 +382,7 @@ export function handleAllSalesFunctions(
               }
             });
           let newAdvanceData: any = [];
-          advancePaymentData.length > 0 &&
+          advancePaymentData?.length > 0 &&
             advancePaymentData.map((item: any, index: number) => {
               newAdvanceData = [...newAdvanceData, { ...item, allocated_amount: Number(item.allocated_amount) }];
             });

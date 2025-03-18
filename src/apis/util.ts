@@ -958,7 +958,7 @@ async function convertPdfToBase64(pdfUrl: any) {
       method: 'GET',
       headers: { ...headers, Authorization: 'token 617c5524f5a912e:aa8ae3123dc7d6d' },
     });
-    // console.log(response, 'response');
+    console.log(response, 'response base64');
     if (!response.ok) {
       throw new Error(`Failed to fetch PDF: ${response.statusText}`);
     }
@@ -966,8 +966,8 @@ async function convertPdfToBase64(pdfUrl: any) {
     const arrayBuffer = await response.arrayBuffer();
     const base64String = Buffer.from(arrayBuffer).toString('base64');
 
-    // console.log(base64String); // This will log the Base64 string
-    return base64String;
+    console.log(base64String); // This will log the Base64 string
+    return {base64: base64String, value: response};
   } catch (error) {
     console.error('Error:', error);
     return { error: true, message: `Error: ${error}` };
@@ -985,7 +985,7 @@ export async function getPrintFormatData(args: any) {
 
     const response = await convertPdfToBase64(`${api_url}?${params.toString()}`);
 
-    return { status: 200, data: response };
+    return { status: 200, data: response.base64, response: response.value };
   } catch (error) {
     console.error('Error in getPrintFormatData:', error);
     return { error: true, message: `Error: ${error}` };
