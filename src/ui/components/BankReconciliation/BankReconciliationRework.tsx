@@ -81,6 +81,9 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
   console.log('initial data @@@', bankTransaction, erpTransaction);
   const bankTransactionArray = Array.isArray(bankTransaction) ? bankTransaction : [];
   const erpTransactionArray = Array.isArray(erpTransaction) ? erpTransaction : [];
+  const handleImportBankStatement = () => {
+    navigate('/bank-statement-import');
+  };
 
   const handleKeyDown = async (e: any, field?: any, type?: any) => {
     setInitalBankReconcileData((prevData) => ({
@@ -96,6 +99,9 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     // console.log('index', index);
 
     if (e.ctrlKey && e.key === 'Enter') {
+      if (field === 'import_bank_statement') {
+        handleImportBankStatement();
+      }
       if (field === 'btn_allocate') {
         handleAllocation();
       }
@@ -362,10 +368,6 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     }
   }, [isQuitModalOpen]);
 
-  const handleImportBankStatement = () => {
-    navigate('/bank-statement-import');
-  };
-
   return (
     <div
       className={`container-fluid px-3 py-2 bg-light ${showFilter ? 'limited-width' : 'full-width'}`} // Conditionally apply class
@@ -376,7 +378,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
         </div>
         <div className="col-md-6">
           <div className="d-flex justify-content-end">
-            <button className="btn btn-secondary" onClick={handleImportBankStatement}>
+            <button className="btn btn-secondary" onClick={handleImportBankStatement} onKeyDown={(e) => handleKeyDown(e, 'import_bank_statement')}>
               Import Bank Statement
             </button>
           </div>
