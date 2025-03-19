@@ -121,6 +121,14 @@ app.on('ready', () => {
     return await getPaymentReconciliationEntries(kwargs);
   });
 
+  ipcMain.handle('UploadFile', async (_, kwargs: any) => {
+    return await UploadFile(kwargs);
+  });
+
+  ipcMain.handle('GetPreviewFromTemplate', async (_, kwargs: any) => {
+    return await GetPreviewFromTemplate(kwargs);
+  });
+
   ipcMain.handle('getAccountBalance', async (_, kwargs: any) => {
     return await getAccountBalance(kwargs);
   });
