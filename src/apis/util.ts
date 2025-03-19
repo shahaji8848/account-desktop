@@ -67,7 +67,6 @@ async function getAddressData(doctype: any, filters: any, token: any) {
   return await fetchData(url, token);
 }
 
-
 // export async function login(kwargs: any) {
 //   const login_url = 'https://yatish-testing-v15.frappe.cloud/api/method/login';
 
@@ -303,7 +302,7 @@ async function getBankAccount(doctype: any, filters: any, token: any) {
   if (filters?.input) {
     apiFilters.push(['name', 'like', `%${filters.input}%`]);
   }
- 
+
   const queryParams = new URLSearchParams();
   if (apiFilters.length > 0) {
     queryParams.append('filters', JSON.stringify(apiFilters));
@@ -348,7 +347,7 @@ async function getGstHsnData(doctype: any, filters: any, token: any) {
 
 async function getOtherRecords(doctype: any, filters: any, token: any) {
   let url = `${baseUrl}/${doctype}`;
-  if (filters?.name) url +=`/${filters?.name}`
+  if (filters?.name) url += `/${filters?.name}`;
   let data = await fetchData(url, token);
   return data;
 }
@@ -502,7 +501,7 @@ export async function getCurrencyData(kwargs: any) {
     headers: { Authorization: kwargs?.token, 'Content-Type': 'application/json' },
     body: JSON.stringify(kwargs.data),
   });
- 
+
   return response.json();
 }
 
@@ -561,54 +560,52 @@ export async function getJournalEntryAccountsData(doctype: any, filters: any, to
 export async function getJournalEntryReceiptName(doctype: any, filters: any, token: any) {
   const journalEntryApiFilters: any[] = [];
 
-  if (filters.reference_type === "Sales Invoice") {
-    journalEntryApiFilters.push(["account", "=", filters.account]);
-    journalEntryApiFilters.push(["party", "=", filters.party]);
-  } 
-  else if (filters.reference_type === "Asset") {
-    journalEntryApiFilters.push(["docstatus", "=", 1]);
-  } 
-  else if (filters.reference_type === "Purchase Invoice") {
+  if (filters.reference_type === 'Sales Invoice') {
+    journalEntryApiFilters.push(['account', '=', filters.account]);
+    journalEntryApiFilters.push(['party', '=', filters.party]);
+  } else if (filters.reference_type === 'Asset') {
+    journalEntryApiFilters.push(['docstatus', '=', 1]);
+  } else if (filters.reference_type === 'Purchase Invoice') {
     journalEntryApiFilters.push(
-      [ "docstatus", "=", 1],
-      [ "outstanding_amount", "!=", 0],
-      [ "cost_center", "IN",["",filters.cost_center]],
-      [ "credit_to", "=", filters.account]
+      ['docstatus', '=', 1],
+      ['outstanding_amount', '!=', 0],
+      ['cost_center', 'IN', ['', filters.cost_center]],
+      ['credit_to', '=', filters.account]
     );
   }
 
-  const baseUrl = `https://yatish-testing-v15.frappe.cloud/api/resource/${filters.reference_type}?filters=${JSON.stringify(journalEntryApiFilters)}&limit_page_length=None`;
+  const baseUrl = `https://yatish-testing-v15.frappe.cloud/api/resource/${filters.reference_type}?filters=${JSON.stringify(
+    journalEntryApiFilters
+  )}&limit_page_length=None`;
 
-  
   try {
     const response = await fetch(baseUrl, {
-      method: "GET",
+      method: 'GET',
       headers: {
         Authorization: token,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
-   
     if (!response.ok) {
       throw new Error(`Error fetching data: ${response.statusText}`);
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Error in getJournalEntryReceiptName:", error);
+    console.error('Error in getJournalEntryReceiptName:', error);
     return null;
   }
 }
-export async function getContactData(doctype:any , filters:any , token:any) {
-  let contactUrl = baseUrl+`/${doctype}`
-  const contactapiFilters:any =[];
+export async function getContactData(doctype: any, filters: any, token: any) {
+  let contactUrl = baseUrl + `/${doctype}`;
+  const contactapiFilters: any = [];
   if (filters?.type) contactapiFilters.push(['Dynamic Link', 'link_doctype', '=', filters.type]);
   if (filters?.type_name) contactapiFilters.push(['Dynamic Link', 'link_name', '=', filters.type_name]);
-  if (contactapiFilters.length >0){
-     contactUrl = contactUrl+`?filters=${encodeURIComponent(JSON.stringify(contactapiFilters))}`
+  if (contactapiFilters.length > 0) {
+    contactUrl = contactUrl + `?filters=${encodeURIComponent(JSON.stringify(contactapiFilters))}`;
   }
-  return await fetchData(contactUrl , token)
+  return await fetchData(contactUrl, token);
 }
 export async function getSupplierData(doctype: string, filters: any, token: string) {
   let contactUrl = `${baseUrl}/${doctype}`;
@@ -624,44 +621,34 @@ export async function getSupplierData(doctype: string, filters: any, token: stri
 }
 
 export async function getPaymentEntryPartyDetails(doctype: string, filters: any, token: string) {
-  let paymentEntryUrl = 'https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.doctype.payment_entry.payment_entry.get_party_details'
-  if (!filters.party_type || !filters.party || !filters.company ){
-    return {"error":true , "msg":"Party Details Missing"}
-  }
-  else {
-    paymentEntryUrl +=`?company=${encodeURIComponent(filters.company)}&party_type=${encodeURIComponent(filters.party_type)}&party=${encodeURIComponent(filters.party)}&date=${encodeURIComponent(new Date().toISOString().split('T')[0])}` ;
+  let paymentEntryUrl = 'https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.doctype.payment_entry.payment_entry.get_party_details';
+  if (!filters.party_type || !filters.party || !filters.company) {
+    return { error: true, msg: 'Party Details Missing' };
+  } else {
+    paymentEntryUrl += `?company=${encodeURIComponent(filters.company)}&party_type=${encodeURIComponent(
+      filters.party_type
+    )}&party=${encodeURIComponent(filters.party)}&date=${encodeURIComponent(new Date().toISOString().split('T')[0])}`;
   }
   const response = await fetch(paymentEntryUrl, {
-    method: "GET",
+    method: 'GET',
     headers: {
       Authorization: token,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
   });
- return await response.json()
+  return await response.json();
 }
 
-export async function getPaymentEntryRefDocuments(
-  doctype: string,
-  filters: any,
-  token: string
-) {
- 
+export async function getPaymentEntryRefDocuments(doctype: string, filters: any, token: string) {
   const paymentEntryRefDocUrl =
-    "https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.doctype.payment_entry.payment_entry.get_outstanding_reference_documents";
+    'https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.doctype.payment_entry.payment_entry.get_outstanding_reference_documents';
 
-  if (
-    !filters.party_type ||
-    !filters.party ||
-    !filters.company ||
-    !filters.party_account ||
-    !filters.payment_type
-  ) {
-    return { error: true, msg: "Party Details Missing" };
+  if (!filters.party_type || !filters.party || !filters.company || !filters.party_account || !filters.payment_type) {
+    return { error: true, msg: 'Party Details Missing' };
   }
 
   let args: any = {
-    posting_date: new Date().toISOString().split("T")[0],
+    posting_date: new Date().toISOString().split('T')[0],
     company: filters.company,
     party_type: filters.party_type,
     payment_type: filters.payment_type,
@@ -670,16 +657,16 @@ export async function getPaymentEntryRefDocuments(
     outstanding_amt_greater_than: 0,
   };
 
-  if (["Sales Order", "Sales Invoice"].includes(filters.ref_type)) {
-    if (filters.ref_type === "Sales Order") {
-      args["get_orders_to_be_billed"] = 1;
+  if (['Sales Order', 'Sales Invoice'].includes(filters.ref_type)) {
+    if (filters.ref_type === 'Sales Order') {
+      args['get_orders_to_be_billed'] = 1;
     }
 
     try {
       const response = await fetch(paymentEntryRefDocUrl, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: token,
         },
         body: JSON.stringify({ args }),
@@ -690,47 +677,41 @@ export async function getPaymentEntryRefDocuments(
       }
 
       return await response.json();
-    } catch (error:any) {
+    } catch (error: any) {
       return { error: true, message: error.message };
     }
   }
 
-  if (["Journal Entry", "Dunning"].includes(filters.ref_type)) {
+  if (['Journal Entry', 'Dunning'].includes(filters.ref_type)) {
     let apiFilters: any[] = [
-      ["docstatus", "=", 1],
-      ["company", "=", filters.company],
+      ['docstatus', '=', 1],
+      ['company', '=', filters.company],
     ];
-    let apiEndpoint = filters.ref_type === "Journal Entry" ? "Journal Entry" : "Dunning";
+    let apiEndpoint = filters.ref_type === 'Journal Entry' ? 'Journal Entry' : 'Dunning';
 
     try {
-      const response = await fetch(
-        `${baseUrl}/${apiEndpoint}?limit_page_length=None&filters=${encodeURIComponent(
-          JSON.stringify(apiFilters)
-        )}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-        }
-      );
+      const response = await fetch(`${baseUrl}/${apiEndpoint}?limit_page_length=None&filters=${encodeURIComponent(JSON.stringify(apiFilters))}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      });
 
       if (response.ok) {
         const data = await response.json();
-        return data
+        return data;
       }
     } catch (error) {
       return { error: true, message: `Error fetching ${filters.ref_type}: ${error}` };
     }
   }
 
-
   try {
     const response = await fetch(paymentEntryRefDocUrl, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: token,
       },
       body: JSON.stringify({ args }),
@@ -741,18 +722,19 @@ export async function getPaymentEntryRefDocuments(
     }
 
     return await response.json();
-  } catch (error:any) {
+  } catch (error: any) {
     return { error: true, message: error.message };
   }
 }
 // {account_type:["Bank", "Cash"]}
 
-export async function paymentEntryAccountsDetails(doctype:any , filters:any , token:any){
+export async function paymentEntryAccountsDetails(doctype: any, filters: any, token: any) {
   if (!filters?.account) {
     return { error: true, msg: 'Please select an account' };
   }
-  const getAccountsDetailUrl = "https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.doctype.payment_entry.payment_entry.get_account_details"
-  
+  const getAccountsDetailUrl =
+    'https://yatish-testing-v15.frappe.cloud/api/method/erpnext.accounts.doctype.payment_entry.payment_entry.get_account_details';
+
   const response = await fetch(getAccountsDetailUrl, {
     method: 'POST',
     headers: {
@@ -760,13 +742,11 @@ export async function paymentEntryAccountsDetails(doctype:any , filters:any , to
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      "date":new Date().toISOString().split("T")[0],
-      "account":filters.account
+      date: new Date().toISOString().split('T')[0],
+      account: filters.account,
     }),
   });
-  return await response.json()
-
-
+  return await response.json();
 }
 export async function getData(kwargs: any) {
   const { doctype, filters, token } = kwargs;
@@ -818,16 +798,16 @@ export async function getData(kwargs: any) {
       return await getIncotermData(doctype, filters, token);
     case 'Print Format':
       return await getPrintFormat(doctype, filters, token);
-     case "Journal Receipt Names":
-          return await getJournalEntryReceiptName(doctype, filters, token);
-    case "Supplier":
-        return await getSupplierData(doctype, filters, token)
-    case "Contact":
-      return getContactData(doctype, filters, token)
-    case "Payment Entry Party Details":
-      return getPaymentEntryPartyDetails(doctype, filters, token)
-    case "Payment Entry Reference Documents":
-      return getPaymentEntryRefDocuments(doctype, filters, token)
+    case 'Journal Receipt Names':
+      return await getJournalEntryReceiptName(doctype, filters, token);
+    case 'Supplier':
+      return await getSupplierData(doctype, filters, token);
+    case 'Contact':
+      return getContactData(doctype, filters, token);
+    case 'Payment Entry Party Details':
+      return getPaymentEntryPartyDetails(doctype, filters, token);
+    case 'Payment Entry Reference Documents':
+      return getPaymentEntryRefDocuments(doctype, filters, token);
     // case "Payment Entry Account Details":
     //   paymentEntryAccountsDetails(doctype, filters , token)
     default:
@@ -958,16 +938,23 @@ async function convertPdfToBase64(pdfUrl: any) {
       method: 'GET',
       headers: { ...headers, Authorization: 'token 617c5524f5a912e:aa8ae3123dc7d6d' },
     });
-    console.log(response, 'response base64');
+    // console.log(response, 'response base64');
     if (!response.ok) {
       throw new Error(`Failed to fetch PDF: ${response.statusText}`);
     }
 
     const arrayBuffer = await response.arrayBuffer();
-    const base64String = Buffer.from(arrayBuffer).toString('base64');
+    // console.log(arrayBuffer, 'arrayBuffer', window.electron);
+    const uint8Array = new Uint8Array(arrayBuffer);
+    let binaryString = '';
+    for (let i = 0; i < uint8Array.length; i++) {
+      binaryString += String.fromCharCode(uint8Array[i]);
+    }
 
-    console.log(base64String); // This will log the Base64 string
-    return {base64: base64String, value: response};
+    const base64String = window.electron ? Buffer.from(arrayBuffer).toString('base64') : btoa(binaryString);
+
+    // console.log(base64String); // This will log the Base64 string
+    return { base64: base64String, value: response };
   } catch (error) {
     console.error('Error:', error);
     return { error: true, message: `Error: ${error}` };
@@ -984,7 +971,7 @@ export async function getPrintFormatData(args: any) {
     });
 
     const response = await convertPdfToBase64(`${api_url}?${params.toString()}`);
-
+    // console.log(response);
     return { status: 200, data: response.base64, response: response.value };
   } catch (error) {
     console.error('Error in getPrintFormatData:', error);
