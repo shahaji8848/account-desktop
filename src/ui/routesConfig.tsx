@@ -18,6 +18,7 @@ import ReceiptVoucherRegister from './components/AccountBooks/ReceiptRegister/Re
 import ContraRegister from './components/AccountBooks/ContraRegister/ContraRegister';
 import ContraVoucherRegister from './components/AccountBooks/ContraRegister/ContraVoucherRegister';
 import BankReconciliationMaster from './components/BankReconciliation/BankReconciliationMaster';
+import BankStatementImport from './components/BankReconciliation/BankStatementImport';
 
 const routesConfig = [
   { path: '/customer-form', component: CustomerFormMaster },
@@ -40,6 +41,7 @@ const routesConfig = [
   { path: '/contra-voucher-register', component: ContraVoucherRegister },
   { path: '/payment-reconciliation', component: PaymentReconciliationMaster },
   { path: '/bank-reconciliation', component: BankReconciliationMaster },
+  { path: '/bank-statement-import', component: BankStatementImport },
 ];
 
 export default routesConfig;
