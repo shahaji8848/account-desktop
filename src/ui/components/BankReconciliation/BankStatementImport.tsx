@@ -9,7 +9,8 @@ import QuitConfirmationModal from '../Home/QuitConfirmationModal';
 import useFetchData from '../../hooks/fetchData';
 import './file-upload.css';
 import { MdInsertLink } from 'react-icons/md';
-
+import img from '../../assets/banner-1920-4x.png';
+import { GetPreviewFromTemplate, UploadFile } from '../../../apis/upload_bank_statement';
 export default function BankStatementImport({ homeHookData, globalData }: any) {
   const token = localStorage.getItem('account_desktop_token');
   const companyData = useFetchData('Company', {}, token);
@@ -165,9 +166,10 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
     }));
   };
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | any>('');
   const [filePath, setFilePath] = useState<string>('');
   const fileInputRef = useRef<any>(null); // Create a ref for the file input
+  const [fileBinary, setFileBinary] = useState<any>(null);
 
   const handleClearFile = () => {
     setSelectedFile(null);
@@ -177,13 +179,26 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
     }, 0);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      setFilePath(`/public/files/${file.name}`);
-      const downloadButton: any = document.querySelector('.btn.btn-secondary');
-      downloadButton?.focus();
+      setFilePath(`${file.name}`);
+      try {
+        const data = await UploadFile({ file, token }); // Adjust the UploadFile function to accept FormData
+        const tempData = await GetPreviewFromTemplate({
+          file_url: '/files/Unsaved report.xlsx',
+          attached_to_name: 'Bank Statement Import on Wed Mar 19 2025 17:11:55 GMT+0530 (India Standard Time)',
+          file_type: 'XLSX',
+          token,
+        }).then((data: any) => {
+          console.log('file @ template', data);
+        });
+        console.log('file @', data);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        toast.error('Failed to upload file. Please try again.');
+      }
     }
   };
 
@@ -194,6 +209,26 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
       }, 100);
     }
   }, [isQuitModalOpen]);
+
+  useEffect(() => {
+    window.electron
+      ? window.electron
+          .GetPreviewFromTemplate({
+            file: fileBinary,
+            token,
+          })
+          .then((data: any) => {
+            console.log('file @', data);
+          })
+      : GetPreviewFromTemplate({
+          file_url: '/files/Unsaved report.xlsx',
+          attached_to_name: 'Bank Statement Import on Wed Mar 19 2025 17:01:13 GMT+0530 (India Standard Time)',
+          file_type: 'XLSX',
+          token,
+        }).then((data: any) => {
+          console.log('file @ template', data);
+        });
+  }, [selectedFile]);
 
   console.log('file', initalBankReconcileData.importFromGoogleSheets, selectedFile, filePath);
 

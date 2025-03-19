@@ -6,6 +6,7 @@ import BottomNavbar from '../../Sales/BottomNavbar'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../../store/root-reducer'
 import PageHeader from '../../common/PageHeader'
+import { salesRegisterMonthWiseSales } from '../../../../apis/reports/sales_register'
 
 const SalesRegister = ({ homeHookData, globalData }: any) => {
     const [salesRegisterList, setSalesRegisterList] = useState([]);
@@ -20,7 +21,7 @@ const SalesRegister = ({ homeHookData, globalData }: any) => {
             ? await window.electron.salesRegister({
                 filters: { from_date, to_date, company: "8848 Digital LLP" },
                 token
-            }):await SalesRegister({
+            }):await salesRegisterMonthWiseSales({
                 filters: { from_date, to_date, company: "8848 Digital LLP" },
                 token
             });

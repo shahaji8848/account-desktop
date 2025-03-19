@@ -222,7 +222,7 @@ async function get_closing_bal_erp(args: any) {
     to_date: args.to_date,
   });
 
-  const closing_bal = credit.data[0].withdrawal - debit.data[0].deposit;
+  const closing_bal = debit.data[0].deposit -credit.data[0].withdrawal;
 
   return closing_bal;
 }
