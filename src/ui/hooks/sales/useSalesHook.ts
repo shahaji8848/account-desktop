@@ -135,13 +135,13 @@ function useSalesHook(globalData: any) {
         ? await window.electron.getPrintFormatData({ doctype: 'Sales Invoice', name: name, format: format, token: token })
         : await getPrintFormatData({ doctype: 'Sales Invoice', name: name, format: format, token: token });
       // console.log(x, 'payment terms');
-      let api_url = 'https://yatish-testing-v15.frappe.cloud/api/method/frappe.utils.print_format.download_pdf';
-      let params = new URLSearchParams({
-        doctype: 'Sales Invoice',
-        name: name,
-        format: format,
-      });
-      const url = isAPP ? `data:application/pdf;base64,${x.data}` : `${api_url}?${params.toString()}`;
+      // let api_url = 'https://yatish-testing-v15.frappe.cloud/api/method/frappe.utils.print_format.download_pdf';
+      // let params = new URLSearchParams({
+      //   doctype: 'Sales Invoice',
+      //   name: name,
+      //   format: format,
+      // });
+      const url = `data:application/pdf;base64,${x.data}`;
       // console.log(url, 'Generated PDF URL');
       setSalesPDF(url);
       return url;
