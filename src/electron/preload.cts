@@ -36,6 +36,12 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getPaymentReconciliationEntries: (args: any) => {
     return ipcInvoke('getPaymentReconciliationEntries', args);
   },
+  UploadFile: (args: any) => {
+    return ipcInvoke('UploadFile', args);
+  },
+  GetPreviewFromTemplate: (args: any) => {
+    return ipcInvoke('GetPreviewFromTemplate', args);
+  },
   getAllocationList: (args: any) => {
     return ipcInvoke('getAllocationList', args);
   },
