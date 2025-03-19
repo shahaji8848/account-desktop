@@ -9,7 +9,8 @@ import QuitConfirmationModal from '../Home/QuitConfirmationModal';
 import useFetchData from '../../hooks/fetchData';
 import './file-upload.css';
 import { MdInsertLink } from 'react-icons/md';
-
+import img from '../../assets/banner-1920-4x.png';
+import { GetPreviewFromTemplate, UploadFile } from '../../../apis/upload_bank_statement';
 export default function BankStatementImport({ homeHookData, globalData }: any) {
   const token = localStorage.getItem('account_desktop_token');
   const companyData = useFetchData('Company', {}, token);
@@ -19,8 +20,8 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
   const [currentFilterList, setCurrentFilterList] = useState<any[]>([]);
   const [masterList, setMasterList] = useState<any[]>([]);
   const [showFilter, setShowFilter] = useState(false);
-  const [currentField, setCurrentField] = useState('');
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [currentField, setCurrentField] = useState<any>('');
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   const formRef = useRef<any>(null);
   const inputRefs = useRef<any>(null);
@@ -28,6 +29,7 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
   const [initalBankReconcileData, setInitalBankReconcileData] = useState({
     company: '',
     bank_account: '',
+    importFromGoogleSheets: '',
   });
 
   const company = initalBankReconcileData?.company;
@@ -104,8 +106,9 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
   };
 
   const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name: field } = e.target;
+    const { name: field, value } = e.target;
     setShowFilter(false);
+
     if (field === 'company' || field === 'bank_account') {
       setShowFilter(true);
       setCurrentField(field);
@@ -163,9 +166,10 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
     }));
   };
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | any>('');
   const [filePath, setFilePath] = useState<string>('');
   const fileInputRef = useRef<any>(null); // Create a ref for the file input
+  const [fileBinary, setFileBinary] = useState<any>(null);
 
   const handleClearFile = () => {
     setSelectedFile(null);
@@ -175,22 +179,26 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
     }, 0);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      setFilePath(`/public/files/${file.name}`);
-      const downloadButton: any = document.querySelector('.btn.btn-secondary');
-      downloadButton?.focus();
-    }
-  };
-
-  const handleAttachClick = () => {};
-
-  const handleReloadFile = () => {
-    if (selectedFile) {
-      console.log('Reloading file:', selectedFile.name);
-      // In a real application, you might want to re-process the file here
+      setFilePath(`${file.name}`);
+      try {
+        const data = await UploadFile({ file, token }); // Adjust the UploadFile function to accept FormData
+        const tempData = await GetPreviewFromTemplate({
+          file_url: '/files/Unsaved report.xlsx',
+          attached_to_name: 'Bank Statement Import on Wed Mar 19 2025 17:11:55 GMT+0530 (India Standard Time)',
+          file_type: 'XLSX',
+          token,
+        }).then((data: any) => {
+          console.log('file @ template', data);
+        });
+        console.log('file @', data);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        toast.error('Failed to upload file. Please try again.');
+      }
     }
   };
 
@@ -201,6 +209,28 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
       }, 100);
     }
   }, [isQuitModalOpen]);
+
+  useEffect(() => {
+    window.electron
+      ? window.electron
+          .GetPreviewFromTemplate({
+            file: fileBinary,
+            token,
+          })
+          .then((data: any) => {
+            console.log('file @', data);
+          })
+      : GetPreviewFromTemplate({
+          file_url: '/files/Unsaved report.xlsx',
+          attached_to_name: 'Bank Statement Import on Wed Mar 19 2025 17:01:13 GMT+0530 (India Standard Time)',
+          file_type: 'XLSX',
+          token,
+        }).then((data: any) => {
+          console.log('file @ template', data);
+        });
+  }, [selectedFile]);
+
+  console.log('file', initalBankReconcileData.importFromGoogleSheets, selectedFile, filePath);
 
   return (
     <div className={` px-3 py-2 bg-light`} style={{ width: showFilter ? '1200px' : '100%' }}>
@@ -235,7 +265,7 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
                 value={initalBankReconcileData.bank_account}
               />
             </div>
-            <div className="col-12 mt-3">
+            {/* <div className="col-12 mt-3">
               <label className="form-label">Bank</label>
               <p
                 className="form-control-like"
@@ -245,7 +275,7 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
               >
                 Test
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
         <div className="col-md-6">
@@ -259,11 +289,11 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
                   <input
                     type="text"
                     className="form-control"
-                    name="Import_From_Google_Sheets"
-                    onKeyDown={(e) => handleKeyDown(e, 'Import_From_Google _Sheets', 'Import From Google Sheets')}
+                    name="importFromGoogleSheets"
+                    onKeyDown={(e) => handleKeyDown(e, 'importFromGoogleSheets', 'Import From Google Sheets')}
                     onFocus={handleInputFocus}
-                    onChange={(e) => handleInputChange(e, 'Import From Google Sheets')}
-                    // value={initalBankReconcileData.bank_account}
+                    onChange={(e) => handleInputChange(e, 'importFromGoogleSheets')}
+                    value={initalBankReconcileData.importFromGoogleSheets}
                   />
                   <p className="mb-0 mt-1">
                     Must be publicly accessible Google Sheets URL and adding Bank Account column is necessary for importing via Google Sheets
@@ -286,6 +316,7 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
                     onChange={handleFileChange}
                     className="form-control"
                     ref={fileInputRef} // Attach the ref to the file input
+                    onKeyDown={(e) => handleKeyDown(e, 'choose_file', 'choose file')}
                   />
                 </div>
               ) : (
