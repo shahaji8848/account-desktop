@@ -25,6 +25,7 @@ import {
   getReconcileBankTransaction,
   getAllocateEntries,
 } from '../apis/bank_reconcilation.js';
+import { UploadFile, GetPreviewFromTemplate} from '../apis/upload_bank_statement.js';
 import { JournalEntryBreakupReport, JournalEntryDetailBreakup } from '../apis/reports/journal_entry.js';
 import { PaymentEntryBreakupReport, PaymentEntryDetailBreakup } from '../apis/reports/payment_entry.js';
 import { argv, connected } from 'process';

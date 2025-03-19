@@ -33,5 +33,7 @@ interface Window {
     getPrintFormatData: any;
     generatekeys: any;
     getSid: any;
+    UploadFile:any;
+    GetPreviewFromTemplate:any;
   };
 }
