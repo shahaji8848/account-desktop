@@ -23,7 +23,7 @@ const gstCategoryList = [
 ];
 
 const NewAddressForm = ({ setIsAdressModal, customerName, setIsBankModal, setStoredAddressList, initialData }: any) => {
-    console.log("initialData", initialData)
+    // console.log("initialData", initialData)
     const [formData, setFormData] = useState({
         linkDocumentType: 'Customer',
         linkName: customerName || '',

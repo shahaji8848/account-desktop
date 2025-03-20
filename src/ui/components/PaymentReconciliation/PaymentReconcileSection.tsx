@@ -25,14 +25,14 @@ export default function PaymentReconcileSection({
   refreshData,
   setIsQuitModalOpen,
 }: any) {
-  console.log('selected@ in reconcile section', company, partyType, party);
+  // console.log('selected@ in reconcile section', company, partyType, party);
   const [invoiceFilter, setInvoiceFilter] = useState('');
   const [paymentFilter, setPaymentFilter] = useState('');
   const [filteredInvoices, setFilteredInvoices] = useState(invoiceData);
   const [filteredPayments, setFilteredPayments] = useState(paymnentData);
   const { allocationListData, fetchAllocationList } = useAllocateList();
   const { reconcileData, fetchReconcile } = useReconcile();
-  console.log('allocation ');
+  // console.log('allocation ');
   // Store complete objects instead of just IDs
   const [selectedInvoices, setSelectedInvoices] = useState<any[]>([]);
   const [selectedPayments, setSelectedPayments] = useState<any[]>([]);
@@ -54,7 +54,7 @@ export default function PaymentReconcileSection({
         (invoice: any) => invoice.invoice_number && invoice.invoice_number.toLowerCase().includes(invoiceFilter.toLowerCase())
       );
       setFilteredInvoices(filtered);
-      console.log('Filtered invoices:', filtered);
+      // console.log('Filtered invoices:', filtered);
     } else {
       setFilteredInvoices([]);
     }
@@ -67,7 +67,7 @@ export default function PaymentReconcileSection({
         (payment: any) => payment.reference_name && payment.reference_name.toLowerCase().includes(paymentFilter.toLowerCase())
       );
       setFilteredPayments(filtered);
-      console.log('Filtered payments:', filtered);
+      // console.log('Filtered payments:', filtered);
     } else {
       setFilteredPayments([]);
     }
@@ -168,7 +168,7 @@ export default function PaymentReconcileSection({
       setSelectedPayments([]);
     }
   };
-  console.log('filtered', filteredInvoices);
+  // console.log('filtered', filteredInvoices);
 
   const handleAllocation = async () => {
     if (!company || !partyType || !party || selectedInvoices.length === 0 || selectedPayments.length === 0) {
@@ -178,7 +178,7 @@ export default function PaymentReconcileSection({
 
     // Call the fetch function when the button is clicked
     const data = await fetchAllocationList(company, partyType, party, selectedInvoices, selectedPayments);
-    console.log('Allocation data fetched on button click:', data);
+    // console.log('Allocation data fetched on button click:', data);
 
     if (data?.allocation && data?.allocation.length > 0) {
       toast.success('Allocation List Fetched Successfully', {
@@ -190,17 +190,17 @@ export default function PaymentReconcileSection({
     // You can add additional logic here to handle the response
     // For example, you might want to show a success message or update the UI
   };
-  console.log('Allocation data fetched custom hook', allocationListData);
+  // console.log('Allocation data fetched custom hook', allocationListData);
 
-  console.log('Selected Invoices:', selectedInvoices);
-  console.log('Selected Payments:', selectedPayments);
+  // console.log('Selected Invoices:', selectedInvoices);
+  // console.log('Selected Payments:', selectedPayments);
 
   const handleReconcile = async () => {
     if (!company || !partyType || !party || selectedInvoices.length === 0 || selectedPayments.length === 0) {
       return;
     }
     const data = await fetchReconcile(company, partyType, party, selectedInvoices, selectedPayments);
-    console.log('reconcile data fetched on button click:', data?.docs, data?.invoices, data?.payments);
+    // console.log('reconcile data fetched on button click:', data?.docs, data?.invoices, data?.payments);
     // Step 1: Parse the first level
     const firstParse = JSON.parse(data._server_messages);
 
@@ -213,9 +213,9 @@ export default function PaymentReconcileSection({
     });
 
     // Accessing the message
-    console.log('reconcile data fetched on button click:', data?._server_message, data?.invoices, data?.payments);
-    console.log('reconcile data fetched on button click: reconcile message', messageObject.message); // Output: Successfully Reconciled
-    console.log(messageObject.title); // Output: Message
+    // console.log('reconcile data fetched on button click:', data?._server_message, data?.invoices, data?.payments);
+    // console.log('reconcile data fetched on button click: reconcile message', messageObject.message); // Output: Successfully Reconciled
+    // console.log(messageObject.title); // Output: Message
     setInvoiceData(allocationListData?.invoices);
     setPaymentData(allocationListData?.payments);
     // Clear selected checkboxes
@@ -233,7 +233,7 @@ export default function PaymentReconcileSection({
     //   invoiceFilterRef.current?.focus(); // Move focus to invoice search field
     // }, 0);
   };
-  console.log('reconcile data fetched on custom hook:', allocationListData);
+  // console.log('reconcile data fetched on custom hook:', allocationListData);
 
   return (
     <div className="container-fluid p-4 bg-light" onKeyDown={handleKeyDown} tabIndex={0}>

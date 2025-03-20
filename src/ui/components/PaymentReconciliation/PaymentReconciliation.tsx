@@ -40,7 +40,7 @@ export default function PaymentReconciliation({ homeHookData, globalData }: any)
   const partyTypeData = useFetchData('Payment Reconciliation Party', token);
   const { isQuitModalOpen, setIsQuitModalOpen } = globalData;
 
-  console.log('filter data', companyData, partyData, partyTypeData);
+  // console.log('filter data', companyData, partyData, partyTypeData);
 
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [companyFilter, setCompanyFilter] = useState('');
@@ -49,7 +49,7 @@ export default function PaymentReconciliation({ homeHookData, globalData }: any)
   const [selectedCompanyIndex, setSelectedCompanyIndex] = useState(0);
 
   const [selectedPartyType, setSelectedPartyType] = useState<PartyType | null>(null);
-  console.log('party type', selectedPartyType?.name);
+  // console.log('party type', selectedPartyType?.name);
   const [partyTypeFilter, setPartyTypeFilter] = useState('');
   const [filteredPartyTypes, setFilteredPartyTypes] = useState<PartyType[]>([]);
   const [showPartyTypeFilter, setShowPartyTypeFilter] = useState(false);
@@ -102,7 +102,7 @@ export default function PaymentReconciliation({ homeHookData, globalData }: any)
     setPaymentFilter,
   }: any = useUnreconcileEntriesData(selectedCompany?.name, selectedPartyType?.name, selectedParty?.name);
 
-  console.log('data@@', receivablePayableAccount, defaultAdvanceAccount, invoiceData, paymnentData);
+  // console.log('data@@', receivablePayableAccount, defaultAdvanceAccount, invoiceData, paymnentData);
 
   useEffect(() => {
     if (advanceAccount) {
@@ -277,8 +277,8 @@ export default function PaymentReconciliation({ homeHookData, globalData }: any)
       }, 100);
     }
   }, [isQuitModalOpen]);
-  console.log('selected@', selectedCompany, selectedParty, selectedPartyType);
-  console.log('selected@ in reconcile section', selectedCompany?.name, selectedParty?.name, selectedPartyType?.name);
+  // console.log('selected@', selectedCompany, selectedParty, selectedPartyType);
+  // console.log('selected@ in reconcile section', selectedCompany?.name, selectedParty?.name, selectedPartyType?.name);
 
   return (
     <div

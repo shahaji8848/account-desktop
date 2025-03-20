@@ -3,7 +3,7 @@ import { GrFormEdit } from "react-icons/gr";
 import { MdDeleteOutline } from "react-icons/md";
 
 const AddressCard = ({ data, handleEditAddress, handleKeyDown, handleDeleteAddress }: any) => {
-  console.log("AddressCard", data)
+  // console.log("AddressCard", data)
   const handleAdressFormEdit = () => {
 
   }

@@ -34,10 +34,10 @@ const useUnreconcileEntriesData = (company?: string, party_type?: string, party?
         setApiErrorMessage(result?.message);
         setApiError(result?.error);
         setData({});
-        console.log('Fetched reconciliation data : in hook in if', result, result.error, result?.message, apiErrorMessage);
+        // console.log('Fetched reconciliation data : in hook in if', result, result.error, result?.message, apiErrorMessage);
       } else {
         setData(result);
-        console.log('Fetched reconciliation data : in hook in else', result);
+        // console.log('Fetched reconciliation data : in hook in else', result);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -47,7 +47,7 @@ const useUnreconcileEntriesData = (company?: string, party_type?: string, party?
     }
   };
 
-  console.log('Fetched reconciliation data : in hook out', data, apiError, apiErrorMessage);
+  // console.log('Fetched reconciliation data : in hook out', data, apiError, apiErrorMessage);
 
   // Initial data fetch when dependencies change
   useEffect(() => {

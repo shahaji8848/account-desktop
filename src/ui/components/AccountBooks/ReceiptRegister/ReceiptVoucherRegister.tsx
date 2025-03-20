@@ -42,7 +42,7 @@ const ReceiptVoucherRegister = ({ homeHookData, globalData }: any) => {
     useEffect(() => {
         fetchVoucherList();
     }, []);
-    console.log("VoucherRegisterList", VoucherRegisterList)
+    // console.log("VoucherRegisterList", VoucherRegisterList)
     return (
         <div
             className="w-100 d-flex align-items-stretch justify-content-between"

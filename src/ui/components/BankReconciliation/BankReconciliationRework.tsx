@@ -78,7 +78,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
   const { accountBalanceInitialData, refreshData }: any = useGetAccountBalance(bankAccount, company, fromDate, toDate, token);
   const { erpTransaction, reFetchData } = useErpTransaction(bankAccount, fromErpDate, toErpDate, token);
   const { bankTransaction, refectBankTransaction } = useBankTransaction(bankAccount, company, fromStatementDate, toStatementDate, token);
-  console.log('initial data @@@', bankTransaction, erpTransaction);
+  // console.log('initial data @@@', bankTransaction, erpTransaction);
   const bankTransactionArray = Array.isArray(bankTransaction) ? bankTransaction : [];
   const erpTransactionArray = Array.isArray(erpTransaction) ? erpTransaction : [];
   const handleImportBankStatement = () => {
@@ -308,7 +308,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
       });
       return;
     }
-    console.log('initial data @@@ in allocate fn', allocationListData);
+    // console.log('initial data @@@ in allocate fn', allocationListData);
 
     // Call the fetch function when the button is clicked
     fetchData();
@@ -330,7 +330,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
 
   const handleReconcile = async () => {
     const reconcileDataa = await fetchReconcile(allocationListData, token);
-    console.log(' initial data @@@ reconcile data fetched on button click:', reconcileDataa, reconcileData);
+    // console.log(' initial data @@@ reconcile data fetched on button click:', reconcileDataa, reconcileData);
     if (
       (Array.isArray(reconcileDataa) && reconcileDataa.length > 0) ||
       (typeof reconcileDataa.data === 'object' && Object.keys(reconcileDataa.data).length > 0)

@@ -10,7 +10,7 @@ const useAllocateList = () => {
   const fetchAllocationList = useCallback(async (company?: string, party_type?: string, party?: string, invoices?: any, payments?: any) => {
     if (!company || !party_type || !party || !invoices?.length || !payments?.length) return;
 
-    console.log('Fetching allocation list:', company, party_type, party, invoices, payments);
+    // console.log('Fetching allocation list:', company, party_type, party, invoices, payments);
 
     try {
       const result = isAPP
@@ -32,7 +32,7 @@ const useAllocateList = () => {
           });
 
       setAllocationListData(result?.docs || []);
-      console.log('Allocation List Data: result', result);
+      // console.log('Allocation List Data: result', result);
       return result?.docs;
     } catch (error) {
       console.error('Error fetching allocation list:', error);

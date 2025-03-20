@@ -124,7 +124,7 @@ const TallyUI = ({
   const handleClick = (index: number) => {
     const menuItems = menuItemsRef.current.filter((item) => item !== null); // Filter out null values
     const selectedText = menuItems[index]?.textContent;
-    console.log('>>', index, selectedIndex);
+    // console.log('>>', index, selectedIndex);
     if (selectedText === 'Create') {
       setIsModalOpen(true);
     } else if (selectedText === 'Vouchers') {
