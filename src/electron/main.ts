@@ -46,11 +46,10 @@ app.on('ready', () => {
     responseHeaders['Access-Control-Allow-Origin'] = ['*']; // Allow all origins
     responseHeaders['Access-Control-Allow-Methods'] = ['GET, POST, PUT, DELETE, OPTIONS'];
     responseHeaders['Access-Control-Allow-Headers'] = ['Content-Type, Authorization'];
-    console.log(responseHeaders, 'RRRRRRRR');
     callback({ responseHeaders });
   });
   session.defaultSession.cookies.get({}).then((cookies) => {
-    console.log('Cookies on startup:', cookies);
+   
   });
 
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
