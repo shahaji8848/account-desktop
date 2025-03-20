@@ -1,13 +1,4 @@
-// import { session } from 'electron';
-
-// import dotenv from 'dotenv';
-
-// // Load .env file
-// dotenv.config();
-
 const baseUrl = 'https://yatish-testing-v15.frappe.cloud';
-
-
 
 export async function login(kwargs: any) {
   const login_url = `${baseUrl}/api/method/login`;
@@ -25,11 +16,11 @@ export async function login(kwargs: any) {
         }),
         credentials: 'include',
       });
-      // .then((res) => res.json())
-      // .then((data) => {
-      //   console.log(data, "login data");
-      //   return data;
-      // });
+        // .then((res) => res.json())
+        // .then((data) => {
+        //   console.log(data, "login data");
+        //   return data;
+        // });
 
       return await response.json();
     } catch (error) {
@@ -64,7 +55,6 @@ export async function generatekeys(kwargs: any) {
     const res = await fetch(userDetails, { method: 'GET', headers: header_detials });
     let response = await res.json();
     if (response.data.api_key) {
-      console.log(response.data.api_key, keysData.message.api_secret,"DDDDDDDDDD")
       return { status: 'success', token: `token ${response.data.api_key}:${keysData.message.api_secret}` };
     } else {
       return { error: response.message || 'Login failed' };

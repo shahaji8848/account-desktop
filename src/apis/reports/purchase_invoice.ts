@@ -100,7 +100,6 @@ export async function PurchaseInvoiceBreakupReport(kwargs: any) {
     fields: JSON.stringify(args.fields),
   });
 
-  console.log(queryParams.toString());
 
   try {
     let response = await fetch(`${baseUrl}/api/resource/Purchase Invoice?${queryParams}`, {
