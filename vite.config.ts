@@ -15,8 +15,10 @@ export default defineConfig({
     'process.env': process.env, // Expose environment variables
   },
   server: {
-    port: 5123,
+    host: '0.0.0.0', // Allow external access
+    port: 3000, // Ensure it's running on the correct port
     strictPort: true,
+    allowedHosts: ['account-desktop.8848digitalcloud.com'], // Allow your domain
     proxy: {
       '/api': {
         target: 'https://yatish-testing-v15.frappe.cloud', // Your backend API
