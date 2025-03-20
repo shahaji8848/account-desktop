@@ -104,7 +104,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
   // };
 
   // lkdjlklk
-  console.log('selectedReferenceRowData', selectedReferenceRowData);
+  // console.log('selectedReferenceRowData', selectedReferenceRowData);
   const fetchAccountPaidToData = async () => {
     const result = window.electron
       ? await window.electron.getAllAccounts({
@@ -114,7 +114,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
         })
       : await getAllAccounts('dummy', { account_type: ['Bank', 'Cash'] }, token);
 
-    console.log('Divik', result);
+    // console.log('Divik', result);
 
     if (result?.data) {
       setAccountPaidToList(result?.data);
@@ -132,7 +132,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
   // Handle input changes for different fields
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, id: any, rowType?: any) => {
     const { name, value } = e.target;
-    console.log('value>', value);
+    // console.log('value>', value);
     if (rowType === 'entry_row') {
       setEntries((prevEntries: any) => prevEntries.map((entry: any) => (entry.id === id ? { ...entry, [name]: value } : entry)));
     } else if (name === 'posting_date') {
@@ -269,7 +269,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
             party_type: selectedRowData?.party_type,
             party: currentFilterList[selectedIndex]?.name,
           };
-          console.log('filters', filters);
+          // console.log('filters', filters);
           try {
             const partyDataResponse = window.electron
               ? await window.electron.getData({
@@ -283,7 +283,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                   token,
                 });
             if (partyDataResponse?.message) {
-              console.log('partyData', partyDataResponse.message);
+              // console.log('partyData', partyDataResponse.message);
               const partyData = partyDataResponse.message;
 
               setEntries((prevEntries: any) =>
@@ -320,7 +320,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
               })
             : await paymentEntryAccountsDetails('dummy', { account: currentFilterList[selectedIndex]?.name }, token);
           if (paidToAccountResponse) {
-            console.log('paidToAccountResponse', paidToAccountResponse?.message?.account_balance);
+            // console.log('paidToAccountResponse', paidToAccountResponse?.message?.account_balance);
 
             setAccountPaidToBalance(paidToAccountResponse?.message?.account_balance || 0);
           } else {
@@ -330,7 +330,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
             });
           }
         } catch (error) {
-          console.log('error', error);
+          // console.log('error', error);
         }
       } else if (field === 'agst_ref' || field === 'reference_doctype') {
         setReferences((prevEntries: any) =>
@@ -349,7 +349,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
             payment_type: selectedRowData?.payment_type,
           };
 
-          console.log('filters', filters);
+          // console.log('filters', filters);
           try {
             const againstReferenceTypeData = window.electron
               ? await window.electron.getData({
@@ -363,7 +363,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
                   token,
                 });
             if (againstReferenceTypeData?.message) {
-              console.log('againstReferenceTypeData', againstReferenceTypeData?.message);
+              // console.log('againstReferenceTypeData', againstReferenceTypeData?.message);
               setTableData(againstReferenceTypeData?.message);
               setReferenceID(referenceId);
               setReferenceTablePopUp(true);
@@ -374,7 +374,7 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
               });
             }
           } catch (error) {
-            console.log('error', error);
+            // console.log('error', error);
           }
         }
       }
@@ -468,14 +468,14 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
           deductions: [],
         };
 
-        console.log('receiptData', JSON.stringify(receiptData));
+        // console.log('receiptData', JSON.stringify(receiptData));
 
         try {
           const receiptResponse = window.electron
             ? await window.electron.postData({ doctype: 'Payment Entry', data: receiptData, token })
             : await postData({ doctype: 'Payment Entry', data: receiptData, token });
           if (receiptResponse !== undefined) {
-            console.log('receiptResponse', receiptResponse);
+            // console.log('receiptResponse', receiptResponse);
             toast.success('Payment Form is submitted!', {
               autoClose: 2000,
               className: 'custom-toast',
@@ -509,8 +509,8 @@ const ReceiptTable = ({ homeHookData, globalData, companyGstin }: any) => {
     );
   };
 
-  console.log('entries', entries);
-  console.log('references', references);
+  // console.log('entries', entries);
+  // console.log('references', references);
 
   const updateEntryWithReferences = (entryId: string, newReferences: any[]) => {
     setEntries((prevEntries: any) => {

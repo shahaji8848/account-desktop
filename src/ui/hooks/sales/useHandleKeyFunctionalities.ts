@@ -128,7 +128,7 @@ export default function useHandleKeyFunctionalities({
       setFilterListName(filterTypes[fieldName].type);
       getFilterData(filterTypes[fieldName], 'account_data');
     } else if (fieldName === 'party_name') {
-      console.log('fetching party name');
+      // console.log('fetching party name');
       setFilterListName(filterTypes[fieldName].type);
       getFilterData(filterTypes[fieldName], 'party_name');
     } else if (fieldName === 'uom') {

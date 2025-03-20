@@ -59,9 +59,9 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
   const [filteredInvoices, setFilteredInvoices] = useState(invoiceData);
   const [filteredPayments, setFilteredPayments] = useState(paymnentData);
   const { allocationListData, fetchAllocationList } = useAllocateList();
-  console.log('Fetched reconciliation data : from hook', allocationListData);
+  // console.log('Fetched reconciliation data : from hook', allocationListData);
   const { reconcileData, fetchReconcile } = useReconcile();
-  console.log('Fetched reconciliation data : reconcile from hook', reconcileData);
+  // console.log('Fetched reconciliation data : reconcile from hook', reconcileData);
 
   const [selectedInvoices, setSelectedInvoices] = useState<any[]>([]);
   const [selectedPayments, setSelectedPayments] = useState<any[]>([]);
@@ -92,9 +92,9 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     const focusableElements = Array.from(
       formRef.current?.querySelectorAll("input, button, select, textarea, [tabindex]:not([tabindex='-1'])") || []
     ) as HTMLElement[];
-    console.log('focusableElements', focusableElements);
+    // console.log('focusableElements', focusableElements);
     const index = focusableElements.indexOf(e.currentTarget);
-    console.log('index', index);
+    // console.log('index', index);
 
     if (e.ctrlKey && e.key === 'Enter') {
       if (field === 'btn_allocate') {
@@ -273,7 +273,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
 
     // Call the fetch function when the button is clicked
     const data = await fetchAllocationList(company, partyType, party, selectedInvoices, selectedPayments);
-    console.log('Allocation data fetched on button click:', data);
+    // console.log('Allocation data fetched on button click:', data);
 
     if (data?.allocation && data?.allocation.length > 0) {
       toast.success('Allocation List Fetched Successfully', {
@@ -292,7 +292,7 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
       return;
     }
     const data = await fetchReconcile(company, partyType, party, selectedInvoices, selectedPayments);
-    console.log('reconcile data fetched on button click:', data?.docs, data?.invoices, data?.payments);
+    // console.log('reconcile data fetched on button click:', data?.docs, data?.invoices, data?.payments);
     // Step 1: Parse the first level
     const firstParse = JSON.parse(data._server_messages);
 
@@ -313,9 +313,9 @@ export default function BankReconciliationRework({ homeHookData, globalData }: a
     }
 
     // Accessing the message
-    console.log('reconcile data fetched on button click:', data?._server_message, data?.invoices, data?.payments);
-    console.log('reconcile data fetched on button click: reconcile message', messageObject.message); // Output: Successfully Reconciled
-    console.log(messageObject.title); // Output: Message
+    // console.log('reconcile data fetched on button click:', data?._server_message, data?.invoices, data?.payments);
+    // console.log('reconcile data fetched on button click: reconcile message', messageObject.message); // Output: Successfully Reconciled
+    // console.log(messageObject.title); // Output: Message
     // setInvoiceData(allocationListData?.invoices);
     // setPaymentData(allocationListData?.payments);
     // Clear selected checkboxes

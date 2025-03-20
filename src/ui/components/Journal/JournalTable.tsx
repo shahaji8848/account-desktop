@@ -478,7 +478,7 @@ const JournalTable = ({ homeHookData, globalData, companyGstin }: any) => {
       accounts: Accountdata,
     };
 
-    console.log('journalData', JSON.stringify(journalData));
+    // console.log('journalData', JSON.stringify(journalData));
     try {
       const journalResponse = await window.electron.postData({ doctype: 'Journal Entry', data: journalData, token });
       if (journalResponse !== undefined) {

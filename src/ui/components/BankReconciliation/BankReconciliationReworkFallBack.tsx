@@ -89,9 +89,9 @@ export default function BankReconciliationReworkFallBack({ homeHookData, globalD
     const focusableElements = Array.from(
       formRef.current?.querySelectorAll("input, button, select, textarea, [tabindex]:not([tabindex='-1'])") || []
     ) as HTMLElement[];
-    console.log('focusableElements', focusableElements);
+    // console.log('focusableElements', focusableElements);
     const index = focusableElements.indexOf(e.currentTarget);
-    console.log('index', index);
+    // console.log('index', index);
 
     if (e.ctrlKey && e.key === 'Enter') {
       if (field === 'btn_allocate') {
@@ -259,7 +259,7 @@ export default function BankReconciliationReworkFallBack({ homeHookData, globalD
 
     // Call the fetch function when the button is clicked
     const data = await fetchAllocationList(company, bankAccount, '', selectedInvoices, selectedPayments);
-    console.log('Allocation data fetched on button click:', data);
+    // console.log('Allocation data fetched on button click:', data);
 
     if (data?.allocation && data?.allocation.length > 0) {
       toast.success('Allocation List Fetched Successfully', {
@@ -278,7 +278,7 @@ export default function BankReconciliationReworkFallBack({ homeHookData, globalD
       return;
     }
     const data = await fetchReconcile(company, bankAccount, '', selectedInvoices, selectedPayments);
-    console.log('reconcile data fetched on button click:', data?.docs, data?.invoices, data?.payments);
+    // console.log('reconcile data fetched on button click:', data?.docs, data?.invoices, data?.payments);
     // Step 1: Parse the first level
     const firstParse = JSON.parse(data._server_messages);
 
@@ -299,9 +299,9 @@ export default function BankReconciliationReworkFallBack({ homeHookData, globalD
     }
 
     // Accessing the message
-    console.log('reconcile data fetched on button click:', data?._server_message, data?.invoices, data?.payments);
-    console.log('reconcile data fetched on button click: reconcile message', messageObject.message); // Output: Successfully Reconciled
-    console.log(messageObject.title); // Output: Message
+    // console.log('reconcile data fetched on button click:', data?._server_message, data?.invoices, data?.payments);
+    // console.log('reconcile data fetched on button click: reconcile message', messageObject.message); // Output: Successfully Reconciled
+    // console.log(messageObject.title); // Output: Message
     // setInvoiceData(allocationListData?.invoices);
     // setPaymentData(allocationListData?.payments);
     // Clear selected checkboxes
@@ -335,7 +335,7 @@ export default function BankReconciliationReworkFallBack({ homeHookData, globalD
         token,
       })
       .then((data: any) => {
-        console.log('Bank@@@ account  balance fn called ttt', data);
+        // console.log('Bank@@@ account  balance fn called ttt', data);
       });
 
     window.electron
@@ -344,7 +344,7 @@ export default function BankReconciliationReworkFallBack({ homeHookData, globalD
         token,
       })
       .then((data: any) => {
-        console.log('Bank@@@ account api ii', data);
+        // console.log('Bank@@@ account api ii', data);
       });
 
     window.electron
@@ -356,7 +356,7 @@ export default function BankReconciliationReworkFallBack({ homeHookData, globalD
         token,
       })
       .then((data: any) => {
-        console.log('Bank@@@ erp Transation api ii', data);
+        // console.log('Bank@@@ erp Transation api ii', data);
       });
     window.electron
       .getBankTransaction({
@@ -367,7 +367,7 @@ export default function BankReconciliationReworkFallBack({ homeHookData, globalD
         token,
       })
       .then((data: any) => {
-        console.log('Bank@@@ bank Transation api ii', data);
+        // console.log('Bank@@@ bank Transation api ii', data);
       });
   }, []);
 

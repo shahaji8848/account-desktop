@@ -193,7 +193,7 @@ function useSalesHook(globalData: any) {
             token: token,
           });
 
-      console.log(type, filter, response, 'response');
+      // console.log(type, filter, response, 'response');
 
       const dropdown_names = [
         'Company',
@@ -242,7 +242,7 @@ function useSalesHook(globalData: any) {
             token: token,
           });
       if (response) {
-        console.log(response, filterDetails, 'resp');
+        // console.log(response, filterDetails, 'resp');
         let data: any = [];
 
         response.map((item: any) => {

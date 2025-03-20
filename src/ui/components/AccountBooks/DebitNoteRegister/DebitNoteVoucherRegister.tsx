@@ -33,8 +33,8 @@ const DebitNoteVoucherRegister = ({ homeHookData, globalData }: any) => {
                 },
                 token
             });
-            console.log("x", x)
-            setVoucherRegisterList(x);
+            // console.log("x", x)
+            // setVoucherRegisterList(x);
         } catch (error) {
             console.error("Error fetching sales register list:", error);
         }

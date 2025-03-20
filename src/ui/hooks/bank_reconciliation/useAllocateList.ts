@@ -3,7 +3,7 @@ import { getAllocateEntries } from '../../../apis/bank_reconcilation';
 
 const useAllocateList = (company: any, bank_statement: any, erp_transaction: any, bank_account: any, token: any) => {
   const [allocationListData, setAllocationListData] = useState<any[]>([]);
-  console.log('initial data @@@ in useEffect hook', company, bank_statement, erp_transaction, bank_account);
+  // console.log('initial data @@@ in useEffect hook', company, bank_statement, erp_transaction, bank_account);
   const doctype = 'Bank Reconciliation Tool';
 
   const [apiErrorMessage, setApiErrorMessage] = useState<any>('');
@@ -37,7 +37,7 @@ const useAllocateList = (company: any, bank_statement: any, erp_transaction: any
     }
   };
 
-  console.log('initial data @@@ in hook state data', allocationListData);
+  // console.log('initial data @@@ in hook state data', allocationListData);
 
   return { allocationListData, setAllocationListData, fetchData, allocateApiError: apiError, allocateErrorMsg: apiErrorMessage };
 };

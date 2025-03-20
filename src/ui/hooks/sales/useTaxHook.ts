@@ -199,7 +199,7 @@ const handleTaxFunctionalities = (
       setTaxInfo(newData);
 
       getData('Payment Terms Template', { name: salesData.payment_terms }).then((response: any) => {
-        console.log(response, 'payment');
+        // console.log(response, 'payment');
         const paymentInfo =
           response?.terms?.length > 0 &&
           response.terms.map((item: any) => {

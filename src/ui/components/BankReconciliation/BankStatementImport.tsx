@@ -192,9 +192,9 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
           file_type: 'XLSX',
           token,
         }).then((data: any) => {
-          console.log('file @ template', data);
+          // console.log('file @ template', data);
         });
-        console.log('file @', data);
+        // console.log('file @', data);
       } catch (error) {
         console.error('Error uploading file:', error);
         toast.error('Failed to upload file. Please try again.');
@@ -218,7 +218,7 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
             token,
           })
           .then((data: any) => {
-            console.log('file @', data);
+            // console.log('file @', data);
           })
       : GetPreviewFromTemplate({
           file_url: '/files/Unsaved report.xlsx',
@@ -226,11 +226,11 @@ export default function BankStatementImport({ homeHookData, globalData }: any) {
           file_type: 'XLSX',
           token,
         }).then((data: any) => {
-          console.log('file @ template', data);
+          // console.log('file @ template', data);
         });
   }, [selectedFile]);
 
-  console.log('file', initalBankReconcileData.importFromGoogleSheets, selectedFile, filePath);
+  // console.log('file', initalBankReconcileData.importFromGoogleSheets, selectedFile, filePath);
 
   return (
     <div className={` px-3 py-2 bg-light`} style={{ width: showFilter ? '1200px' : '100%' }}>

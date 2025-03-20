@@ -33,7 +33,7 @@ const PurchaseVoucherRegister = ({ homeHookData, globalData }: any) => {
                 },
                 token
             });
-            console.log("x", x)
+            // console.log("x", x)
 
             setVoucherRegisterList(x);
         } catch (error) {

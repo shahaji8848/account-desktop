@@ -28,7 +28,7 @@ const Login = ({ onLoginSuccess }: any) => {
       .find(row => row.startsWith(`sid=`))
       ?.split('=')[1];
 
-    console.log(cookieValue, document.cookie, ': cookieValue');
+    // console.log(cookieValue, document.cookie, ': cookieValue');
     return cookieValue || '';
 
     // const cookies = await window.electron.getSid();
@@ -69,7 +69,7 @@ const Login = ({ onLoginSuccess }: any) => {
     }
   };
   
-  console.log('Session ID:', getSessionId());
+  // console.log('Session ID:', getSessionId());
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 w-100 gray_bg">

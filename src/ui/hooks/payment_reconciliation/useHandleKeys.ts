@@ -47,9 +47,9 @@ const useHandleKeys = (isQuitModalOpen: any, setIsQuitModalOpen: any) => {
   }: any = useUnreconcileEntriesData(company, partyType, party);
 
   const { allocationListData, fetchAllocationList } = useAllocateList();
-  console.log('Fetched reconciliation data : from hook', allocationListData);
+  // console.log('Fetched reconciliation data : from hook', allocationListData);
   const { reconcileData, fetchReconcile } = useReconcile();
-  console.log('Fetched reconciliation data : reconcile from hook', reconcileData);
+  // console.log('Fetched reconciliation data : reconcile from hook', reconcileData);
 
   const [invoiceFilter, setInvoiceFilter] = useState('');
   const [paymentFilter, setPaymentFilter] = useState('');
@@ -86,9 +86,9 @@ const useHandleKeys = (isQuitModalOpen: any, setIsQuitModalOpen: any) => {
     const focusableElements = Array.from(
       formRef.current?.querySelectorAll("input, button, select, textarea, [tabindex]:not([tabindex='-1'])") || []
     ) as HTMLElement[];
-    console.log('focusableElements', focusableElements);
+    // console.log('focusableElements', focusableElements);
     const index = focusableElements.indexOf(e.currentTarget);
-    console.log('index', index);
+    // console.log('index', index);
 
     if (e.ctrlKey && e.key === 'Enter') {
       if (field === 'btn_allocate') {
@@ -258,7 +258,7 @@ const useHandleKeys = (isQuitModalOpen: any, setIsQuitModalOpen: any) => {
         (invoice: any) => invoice.invoice_number && invoice.invoice_number.toLowerCase().includes(invoiceFilter.toLowerCase())
       );
       setFilteredInvoices(filtered);
-      console.log('Filtered invoices:', filtered);
+      // console.log('Filtered invoices:', filtered);
     } else {
       setFilteredInvoices([]);
     }
@@ -271,7 +271,7 @@ const useHandleKeys = (isQuitModalOpen: any, setIsQuitModalOpen: any) => {
         (payment: any) => payment.reference_name && payment.reference_name.toLowerCase().includes(paymentFilter.toLowerCase())
       );
       setFilteredPayments(filtered);
-      console.log('Filtered payments:', filtered);
+      // console.log('Filtered payments:', filtered);
     } else {
       setFilteredPayments([]);
     }
@@ -320,7 +320,7 @@ const useHandleKeys = (isQuitModalOpen: any, setIsQuitModalOpen: any) => {
 
     // Call the fetch function when the button is clicked
     const data = await fetchAllocationList(company, partyType, party, selectedInvoices, selectedPayments);
-    console.log('Allocation data fetched on button click:', data);
+    // console.log('Allocation data fetched on button click:', data);
 
     if (data?.allocation && data?.allocation.length > 0) {
       toast.success('Allocation List Fetched Successfully', {
@@ -339,7 +339,7 @@ const useHandleKeys = (isQuitModalOpen: any, setIsQuitModalOpen: any) => {
       return;
     }
     const data = await fetchReconcile(company, partyType, party, selectedInvoices, selectedPayments);
-    console.log('reconcile data fetched on button click:', data?.docs, data?.invoices, data?.payments);
+    // console.log('reconcile data fetched on button click:', data?.docs, data?.invoices, data?.payments);
     // Step 1: Parse the first level
     const firstParse = JSON.parse(data._server_messages);
 
@@ -360,9 +360,9 @@ const useHandleKeys = (isQuitModalOpen: any, setIsQuitModalOpen: any) => {
     }
 
     // Accessing the message
-    console.log('reconcile data fetched on button click:', data?._server_message, data?.invoices, data?.payments);
-    console.log('reconcile data fetched on button click: reconcile message', messageObject.message); // Output: Successfully Reconciled
-    console.log(messageObject.title); // Output: Message
+    // console.log('reconcile data fetched on button click:', data?._server_message, data?.invoices, data?.payments);
+    // console.log('reconcile data fetched on button click: reconcile message', messageObject.message); // Output: Successfully Reconciled
+    // console.log(messageObject.title); // Output: Message
     setInvoiceData(allocationListData?.invoices);
     setPaymentData(allocationListData?.payments);
     // Clear selected checkboxes

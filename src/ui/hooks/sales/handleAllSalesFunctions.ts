@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 import { advancesDefaultInfo, defaultTableData, salesDefaultdata } from '../../utils/data';
 import { handleChangeOfSales } from './handleChangeOfSales';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { postData, updateData } from '../../../apis/util';
 // import PartyNamePopup from '../../components/Sales/PartyNamePopup';
 
@@ -88,9 +88,9 @@ export function handleAllSalesFunctions(
   setIsQuitModalOpen: any,
   setGstData: any
 ) {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const handleSubmitData = async (salesInvoiceData: any, method: string = 'POST') => {
-    console.log(JSON.stringify(salesInvoiceData), salesInvoiceData, 'submit data');
+    // console.log(JSON.stringify(salesInvoiceData), salesInvoiceData, 'submit data');
     try {
       const x =
         method === 'POST'
